@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
 
-export default defineConfig({
-  base: '/DV/'
-})
+export default defineConfig(({ command }) => ({
+  base: command === 'serve' ? '/' : '/DV/',
+}))
