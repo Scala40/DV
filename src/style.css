@@ -25,14 +25,15 @@
     /* Font families */
     --font-sans: 'Fira Sans', sans-serif;
     --font-serif: 'Roboto Slab', serif;
+
+    /* Set default font family */
+    --default-font-family: var(--font-sans);
+    --default-font-feature-settings: var(--font-sans--font-feature-settings);
+    --default-font-variation-settings: var(--font-sans--font-variation-settings);
 }
 
 @layer base {
     h1, h2, h3, h4, h5, h6 {
-        font-family: var(--font-serif);
-    }
-
-    p, li, span, a, label, input, textarea, button, small {
-        font-family: var(--font-sans);
+        @apply font-serif;
     }
 }
