@@ -1,17 +1,38 @@
 @import "tailwindcss";
 
+@theme {
+    /* Primary UniGe colors */
+    --color-unige-blue: #002677;
+    --color-unige-yellow: #F4DA40;
+    --color-unige-red: #C8102E;
+    --color-unige-light-blue: #199BFC;
+    --color-unige-dark: #25282A;
+    --color-unige-gray: #D9D9D6;
+
+    /* Scientific areas */
+    --color-giurisprudenza: #0061A0;
+    --color-scienze-mfn: #007C58;
+    --color-scienze-politiche: #00A7B5;
+    --color-lingue-culture: #A4BCC2;
+    --color-lettere-filosofia: #B79A81;
+    --color-economia: #F1C400;
+    --color-architettura-design: #F4633A;
+    --color-medicina: #EF3340;
+    --color-scienze-formazione: #9B3259;
+    --color-ingegneria: #574676;
+    --color-farmacia: #E0A4A1;
+
+    /* Font families */
+    --font-sans: 'Fira Sans', sans-serif;
+    --font-serif: 'Roboto Slab', serif;
+}
+
 @layer base {
-    :root {
-        --fontSans: 'Fira Sans', sans-serif;
-        --fontSerif: 'Roboto Slab', serif;
-    }
-
     h1, h2, h3, h4, h5, h6 {
-        font-family: var(--fontSerif);
+        font-family: var(--font-serif);
     }
-
 
     p, li, span, a, label, input, textarea, button, small {
-        font-family: var(--fontSans);
+        font-family: var(--font-sans);
     }
 }
