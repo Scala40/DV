@@ -6,4 +6,7 @@ export default defineConfig(({ command }) => ({
   plugins: [
     tailwindcss(),
   ],
+  build: {
+    sourcemap: true,
+  },
 }))
