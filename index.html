@@ -15,72 +15,119 @@
     <script type="module" src="/src/main.js"></script>
 </head>
 
-<body>
+<body class="bg-linear-to-br from-gray-50 via-gray-100 to-gray-50">
+    <div class="min-h-screen py-12">
+        <div class="max-w-5xl mx-auto px-6">
+            <!-- Hero Section -->
+            <header role="banner" class="text-center mb-12 relative">
+                <div
+                    class="absolute inset-0 bg-linear-to-r from-blue-500/5 via-purple-500/5 to-red-500/5 rounded-3xl blur-3xl -z-10">
+                </div>
+                <div class="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                        Conflict and Human Suffering through Data
+                    </h1>
+                    <p class="mt-4 text-xl text-gray-600 font-medium">Group: Scala40</p>
 
-    <div class="bg-gray-50 py-12 h-screen">
-        <div class="max-w-4xl mx-auto px-6">
-            <header class="text-center mb-8">
-                <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">
-                    Conflict and Human Suffering through Data
-                </h1>
-                <p class="mt-3 text-lg text-gray-600">
-                    Group: Scala40
-                </p>
-
-                <ul class="mt-4 flex flex-wrap justify-center gap-3">
-                    <li class="px-3 py-1 bg-white rounded-md shadow-sm text-sm text-gray-800">Matteo Ferrari</li>
-                    <li class="px-3 py-1 bg-white rounded-md shadow-sm text-sm text-gray-800">Kevin Nettikadan</li>
-                    <li class="px-3 py-1 bg-white rounded-md shadow-sm text-sm text-gray-800">Luca Stefani</li>
-                </ul>
+                    <ul aria-label="Project members" class="mt-6 flex flex-wrap justify-center gap-3">
+                        <li
+                            class="px-4 py-2 bg-linear-to-r from-blue-50 to-blue-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-blue-200">
+                            Matteo Ferrari</li>
+                        <li
+                            class="px-4 py-2 bg-linear-to-r from-purple-50 to-purple-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-purple-200">
+                            Kevin Nettikadan</li>
+                        <li
+                            class="px-4 py-2 bg-linear-to-r from-red-50 to-red-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-red-200">
+                            Luca Stefani</li>
+                    </ul>
+                </div>
             </header>
 
-            <!-- Section 1: Project description (template / placeholder) -->
-            <section id="section-1" class="bg-white rounded-lg shadow p-6 mb-8">
-                <h2 class="text-2xl font-semibold text-gray-900 mb-2">Section 1 — Project description</h2>
-                <p class="text-gray-600 mb-4">
-                    Placeholder: briefly describe the project's goal and scope. Replace this text with a short
-                    overview that explains what you want to communicate with the visualizations.
-                </p>
-
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <h3 class="font-medium text-gray-800">Overview</h3>
-                        <p class="text-gray-600 text-sm">
-                            Placeholder: one or two sentences summarizing the research question and intended audience.
-                        </p>
+            <!-- Main Content -->
+            <main id="content" role="main" aria-labelledby="section-1-title">
+                <section id="section-1" aria-labelledby="section-1-title"
+                    class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                        <h2 id="section-1-title" class="text-3xl font-bold text-gray-900">
+                            Section 1 — Project description
+                        </h2>
                     </div>
 
-                    <div>
-                        <h3 class="font-medium text-gray-800">Data at hand</h3>
-                        <ul class="list-disc pl-5 text-gray-600 text-sm">
-                            <li>Dataset name(s): <em>replace with actual dataset names</em></li>
-                            <li>Primary variables: <em>e.g., location, date, fatalities, displacement</em></li>
-                            <li>Format & size: <em>CSV / JSON / other, approximate rows</em></li>
-                        </ul>
-                    </div>
+                    <p class="text-gray-600 mb-6 text-lg leading-relaxed">
+                        Placeholder: briefly describe the project's goal and scope. Replace this text with a short
+                        overview that explains what you want to communicate with the visualizations.
+                    </p>
 
-                    <div>
-                        <h3 class="font-medium text-gray-800">Planned analysis / visuals</h3>
-                        <p class="text-gray-600 text-sm">
-                            Placeholder: list the charts and analyses you plan to include (e.g., time series, maps,
-                            comparisons).
-                        </p>
-                    </div>
+                    <div class="grid gap-6 sm:grid-cols-2">
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                Overview
+                            </h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Placeholder: one or two sentences summarizing the research question and intended
+                                audience.
+                            </p>
+                        </article>
 
-                    <div>
-                        <h3 class="font-medium text-gray-800">Notes / TODO</h3>
-                        <ul class="list-disc pl-5 text-gray-600 text-sm">
-                            <li>Data cleaning steps</li>
-                            <li>Missing values & assumptions</li>
-                            <li>Interactivity requirements</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-purple-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                Data at hand
+                            </h3>
+                            <dl class="text-gray-600 text-sm space-y-2">
+                                <div>
+                                    <dt class="font-medium inline">Dataset name(s):</dt>
+                                    <dd class="inline ml-1"><em>replace with actual dataset names</em></dd>
+                                </div>
+                                <div>
+                                    <dt class="font-medium inline">Primary variables:</dt>
+                                    <dd class="inline ml-1"><em>e.g., location, date, fatalities, displacement</em></dd>
+                                </div>
+                                <div>
+                                    <dt class="font-medium inline">Format & size:</dt>
+                                    <dd class="inline ml-1"><em>CSV / JSON / other, approximate rows</em></dd>
+                                </div>
+                            </dl>
+                        </article>
 
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-green-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                Planned analysis / visuals
+                            </h3>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Placeholder: list the charts and analyses you plan to include (e.g., time series, maps,
+                                comparisons).
+                            </p>
+                        </article>
+
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                Notes / TODO
+                            </h3>
+                            <ul class="list-disc pl-5 text-gray-600 text-sm space-y-1">
+                                <li>Data cleaning steps</li>
+                                <li>Missing values & assumptions</li>
+                                <li>Interactivity requirements</li>
+                            </ul>
+                        </article>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="text-center text-gray-500 text-sm mt-12">
+                <p>Data Visualization Project</p>
+            </footer>
         </div>
     </div>
-
 </body>
 
 </html>
