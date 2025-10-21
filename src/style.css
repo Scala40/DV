@@ -6,7 +6,12 @@
         --fontSerif: 'Roboto Slab', serif;
     }
 
-    body {
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--fontSerif);
+    }
+
+
+    p, li, span, a, label, input, textarea, button, small {
         font-family: var(--fontSans);
     }
 }
