@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
-body {
-    font-family: "Noto Sans", sans-serif;
+@layer base {
+    :root {
+        --fontSans: 'Fira Sans', sans-serif;
+        --fontSerif: 'Roboto Slab', serif;
+    }
+
+    body {
+        font-family: var(--fontSans);
+    }
 }
