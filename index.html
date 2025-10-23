@@ -18,6 +18,31 @@
 <body class="bg-linear-to-br from-gray-50 via-gray-100 to-gray-50">
     <div class="min-h-screen py-12">
         <div class="max-w-5xl mx-auto px-6">
+            <!-- Navigation Menu -->
+            <nav class="sticky top-4 z-50 mb-8">
+                <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-4">
+                    <ul class="flex flex-wrap justify-center gap-2 sm:gap-4">
+                        <li><a href="/public/section-1.html"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">Data
+                                Viz 1</a>
+                        </li>
+                        <li><a href="/public/section-2.html"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors duration-200">Data
+                                Viz 2</a></li>
+                        <li><a href="/public/section-3.html"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200">Data
+                                Viz 3</a></li>
+                        <li><a href="/public/section-4.html"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors duration-200">Data
+                                Viz 4</a></li>
+                        <li><a href="/public/section-5.html"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200">Data
+                                Viz 5</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
             <!-- Hero Section -->
             <header role="banner" class="text-center mb-12 relative">
                 <div
@@ -50,21 +75,16 @@
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
                         <h2 id="section-1-title" class="text-3xl font-bold text-gray-900">
-                            Section 1 — Project description
+                            Conflict and Human Suffering
                         </h2>
                     </div>
 
-                    <p class="text-gray-600 mb-6 text-lg leading-relaxed">
-                        Placeholder: briefly describe the project's goal and scope. Replace this text with a short
-                        overview that explains what you want to communicate with the visualizations.
-                    </p>
-
-                    <div class="grid gap-6 sm:grid-cols-2">
+                    <div class="grid gap-6 sm:grid-cols-1">
                         <article
                             class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
                             <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
                                 <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                Overview
+                                Data Visualization
                             </h3>
                             <p class="text-gray-600 text-sm leading-relaxed">
                                 Placeholder: one or two sentences summarizing the research question and intended
@@ -80,43 +100,10 @@
                             </h3>
                             <dl class="text-gray-600 text-sm space-y-2">
                                 <div>
-                                    <dt class="font-medium inline">Dataset name(s):</dt>
-                                    <dd class="inline ml-1"><em>replace with actual dataset names</em></dd>
-                                </div>
-                                <div>
-                                    <dt class="font-medium inline">Primary variables:</dt>
-                                    <dd class="inline ml-1"><em>e.g., location, date, fatalities, displacement</em></dd>
-                                </div>
-                                <div>
-                                    <dt class="font-medium inline">Format & size:</dt>
-                                    <dd class="inline ml-1"><em>CSV / JSON / other, approximate rows</em></dd>
+                                    <dt class="font-medium inline">ACELD:</dt>
+                                    <dd class="inline ml-1"><em>Clarity in Crisis</em></dd>
                                 </div>
                             </dl>
-                        </article>
-
-                        <article
-                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-green-300 transition-colors duration-300">
-                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
-                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                Planned analysis / visuals
-                            </h3>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                Placeholder: list the charts and analyses you plan to include (e.g., time series, maps,
-                                comparisons).
-                            </p>
-                        </article>
-
-                        <article
-                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-red-300 transition-colors duration-300">
-                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
-                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                                Notes / TODO
-                            </h3>
-                            <ul class="list-disc pl-5 text-gray-600 text-sm space-y-1">
-                                <li>Data cleaning steps</li>
-                                <li>Missing values & assumptions</li>
-                                <li>Interactivity requirements</li>
-                            </ul>
                         </article>
                     </div>
                 </section>
@@ -125,6 +112,7 @@
             <!-- Footer -->
             <footer class="text-center text-gray-500 text-sm mt-12">
                 <p>Data Visualization Project</p>
+                <p>Academic year 2025/2026</p>
             </footer>
         </div>
     </div>
