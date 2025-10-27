@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>D3</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,21 +22,21 @@
             <nav class="sticky top-4 z-50 mb-8">
                 <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-4">
                     <ul class="flex flex-wrap justify-center gap-2 sm:gap-4">
-                        <li><a href="/public/section-1.html"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">Data
-                                Viz 1</a>
+                        <li><a href="#section-1"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">War
+                                never changes</a>
                         </li>
                         <li><a href="/public/section-2.html"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors duration-200">Data
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 2</a></li>
                         <li><a href="/public/section-3.html"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200">Data
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 3</a></li>
                         <li><a href="/public/section-4.html"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors duration-200">Data
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 4</a></li>
                         <li><a href="/public/section-5.html"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200">Data
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 5</a>
                         </li>
                     </ul>
@@ -44,10 +44,7 @@
             </nav>
 
             <!-- Hero Section -->
-            <header role="banner" class="text-center mb-12 relative">
-                <div
-                    class="absolute inset-0 bg-linear-to-r from-blue-500/5 via-purple-500/5 to-red-500/5 rounded-3xl blur-3xl -z-10">
-                </div>
+            <header class="text-center mb-12 relative">
                 <div class="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                         Conflict and Human Suffering through Data
@@ -56,26 +53,29 @@
 
                     <ul aria-label="Project members" class="mt-6 flex flex-wrap justify-center gap-3">
                         <li
-                            class="px-4 py-2 bg-linear-to-r from-blue-50 to-blue-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-blue-200">
-                            Matteo Ferrari</li>
-                        <li
-                            class="px-4 py-2 bg-linear-to-r from-purple-50 to-purple-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-purple-200">
-                            Kevin Nettikadan</li>
+                            class="px-4 py-2 bg-linear-to-r from-green-50 to-green-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-green-200">
+                            Matteo Ferrari
+                        </li>
                         <li
                             class="px-4 py-2 bg-linear-to-r from-red-50 to-red-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-red-200">
-                            Luca Stefani</li>
+                            Kevin Nettikadan
+                        </li>
+                        <li
+                            class="px-4 py-2 bg-linear-to-r from-blue-50 to-blue-100 rounded-lg shadow-sm text-sm font-medium text-gray-800 border border-blue-200">
+                            Luca Stefani
+                        </li>
                     </ul>
                 </div>
             </header>
 
             <!-- Main Content -->
-            <main id="content" role="main" aria-labelledby="section-1-title">
+            <main id="content" aria-labelledby="section-1-title">
                 <section id="section-1" aria-labelledby="section-1-title"
                     class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
                         <h2 id="section-1-title" class="text-3xl font-bold text-gray-900">
-                            Conflict and Human Suffering
+                            Section 1: War never changes
                         </h2>
                     </div>
 
@@ -84,25 +84,38 @@
                             class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
                             <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
                                 <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                Data Visualization
+                                Introduction
                             </h3>
                             <p class="text-gray-600 text-sm leading-relaxed">
-                                Placeholder: one or two sentences summarizing the research question and intended
-                                audience.
+                                The phrase <em>“war never changes”</em> captures more than fatalism, it reflects the
+                                persistence of
+                                patterns that data continues to reveal. Across centuries, the maps of conflict redraw
+                                themselves,
+                                but the underlying metrics remain painfully familiar: rising casualties, displaced
+                                populations,
+                                swelling budgets, and cyclical reconstruction.
+                            </p>
+                            <p class="text-gray-600 text-sm leading-relaxed mt-2">
+                                Through interactive visualizations we shall explore those metrics to give an overview of
+                                the never ending story that is war, giving insights into those times that may reapper
+                                (and are appearing) in the future.
                             </p>
                         </article>
 
                         <article
-                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-purple-300 transition-colors duration-300">
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
                             <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
                                 <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
                                 Data at hand
                             </h3>
                             <dl class="text-gray-600 text-sm space-y-2">
-                                <div>
-                                    <dt class="font-medium inline">ACELD:</dt>
-                                    <dd class="inline ml-1"><em>Clarity in Crisis</em></dd>
-                                </div>
+                                <dt class="font-medium inline">ACELD</dt>
+                                <dd class="inline ml-1"><em>Clarity in Crisis</em></dd>
+                                <dd class="mt-2">
+                                    <b>Armed Conflict Location & Event Data</b> is an independent, impartial conflict
+                                    monitor providing real-time data and analysis on violent conflict and protest in all
+                                    countries and territories across the world.
+                                </dd>
                             </dl>
                         </article>
                     </div>
