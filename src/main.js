@@ -2,7 +2,6 @@
 import './style.css'
 
 // Local imports
-import { observeRender } from "./utils/observeRender.js";
 import {
     barChartMargins,
     groupedBarChartMargins,
@@ -14,16 +13,14 @@ import { renderGroupedBarChart } from './charts/groupedBarChart.js';
 // Data imports
 import { barChartData, groupedBarChartData } from './data/dataLoader.js';
 
-observeRender(
+renderBarChart(
     document.getElementById("bar-chart"),
-    renderBarChart,
     barChartData,
     barChartMargins
 );
 
-observeRender(
+renderGroupedBarChart(
     document.getElementById("grouped-bar-chart"),
-    renderGroupedBarChart,
     groupedBarChartData,
     groupedBarChartMargins
 );
