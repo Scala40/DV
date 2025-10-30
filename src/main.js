@@ -29,8 +29,8 @@ const data_barChart = parsedData_BarChart
     .sort((a, b) => b.fatalities - a.fatalities);
 
 const data_groupedBarChart = parsedData_GroupedBarChart
-    .map(d => ({ country: d.COUNTRY, eventType: d.EVENT_TYPE, fatalities: d.FATALITIES }))
-    .filter(d => d.fatalities != null && !Number.isNaN(d.fatalities));
+    .map(d => ({ country: d.COUNTRY, eventType: d.EVENT_TYPE, events: d.EVENTS }))
+    .sort((a, b) => b.events - a.events);
 
 // create a margin class
 class Margin {
@@ -182,7 +182,7 @@ function renderGroupedBarChart(groupedBarChart, data, margins) {
     const eventTypes = Array.from(new Set(data.map(d => d.eventType)));
 
     // Sum fatalities per country and sort countries by total (largest first).
-    const countryTotals = d3.rollup(data, v => d3.sum(v, d => d.fatalities), d => d.country);
+    const countryTotals = d3.rollup(data, v => d3.sum(v, d => d.events), d => d.country);
     const countries = Array.from(countryTotals.entries())
         .sort((a, b) => b[1] - a[1])
         .map(([country]) => country);
@@ -201,7 +201,7 @@ function renderGroupedBarChart(groupedBarChart, data, margins) {
 
     // y is the linear scale for fatalities (vertical height of bars).
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.fatalities) || 0])
+        .domain([0, d3.max(data, d => d.events) || 0])
         .nice()
         .range([height - margins.bottom, margins.top]);
 
@@ -233,9 +233,9 @@ function renderGroupedBarChart(groupedBarChart, data, margins) {
         .data(country => data.filter(d => d.country === country))
         .join("rect")
         .attr("x", d => x1(d.eventType))
-        .attr("y", d => y(d.fatalities))
+        .attr("y", d => y(d.events))
         .attr("width", x1.bandwidth())
-        .attr("height", d => Math.max(0, y(0) - y(d.fatalities)))
+        .attr("height", d => Math.max(0, y(0) - y(d.events)))
         .attr("fill", d => color(d.eventType));
 
     // Append the x axis (countries) at the bottom and rotate labels 45°.
@@ -250,7 +250,7 @@ function renderGroupedBarChart(groupedBarChart, data, margins) {
             .attr("dy", "0.25em")
         );
 
-    // Append the y axis (fatalities) on the left.
+    // Append the y axis (events) on the left.
     const formatK = d3.format(".2s");
     svg.append("g")
         .attr("transform", `translate(${margins.left},0)`)
@@ -290,5 +290,4 @@ function renderGroupedBarChart(groupedBarChart, data, margins) {
 
 
 observeRender(document.getElementById("bar-chart"), renderBarChart, data_barChart, margins_barChart);
-
 observeRender(document.getElementById("grouped-bar-chart"), renderGroupedBarChart, data_groupedBarChart, margins_groupedBarChart);
