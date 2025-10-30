@@ -5,7 +5,7 @@ import fatalitiesByCountryEventType from "./fatalities_by_country_event_type.csv
 
 import * as d3 from "d3";
 
-function observeRender(element, renderFunction, data,  ...renderArgs) {
+function observeRender(element, renderFunction, data, ...renderArgs) {
     // initial render (pass `data` as the second argument to the render function)
     renderFunction(element, data, ...renderArgs);
 
