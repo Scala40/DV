@@ -1,11 +1,9 @@
 import * as d3 from "d3";
 
-export function renderGroupedBarChart(container, data, margins) {
-    const rect = container.getBoundingClientRect();
+import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-    // fallback sizes to avoid zero dimensions
-    const width = Math.max(300, Math.round(rect.width));
-    const height = Math.max(200, Math.round(rect.height));
+export function renderGroupedBarChart(container, data, margins) {
+    const { width, height } = getContainerDimensions(container);
 
     // clear previous content
     container.innerHTML = "";
@@ -46,12 +44,7 @@ export function renderGroupedBarChart(container, data, margins) {
         .unknown("#ccc");
 
     // Create the SVG container.
-    const svg = d3.create("svg")
-        .attr("viewBox", `0 0 ${width} ${height}`)
-        .attr("preserveAspectRatio", "xMinYMin meet")
-        .style("width", "100%")
-        .style("height", "100%")
-        .style("display", "block");
+    const svg = createResponsiveSvg(width, height);
 
     // Create one group per country and translate it into place horizontally.
     const countryGroups = svg.append("g")

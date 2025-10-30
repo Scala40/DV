@@ -3,11 +3,11 @@ import './style.css'
 
 // Local imports
 import { observeRender } from "./utils/observeRender.js";
-
 import {
     barChartMargins,
     groupedBarChartMargins,
 } from './utils/margins.js';
+
 import { renderBarChart } from './charts/barChart.js';
 import { renderGroupedBarChart } from './charts/groupedBarChart.js';
 
