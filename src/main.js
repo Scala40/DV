@@ -27,7 +27,7 @@ const data = parsedData
     .sort((a, b) => b.fatailities - a.fatailities);
 
 // Declare the chart margins (width/height will be measured from container).
-const marginTop = 20;
+const marginTop = 25;
 const marginRight = 20;
 const marginBottom = 40;
 const marginLeft = 120;
