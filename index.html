@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>D3</title>
+    <title>Scala40</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,16 +26,16 @@
                                 class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">War
                                 never changes</a>
                         </li>
-                        <li><a href="/public/section-2.html"
-                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
-                                Viz 2</a></li>
-                        <li><a href="/public/section-3.html"
+                        <li><a href="#section-2"
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Comparing
+                                Categories</a></li>
+                        <li><a href="#section-3"
                                 class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 3</a></li>
-                        <li><a href="/public/section-4.html"
+                        <li><a href="#section-4"
                                 class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 4</a></li>
-                        <li><a href="/public/section-5.html"
+                        <li><a href="#section-5"
                                 class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
                                 Viz 5</a>
                         </li>
@@ -70,6 +70,8 @@
 
             <!-- Main Content -->
             <main id="content" aria-labelledby="section-1-title">
+
+                <!-- Section 1 - Intro example -->
                 <section id="section-1" aria-labelledby="section-1-title"
                     class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center gap-3 mb-4">
@@ -119,9 +121,81 @@
                             </dl>
                         </article>
                     </div>
-
-                    <div id="container"></div>
                 </section>
+
+                <!-- Section 2 - Comparing Categories -->
+                <section id="section-2" aria-labelledby="section-2-title"
+                    class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                        <h2 id="section-2-title" class="text-3xl font-bold text-gray-900">
+                            Section 2: Comparing Categories
+                        </h2>
+                    </div>
+
+                    <h3 id="section-2-subtitle" class="mt-2 mb-6 text-gray-600 text-base sm:text-lg font-medium">
+                        Comparative visualisations showing category breakdowns, proportions and patterns across
+                        conflicts.
+                    </h3>
+
+                    <div class="grid gap-6 sm:grid-cols-1">
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                Bar Chart
+                            </h3>
+                            <div id="bar-chart" class="mt-4 h-128 w-full" role="img"
+                                aria-label="Bar chart visualization">
+                                <span class="sr-only">Bar chart visualization loading</span>
+                            </div>
+                        </article>
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                Grouped Bar Chart
+                            </h3>
+                            <div id="grouped-bar-chart" class="mt-4 h-64 w-full" role="img"
+                                aria-label="Grouped bar chart visualization">
+                                <span class="sr-only">Grouped bar chart visualization loading</span>
+                            </div>
+                        </article>
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                Heatmap
+                            </h3>
+                            <div id="heatmap" class="mt-4 h-64 w-full" role="img" aria-label="Heatmap visualization">
+                                <span class="sr-only">Heatmap visualization loading</span>
+                            </div>
+                        </article>
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                100% Stacked Bar Chart
+                            </h3>
+                            <div id="stacked-bar-chart" class="mt-4 h-64 w-full" role="img"
+                                aria-label="100 percent stacked bar chart visualization">
+                                <span class="sr-only">100% stacked bar chart visualization loading</span>
+                            </div>
+                        </article>
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                Waffle Chart
+                            </h3>
+                            <div id="waffle-chart" class="mt-4 h-64 w-full" role="img"
+                                aria-label="Waffle chart visualization">
+                                <span class="sr-only">Waffle chart visualization loading</span>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
             </main>
 
             <!-- Footer -->
