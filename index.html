@@ -73,20 +73,6 @@
                         </ul>
                     </div>
                 </div>
-
-                <script>
-                    // simple mobile toggle
-                    (function () {
-                        const btn = document.getElementById('nav-toggle');
-                        const mobile = document.getElementById('nav-mobile');
-                        if (!btn || !mobile) return;
-                        btn.addEventListener('click', () => {
-                            const expanded = btn.getAttribute('aria-expanded') === 'true';
-                            btn.setAttribute('aria-expanded', String(!expanded));
-                            mobile.classList.toggle('hidden');
-                        });
-                    })();
-                </script>
             </nav>
 
             <!-- Hero Section -->

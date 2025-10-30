@@ -11,9 +11,17 @@ import {
 import { renderBarChart } from './charts/barChart.js';
 import { renderGroupedBarChart } from './charts/groupedBarChart.js';
 
+import { initNavigation } from './utils/navigation.js';
+
 // Data imports
 import { barChartData, groupedBarChartData } from './data/dataLoader.js';
 
+// Initialize navigation menu
+document.addEventListener('DOMContentLoaded', () => {
+    initNavigation();
+});
+
+// Set up observed rendering for the charts
 observeRender(
     document.getElementById("bar-chart"),
     renderBarChart,
