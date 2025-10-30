@@ -22,53 +22,56 @@
             <nav class="sticky top-4 z-50 mb-8">
                 <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-4">
                     <div class="flex items-center justify-between gap-4">
-                        <!-- Mobile toggle -->
+                        <!-- Desktop (and larger) menu: evenly spaced -->
+                        <ul id="nav-list"
+                            class="hidden sm:flex sm:flex-1 sm:justify-evenly sm:items-center gap-2 sm:gap-4 text-center">
+                            <li><a href="#section-1"
+                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">War
+                                    never changes</a></li>
+                            <li><a href="#section-2"
+                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Comparing
+                                    Categories</a></li>
+                            <li><a href="#section-3"
+                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Data
+                                    Viz 3</a></li>
+                            <li><a href="#section-4"
+                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Data
+                                    Viz 4</a></li>
+                            <li><a href="#section-5"
+                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Data
+                                    Viz 5</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Mobile toggle -->
+                    <div class="flex items-center gap-2 sm:hidden">
                         <button id="nav-toggle" aria-expanded="false" aria-controls="nav-mobile"
-                            class="sm:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-1">
+                            class="p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-1">
                             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </button>
-
-                        <!-- Desktop (and larger) menu: evenly spaced -->
-                        <ul id="nav-list"
-                            class="hidden sm:flex sm:flex-1 sm:justify-evenly sm:items-center gap-2 sm:gap-4 text-center">
-                            <li><a href="#section-1"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">War
-                                    never changes</a></li>
-                            <li><a href="#section-2"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Comparing
-                                    Categories</a></li>
-                            <li><a href="#section-3"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
-                                    Viz 3</a></li>
-                            <li><a href="#section-4"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
-                                    Viz 4</a></li>
-                            <li><a href="#section-5"
-                                    class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
-                                    Viz 5</a></li>
-                        </ul>
+                        <span id="current-section" class="text-sm font-medium text-gray-700">War never changes</span>
                     </div>
 
                     <!-- Mobile collapsible menu -->
                     <div id="nav-mobile" class="mt-3 sm:hidden hidden">
                         <ul class="flex flex-col gap-2">
                             <li><a href="#section-1"
-                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">War
+                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">War
                                     never changes</a></li>
                             <li><a href="#section-2"
-                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Comparing
+                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Comparing
                                     Categories</a></li>
                             <li><a href="#section-3"
-                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
+                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Data
                                     Viz 3</a></li>
                             <li><a href="#section-4"
-                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
+                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Data
                                     Viz 4</a></li>
                             <li><a href="#section-5"
-                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-colors duration-200">Data
+                                    class="block px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-unige-blue transition-all duration-200">Data
                                     Viz 5</a></li>
                         </ul>
                     </div>
