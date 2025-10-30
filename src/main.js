@@ -282,6 +282,16 @@ function renderGroupedBarChart(groupedBarChart, data, margins) {
         .attr("fill", "#111")
         .text(d => d);
 
+    const title = "Events types in Middle Eastern countries (2020-today)";
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", margins.top / 2)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 14)
+        .attr("font-weight", "bold")
+        .text(title);
+
+
     // Append the SVG to the container.
     groupedBarChart.appendChild(svg.node());
 
