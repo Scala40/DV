@@ -44,12 +44,12 @@ function initScrollSpy() {
                 const id = entry.target.getAttribute('id');
 
                 navLinks.forEach(link => {
-                    link.classList.remove('bg-blue-100', 'text-unige-blue');
+                    link.classList.remove('bg-blue-50');
                 });
 
                 const activeLinks = document.querySelectorAll(`a[href="#${id}"]`);
                 activeLinks.forEach(link => {
-                    link.classList.add('bg-blue-100', 'text-unige-blue');
+                    link.classList.add('bg-blue-50');
                 });
 
                 if (currentSectionLabel && activeLinks.length > 0) {
