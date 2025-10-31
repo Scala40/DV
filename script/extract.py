@@ -34,3 +34,10 @@ output = "fatalities_by_country_event_type.csv"
 df_country_event = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
 df_country_event = df_country_event[df_country_event["EVENTS"] > 0]
 df_country_event.to_csv(output, index=False)
+
+# waffle chart
+# Number of events by event type
+output = "events_by_event_type.csv"
+df_event_type = df.groupby("EVENT_TYPE")["EVENTS"].sum().reset_index()
+df_event_type = df_event_type[df_event_type["EVENTS"] > 0]
+df_event_type.to_csv(output, index=False)

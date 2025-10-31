@@ -18,7 +18,7 @@ import { renderWaffleChart } from './charts/waffleChart.js';
 import { initNavigation } from './utils/navigation.js';
 
 // Data imports
-import { barChartData, groupedBarChartData } from './data/dataLoader.js';
+import { barChartData, groupedBarChartData, waffleChartData } from './data/dataLoader.js';
 
 // Initialize navigation menu
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,6 +50,6 @@ observeRender(
 observeRender(
     document.getElementById("waffle-chart"),
     renderWaffleChart,
-    groupedBarChartData,
+    waffleChartData,
     waffleChartMargins
 );

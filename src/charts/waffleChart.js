@@ -2,45 +2,30 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-// Renders a simple, robust waffle chart.
-// data: array of { label: string, value: number }
-// container: DOM element to render into
 export function renderWaffleChart(container, data, margins) {
-    const { width: parentWidth, height: parentHeight } = getContainerDimensions(container);
+    const { width, height } = getContainerDimensions(container);
 
     // clear previous content
     container.innerHTML = "";
-    data = [
-        { label: 'Territory A', value: 42000 },
-        { label: 'Territory B', value: 30000 },
-        { label: 'Territory C', value: 18000 },
-        { label: 'Territory D', value: 10000 }
-    ];
 
     // create responsive svg that fills its parent
-    const svg = createResponsiveSvg(parentWidth, parentHeight);
+    const svg = createResponsiveSvg(width, height);
 
-    const padding = 2; // px between cells
+    const padding = 3; // px between cells
     const gridWidth = 20;
     const gridHeight = 10;
     const cellsCount = gridHeight * gridWidth;
 
     // compute total and percentages
-    const total = d3.sum(data, d => +d.value || 0);
-    if (total <= 0) {
-        const msg = document.createElement('div');
-        msg.textContent = 'Data values must be positive';
-        msg.style.color = '#666';
-        container.appendChild(msg);
-        return;
-    }
+    const total = d3.sum(data, d => +d.events || 0);
 
     // normalized counts (integers summing to cellsCount)
-    const raw = data.map(d => ({ label: d.label, value: +d.value }));
-    const exact = raw.map(d => (d.value / total) * cellsCount);
+    const raw = data.map(d => ({ eventType: d.eventType, events: +d.events }));
+    const exact = raw.map(d => (d.events / total) * cellsCount);
     const floorCounts = exact.map(Math.floor);
     let assigned = d3.sum(floorCounts);
     const remains = exact.map((v, i) => ({ idx: i, frac: v - Math.floor(v) }));
+
     // distribute remaining cells by largest fractional parts
     remains.sort((a, b) => b.frac - a.frac);
     for (let i = 0; assigned < cellsCount; i++) {
@@ -58,43 +43,54 @@ export function renderWaffleChart(container, data, margins) {
     if (cells.length > cellsCount) cells.length = cellsCount;
     while (cells.length < cellsCount) cells.push({ idx: 0 });
 
-    // layout calculations
-    const innerWidth = Math.max(100, parentWidth - margins.left - margins.right);
-    const innerHeight = Math.max(100, parentHeight - margins.top - margins.bottom);
-    const cellSize = Math.floor((Math.min(innerWidth, innerHeight) - (gridHeight - 1) * padding) / gridHeight);
-    const chartWidth = cellSize * gridWidth + padding * (gridWidth - 1);
-    const chartHeight = cellSize * gridHeight + padding * (gridHeight - 1);
+    // legend positioning
+    const legendWidth = 180;
 
-    const chartG = svg.append('g');
-        
+    // layout calculations (respect margins on all sides)
+    const innerWidth = Math.max(100, width - margins.left - margins.right - legendWidth);
+    const innerHeight = Math.max(100, height - margins.top - margins.bottom);
+
+    // compute cell size independently for width and height and pick the smaller
+    const cellSizeW = Math.floor((innerWidth - (gridWidth - 1) * padding) / gridWidth);
+    const cellSizeH = Math.floor((innerHeight - (gridHeight - 1) * padding) / gridHeight);
+    const cellSize = Math.max(1, Math.min(cellSizeW, cellSizeH));
+
+    // position chartG inside the margin box and center it inside the inner area
+    const chartGX = margins.left;
+    const chartGY = margins.top;
+    const chartG = svg.append('g')
+        .attr('transform', `translate(${chartGX},${chartGY})`);
+
     // color scale
-    const color = d3.scaleOrdinal(d3.schemeTableau10).domain(d3.range(data.length).map(String));
+    const color = d3.scaleOrdinal(d3.schemeTableau10)
+        .domain(d3.range(data.length).map(String));
 
     // draw cells
+    const roundAmount = Math.max(0, Math.round(cellSize * 0.12));
     const cellSel = chartG.selectAll('rect.cell')
         .data(cells.map((d, i) => ({ ...d, i, x: i % gridWidth, y: Math.floor(i / gridWidth) })))
         .join('rect')
-        .attr('class', 'cell')
         .attr('width', cellSize)
         .attr('height', cellSize)
         .attr('x', d => d.x * (cellSize + padding))
         .attr('y', d => d.y * (cellSize + padding))
         .attr('fill', d => color(String(d.idx)))
-        .attr('rx', Math.max(0, Math.round(cellSize * 0.12)))
-        .attr('ry', Math.max(0, Math.round(cellSize * 0.12)));
+        .attr('rx', roundAmount)
+        .attr('ry', roundAmount);
 
     // title / tooltip
-    cellSel.append('title').text(d => `${data[d.idx].label}`);
+    cellSel.append('title').text(d => `${data[d.idx].eventType}`);
 
-    // legend (right side)
+    // legend: positioned to the right of the chart
+    const legendX = margins.left + innerWidth + 10;
+    const legendY = margins.top;
     const legendG = svg.append('g')
-        .attr('transform', `translate(${(parentWidth + chartWidth) / 2 + 10}, ${margins.top})`);
+        .attr('transform', `translate(${legendX},${legendY})`);
 
     const legendItems = legendG.selectAll('g.legend-item')
-        .data(raw.map((d, i) => ({ ...d, idx: i, pct: (d.value / total) * 100 })))
+        .data(raw.map((d, i) => ({ ...d, idx: i, pct: (d.events / total) * 100 })))
         .join('g')
-        .attr('class', 'legend-item')
-        .attr('transform', (d, i) => `translate(0, ${i * 22})`);
+        .attr('transform', (_, i) => `translate(0, ${i * 30})`);
 
     legendItems.append('rect')
         .attr('width', 14)
@@ -104,9 +100,21 @@ export function renderWaffleChart(container, data, margins) {
 
     legendItems.append('text')
         .attr('x', 20)
-        .attr('y', 11)
+        .attr('y', 0)
         .style('font-size', '12px')
-        .text(d => `${d.label} — ${d3.format('.1f')(d.pct)}% (${d.value})`);
+        .each(function (d) {
+            const t = d3.select(this);
+            t.append('tspan')
+                .text(d.eventType)
+                .attr('x', 20)
+                .attr('dy', '0.9em');
+            t.append('tspan')
+                .text(` — ${d3.format('.1f')(d.pct)}% (${d.events})`)
+                .attr('x', 20)
+                .attr('dy', '1.2em')
+                .style('font-size', '11px')
+                .attr('fill', '#555');
+        });
 
     // append the svg to the container
     container.appendChild(svg.node());
