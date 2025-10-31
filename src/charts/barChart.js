@@ -44,7 +44,7 @@ export function renderBarChart(container, data, margins) {
         .data(data)
         .join("rect")
         .attr("y", d => y(d.country))
-        .attr("x", d => x(0))
+        .attr("x", _ => x(0))
         .attr("height", y.bandwidth())
         .attr("width", d => Math.max(0, x(d.fatalities) - x(0)));
 

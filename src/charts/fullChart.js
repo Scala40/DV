@@ -42,9 +42,11 @@ export function renderFullBarChart(container, data, margins) {
 
     const svg = createResponsiveSvg(width, height);
 
+    const legendWidth = 180;
+
     const x = d3.scaleLinear()
         .domain([0, 1])
-        .range([margins.left, width - margins.right- 180]);
+        .range([margins.left, width - margins.right - legendWidth]);
 
     const y = d3.scaleBand()
         .domain(stackedInput.map(d => d.country))
@@ -96,14 +98,14 @@ export function renderFullBarChart(container, data, margins) {
 
     // Hover handlers: emphasize the hovered segment, dim other segments of the same bar strongly
     // and set other bars to a higher but not full opacity so the hovered segment stands out.
-    rects.on('mouseenter', (event, d) => {
+    rects.on('mouseenter', (_, d) => {
         const hoveredKey = d.key;
         const hoveredCountry = d.country;
         // Set opacities:
         // - segments in the same country but different key -> 0.1
         // - segments in other countries -> 0.8
         // - hovered segment -> 1
-        rects.transition().duration(120).style('opacity', function(d0) {
+        rects.transition().duration(120).style('opacity', function (d0) {
             if (d0.country === hoveredCountry) {
                 return d0.key === hoveredKey ? 1 : 0.5;
             }
@@ -116,19 +118,19 @@ export function renderFullBarChart(container, data, margins) {
         tooltip.innerHTML = `<h1 style="margin:0"><strong>${d.country}</strong></h1><div style="margin-top:6px">${d.key}: ${formatPct(pct)} <span style="color:#666">(${count})</span></div>`;
         tooltip.style.opacity = '1';
         tooltip.style.transform = 'translateY(0px)';
-    }).on('mousemove', (event, d) => {
+    }).on('mousemove', (event, _) => {
         const [mx, my] = d3.pointer(event, container);
         // keep tooltip within container bounds
         const ttRect = tooltip.getBoundingClientRect();
         const contRect = container.getBoundingClientRect();
         let left = mx - ttRect.width / 2;
-        let top = my +  ttRect.height / 3;
+        let top = my + ttRect.height / 3;
         // if overflowing right edge, shift left
         if (left + ttRect.width > contRect.width) left = mx - ttRect.width - 12;
         if (top + ttRect.height > contRect.height) top = my - ttRect.height - 12;
         tooltip.style.left = `${Math.max(4, left)}px`;
         tooltip.style.top = `${Math.max(4, top)}px`;
-    }).on('mouseleave', (event) => {
+    }).on('mouseleave', (_) => {
         // Restore all rect opacities
         rects.transition().duration(120).style('opacity', 1);
         tooltip.style.opacity = '0';
@@ -147,8 +149,8 @@ export function renderFullBarChart(container, data, margins) {
         .call(d3.axisLeft(y).tickSizeOuter(0))
         .call(g => g.select('.domain').remove());
 
-        // Legend: event types with color swatches.
-    const legendX = width - margins.right - 160;
+    // Legend: event types with color swatches.
+    const legendX = width - margins.right - legendWidth + 20;
     const legendY = margins.top;
     const legend = svg.append("g")
         .attr("transform", `translate(${legendX},${legendY})`);
@@ -156,7 +158,7 @@ export function renderFullBarChart(container, data, margins) {
     const legendItem = legend.selectAll("g")
         .data(eventTypes)
         .join("g")
-        .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+        .attr("transform", (_, i) => `translate(0, ${i * 20})`);
 
     legendItem.append("rect")
         .attr("x", 0)
@@ -180,5 +182,6 @@ export function renderFullBarChart(container, data, margins) {
         .attr("font-size", 14)
         .attr("font-weight", "bold")
         .text(title);
+
     container.appendChild(svg.node());
 }
