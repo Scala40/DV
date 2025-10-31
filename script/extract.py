@@ -34,3 +34,10 @@ output = "fatalities_by_country_event_type.csv"
 df_country_event = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
 df_country_event = df_country_event[df_country_event["EVENTS"] > 0]
 df_country_event.to_csv(output, index=False)
+
+# full chart (100% stacked barchart)
+# Proportion of event types by country
+output = "proportion_event_types_by_country.csv"
+df_full = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
+df_full = df_full[df_full["EVENTS"] > 0]
+df_full.to_csv(output, index=False)

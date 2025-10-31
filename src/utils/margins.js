@@ -9,3 +9,4 @@ class Margin {
 
 export const barChartMargins = new Margin(25, 20, 40, 120);
 export const groupedBarChartMargins = new Margin(25, 20, 90, 30);
+export const fullBarChartMargins = new Margin(40, 20, 90, 120);

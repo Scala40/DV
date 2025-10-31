@@ -7,6 +7,7 @@ import fatalitiesByCountryEventType from "../fatalities_by_country_event_type.cs
 const parsedData_BarChart = d3.csvParse(fatalitiesByCountry, d3.autoType);
 const parsedData_GroupedBarChart = d3.csvParse(fatalitiesByCountryEventType, d3.autoType);
 
+
 // Map and transform data for bar chart
 export const barChartData = parsedData_BarChart
     .map(d => ({ country: d.COUNTRY, fatalities: d.FATALITIES }))
@@ -16,3 +17,5 @@ export const barChartData = parsedData_BarChart
 export const groupedBarChartData = parsedData_GroupedBarChart
     .map(d => ({ country: d.COUNTRY, eventType: d.EVENT_TYPE, events: d.EVENTS }))
     .sort((a, b) => b.events - a.events);
+
+export const fullChartData = groupedBarChartData;

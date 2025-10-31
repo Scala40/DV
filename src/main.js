@@ -6,10 +6,12 @@ import { observeRender } from "./utils/observeRender.js";
 import {
     barChartMargins,
     groupedBarChartMargins,
+    fullBarChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
 import { renderGroupedBarChart } from './charts/groupedBarChart.js';
+import { renderFullBarChart } from './charts/fullChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 
@@ -35,3 +37,11 @@ observeRender(
     groupedBarChartData,
     groupedBarChartMargins
 );
+
+observeRender(
+    document.getElementById("full-bar-chart"),
+    renderFullBarChart,
+    groupedBarChartData,
+    fullBarChartMargins
+);
+
