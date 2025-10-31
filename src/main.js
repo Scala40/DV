@@ -6,12 +6,14 @@ import { observeRender } from "./utils/observeRender.js";
 import {
     barChartMargins,
     groupedBarChartMargins,
-    fullBarChartMargins
+    fullBarChartMargins,
+    waffleChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
 import { renderGroupedBarChart } from './charts/groupedBarChart.js';
 import { renderFullBarChart } from './charts/fullChart.js';
+import { renderWaffleChart } from './charts/waffleChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 
@@ -45,3 +47,9 @@ observeRender(
     fullBarChartMargins
 );
 
+observeRender(
+    document.getElementById("waffle-chart"),
+    renderWaffleChart,
+    groupedBarChartData,
+    waffleChartMargins
+);
