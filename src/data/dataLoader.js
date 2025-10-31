@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 import fatalitiesByCountry from "../fatalities_by_country.csv?raw";
-import fatalitiesByCountryEventType from "../fatalities_by_country_event_type.csv?raw";
+import fatalitiesByCountryEventType from "../events_by_country_event_type.csv?raw";
 import eventsByEventType from "../events_by_event_type.csv?raw";
 
 // Parse the CSV data
@@ -18,8 +18,6 @@ export const barChartData = parsedData_BarChart
 export const groupedBarChartData = parsedData_GroupedBarChart
     .map(d => ({ country: d.COUNTRY, eventType: d.EVENT_TYPE, events: d.EVENTS }))
     .sort((a, b) => b.events - a.events);
-
-export const fullChartData = groupedBarChartData;
 
 // Map and transform data for waffle chart
 export const waffleChartData = pareedData_WaffleChart

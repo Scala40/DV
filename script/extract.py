@@ -30,7 +30,7 @@ df_country.to_csv(output, index=False)
 
 # grouped barchart and full barchart
 # Total number of events by country and event type
-output = "fatalities_by_country_event_type.csv"
+output = "events_by_country_event_type.csv"
 df_country_event = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
 df_country_event = df_country_event[df_country_event["EVENTS"] > 0]
 df_country_event.to_csv(output, index=False)
