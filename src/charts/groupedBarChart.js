@@ -36,11 +36,10 @@ export function renderGroupedBarChart(container, data, margins) {
         .range([height - margins.bottom, margins.top]);
 
     // color per event type; safe fallback palette if needed.
-    const spectral = d3.schemeSpectral[eventTypes.length];
     const fallback = d3.schemeTableau10;
     const color = d3.scaleOrdinal()
         .domain(eventTypes)
-        .range(spectral && spectral.length === eventTypes.length ? spectral : eventTypes.map((_, i) => fallback[i % fallback.length]))
+        .range(eventTypes.map((_, i) => fallback[i % fallback.length]))
         .unknown("#ccc");
 
     // Create the SVG container.
