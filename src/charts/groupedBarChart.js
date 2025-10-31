@@ -106,7 +106,12 @@ export function renderGroupedBarChart(container, data, margins) {
             const miniMargin = { top: 20, right: 6, bottom: 20, left: 50 };
             const miniInnerW = miniWidth - miniMargin.left - miniMargin.right;
             const miniInnerH = miniHeight - miniMargin.top - miniMargin.bottom;
-
+            // Keep the mini-chart eventType order the same as the main chart by sorting in-place
+            countryData.sort((a, b) => {
+                const ia = eventTypes.indexOf(a.eventType);
+                const ib = eventTypes.indexOf(b.eventType);
+                return ia - ib;
+            });
             const miniSvg = d3.select(tooltip)
                 .append('svg')
                 .attr('width', miniWidth)

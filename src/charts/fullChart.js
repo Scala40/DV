@@ -94,11 +94,21 @@ export function renderFullBarChart(container, data, margins) {
     tooltip.style.transform = 'translateY(4px)';
     container.appendChild(tooltip);
 
-    // Hover handlers: dim non-hovered bars, and show percentage + absolute count
+    // Hover handlers: emphasize the hovered segment, dim other segments of the same bar strongly
+    // and set other bars to a higher but not full opacity so the hovered segment stands out.
     rects.on('mouseenter', (event, d) => {
-        // Dim all rects then highlight the hovered one
-        rects.transition().duration(120).style('opacity', 0.35);
-        d3.select(event.currentTarget).transition().duration(120).style('opacity', 1);
+        const hoveredKey = d.key;
+        const hoveredCountry = d.country;
+        // Set opacities:
+        // - segments in the same country but different key -> 0.1
+        // - segments in other countries -> 0.8
+        // - hovered segment -> 1
+        rects.transition().duration(120).style('opacity', function(d0) {
+            if (d0.country === hoveredCountry) {
+                return d0.key === hoveredKey ? 1 : 0.5;
+            }
+            return 0.1;
+        });
 
         const total = d3.sum(eventTypes, et => countsByCountry.get(d.country).get(et));
         const pct = d.x1 - d.x0;
@@ -111,8 +121,8 @@ export function renderFullBarChart(container, data, margins) {
         // keep tooltip within container bounds
         const ttRect = tooltip.getBoundingClientRect();
         const contRect = container.getBoundingClientRect();
-        let left = mx + 12;
-        let top = my + 12;
+        let left = mx - ttRect.width / 2;
+        let top = my +  ttRect.height / 3;
         // if overflowing right edge, shift left
         if (left + ttRect.width > contRect.width) left = mx - ttRect.width - 12;
         if (top + ttRect.height > contRect.height) top = my - ttRect.height - 12;
@@ -128,7 +138,7 @@ export function renderFullBarChart(container, data, margins) {
     // x axis (percent)
     svg.append('g')
         .attr('transform', `translate(0, ${height - margins.bottom})`)
-        .call(d3.axisBottom(x).ticks(20).tickFormat(d3.format('.0%')))
+        .call(d3.axisBottom(x).ticks(10).tickFormat(d3.format('.0%')))
         .call(g => g.select('.domain').remove());
 
     // y axis (countries)
