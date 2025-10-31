@@ -58,7 +58,7 @@ export function renderFullBarChart(container, data, margins) {
         .range(d3.schemeTableau10)
         .unknown('#ccc');
 
-    const formatPct = d3.format('.2%');
+    const formatPct = d3.format('.1%');
 
     // draw stacks
     const stackGroups = svg.append('g')
