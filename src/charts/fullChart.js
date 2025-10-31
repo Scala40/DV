@@ -44,7 +44,7 @@ export function renderFullBarChart(container, data, margins) {
 
     const x = d3.scaleLinear()
         .domain([0, 1])
-        .range([margins.left, width - margins.right- 180]);
+        .range([margins.left, width - margins.right - 180]);
 
     const y = d3.scaleBand()
         .domain(stackedInput.map(d => d.country))
@@ -147,7 +147,7 @@ export function renderFullBarChart(container, data, margins) {
         .call(d3.axisLeft(y).tickSizeOuter(0))
         .call(g => g.select('.domain').remove());
 
-        // Legend: event types with color swatches.
+    // Legend: event types with color swatches.
     const legendX = width - margins.right - 160;
     const legendY = margins.top;
     const legend = svg.append("g")

@@ -155,7 +155,7 @@ export function renderGroupedBarChart(container, data, margins) {
                 .attr('fill', '#111')
                 .text(d2 => d3.format(',')(d2.events));
 
-           
+
             // y axis
             miniG.append('g')
                 .call(d3.axisLeft(miniY).ticks(4).tickFormat(d3.format(',')))
@@ -166,7 +166,7 @@ export function renderGroupedBarChart(container, data, margins) {
         tooltip.style.opacity = '1';
         tooltip.style.transform = 'translateY(0px)';
     };
- 
+
     const handleMouseMove = (event) => {
         const [mx, my] = d3.pointer(event, container);
         const ttRect = tooltip.getBoundingClientRect();
@@ -215,7 +215,7 @@ export function renderGroupedBarChart(container, data, margins) {
         .on('mousemove', handleMouseMove)
         .on('mouseleave', handleMouseLeave);
 
-    
+
     // Append the x axis (countries) at the bottom and rotate labels 45°.
     svg.append("g")
         .attr("transform", `translate(0,${height - margins.bottom})`)
@@ -234,7 +234,7 @@ export function renderGroupedBarChart(container, data, margins) {
         .attr("transform", `translate(${margins.left},0)`)
         .call(d3.axisLeft(y).ticks(null, "s").tickFormat(formatK))
         .call(g => g.selectAll(".domain").remove());
-    
+
     // Legend: event types with color swatches.
     const legendX = width - margins.right - 160;
     const legendY = margins.top;
