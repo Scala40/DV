@@ -1,5 +1,5 @@
 class Margin {
-    constructor(top, right, bottom, left) {
+    constructor({ top, right, bottom, left }) {
         this.top = top;
         this.right = right;
         this.bottom = bottom;
@@ -7,6 +7,23 @@ class Margin {
     }
 }
 
-export const barChartMargins = new Margin(25, 20, 40, 120);
-export const groupedBarChartMargins = new Margin(25, 20, 90, 30);
-export const fullBarChartMargins = new Margin(40, 20, 20, 110);
+export const barChartMargins = new Margin({
+    top: 25,
+    right: 20,
+    bottom: 40,
+    left: 120
+});
+
+export const groupedBarChartMargins = new Margin({
+    top: 25,
+    right: 20,
+    bottom: 90,
+    left: 30
+});
+
+export const fullBarChartMargins = new Margin({
+    top: 40,
+    right: 20,
+    bottom: 20,
+    left: 110
+});
