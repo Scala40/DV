@@ -37,3 +37,17 @@
         @apply font-serif;
     }
 }
+
+.chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 6px 8px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 120ms ease, transform 120ms ease;
+    transform: translateY(4px);
+}

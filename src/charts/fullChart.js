@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
+import { createFullChartTooltip } from '../utils/tooltip.js';
 
 export function renderFullBarChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -77,34 +78,14 @@ export function renderFullBarChart(container, data, margins) {
         .attr('height', y.bandwidth())
         .attr('cursor', 'pointer');
 
-    // Create an HTML tooltip inside the chart container for hover interactions.
-    // Ensure the container is positioned so the absolute tooltip can be placed correctly.
-    if (window.getComputedStyle(container).position === 'static') {
-        container.style.position = 'relative';
-    }
-    const tooltip = document.createElement('div');
-    tooltip.style.position = 'absolute';
-    tooltip.style.pointerEvents = 'none';
-    tooltip.style.background = 'white';
-    tooltip.style.border = '1px solid rgba(0,0,0,0.12)';
-    tooltip.style.padding = '6px 8px';
-    tooltip.style.borderRadius = '6px';
-    tooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.opacity = '0';
-    tooltip.style.transition = 'opacity 120ms ease, transform 120ms ease';
-    tooltip.style.transform = 'translateY(4px)';
-    container.appendChild(tooltip);
+    // create tooltip via helper
+    const { tooltip, setContent, setVisible, setPosition } = createFullChartTooltip(container);
 
     // Hover handlers: emphasize the hovered segment, dim other segments of the same bar strongly
     // and set other bars to a higher but not full opacity so the hovered segment stands out.
     rects.on('mouseenter', (_, d) => {
         const hoveredKey = d.key;
         const hoveredCountry = d.country;
-        // Set opacities:
-        // - segments in the same country but different key -> 0.1
-        // - segments in other countries -> 0.8
-        // - hovered segment -> 1
         rects.transition().duration(120).style('opacity', function (d0) {
             if (d0.country === hoveredCountry) {
                 return d0.key === hoveredKey ? 1 : 0.5;
@@ -115,26 +96,21 @@ export function renderFullBarChart(container, data, margins) {
         const total = d3.sum(eventTypes, et => countsByCountry.get(d.country).get(et));
         const pct = d.x1 - d.x0;
         const count = Math.round(pct * total);
-        tooltip.innerHTML = `<h1 style="margin:0"><strong>${d.country}</strong></h1><div style="margin-top:6px">${d.key}: ${formatPct(pct)} <span style="color:#666">(${count})</span></div>`;
-        tooltip.style.opacity = '1';
-        tooltip.style.transform = 'translateY(0px)';
+
+        setContent({ country: d.country, key: d.key, pct, count, formatPct });
+        setVisible(true);
     }).on('mousemove', (event, _) => {
         const [mx, my] = d3.pointer(event, container);
-        // keep tooltip within container bounds
         const ttRect = tooltip.getBoundingClientRect();
         const contRect = container.getBoundingClientRect();
         let left = mx - ttRect.width / 2;
         let top = my + ttRect.height / 3;
-        // if overflowing right edge, shift left
         if (left + ttRect.width > contRect.width) left = mx - ttRect.width - 12;
         if (top + ttRect.height > contRect.height) top = my - ttRect.height - 12;
-        tooltip.style.left = `${Math.max(4, left)}px`;
-        tooltip.style.top = `${Math.max(4, top)}px`;
+        setPosition(left, top);
     }).on('mouseleave', (_) => {
-        // Restore all rect opacities
         rects.transition().duration(120).style('opacity', 1);
-        tooltip.style.opacity = '0';
-        tooltip.style.transform = 'translateY(4px)';
+        setVisible(false);
     });
 
     // x axis (percent)
@@ -158,20 +134,18 @@ export function renderFullBarChart(container, data, margins) {
     const legendItem = legend.selectAll("g")
         .data(eventTypes)
         .join("g")
-        .attr("transform", (_, i) => `translate(0, ${i * 20})`);
+        .attr('transform', (_, i) => `translate(0, ${i * 30})`);
 
-    legendItem.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", 12)
-        .attr("height", 12)
-        .attr("fill", d => color(d));
+    legendItem.append('rect')
+        .attr('width', 14)
+        .attr('height', 14)
+        .attr('rx', 3)
+        .attr('fill', d => color(d));
 
     legendItem.append("text")
         .attr("x", 18)
-        .attr("y", 10)
+        .attr("y", 11)
         .attr("font-size", 12)
-        .attr("fill", "#111")
         .text(d => d);
 
     const title = "Events types in Middle Eastern countries in percentage (2020-today)";
