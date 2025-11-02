@@ -27,13 +27,13 @@ export function renderBarChart(container, data, margins) {
         .attr("stroke", "lightgray")
         .attr("stroke-opacity", 0.8)
         .selectAll("line")
-        .data(x.ticks(10))
+        //.data(x.ticks(10))
         .join("line")
         .attr("x1", d => x(d))
         .attr("x2", d => x(d))
         .attr("y1", margins.top)
         .attr("y2", height - margins.bottom);
-
+    
     // tick formatter used for axis
     const formatK = d3.format(".2s"); // produces 10k, 1M, etc.
 
@@ -71,7 +71,7 @@ export function renderBarChart(container, data, margins) {
         })
         .attr("fill", d => (x(d.fatalities) - x(0) > 40 ? "white" : "currentColor"))
         .text(d => d.fatalities);
-
+    /*
     // x axis (values) with "k" formatting (e.g. 10k)
     svg.append("g")
         .attr("transform", `translate(0, ${height - margins.bottom})`)
@@ -80,14 +80,14 @@ export function renderBarChart(container, data, margins) {
             .tickFormat(formatK)
             .tickSizeOuter(0))
         .call(g => g.select(".domain").remove());
-
+    */
     // y axis (categories)
     svg.append("g")
         .attr("transform", `translate(${margins.left},0)`)
         .call(d3.axisLeft(y).tickSizeOuter(0))
         .call(g => g.select(".domain").remove());
 
-    // x axis label, centered on top of the chart
+    /*
     const title = "Fatalities in Middle Eastern countries (2020-today)";
     svg.append("text")
         .attr("x", width / 2)
@@ -96,7 +96,7 @@ export function renderBarChart(container, data, margins) {
         .attr("font-size", 14)
         .attr("font-weight", "bold")
         .text(title);
-
+    */
     // append the svg to the container
     container.appendChild(svg.node());
 }
