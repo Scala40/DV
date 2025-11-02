@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
+import { createGroupedChartTooltip } from '../utils/tooltip.js';
 
 export function renderGroupedBarChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -45,6 +46,9 @@ export function renderGroupedBarChart(container, data, margins) {
     // Create the SVG container.
     const svg = createResponsiveSvg(width, height);
 
+    // legend positioning
+    const legendWidth = 180;
+
     // Create one group per country and translate it into place horizontally.
     const countryGroups = svg.append("g")
         .selectAll("g")
@@ -63,108 +67,15 @@ export function renderGroupedBarChart(container, data, margins) {
         .attr("fill", d => color(d.eventType))
         .attr('cursor', 'pointer');
 
-    // Tooltip: HTML element for hover interactions
-    if (window.getComputedStyle(container).position === 'static') {
-        container.style.position = 'relative';
-    }
-    // Remove previous tooltip if re-rendering
-    const prev = container.querySelector('.d3-tooltip-grouped');
-    if (prev) prev.remove();
-
-    const tooltip = document.createElement('div');
-    tooltip.className = 'd3-tooltip-grouped';
-    tooltip.style.position = 'absolute';
-    tooltip.style.pointerEvents = 'none';
-    tooltip.style.background = 'white';
-    tooltip.style.border = '1px solid rgba(0,0,0,0.12)';
-    tooltip.style.padding = '6px 8px';
-    tooltip.style.borderRadius = '6px';
-    tooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-    tooltip.style.fontSize = '12px';
-    tooltip.style.opacity = '0';
-    tooltip.style.transition = 'opacity 120ms ease, transform 120ms ease';
-    tooltip.style.transform = 'translateY(4px)';
-    container.appendChild(tooltip);
-
-    const handleMouseEnter = (event, d) => {
-        // Base tooltip content
-        tooltip.innerHTML = `<strong style="font-size: 20px;">${d.country}</strong>`;
-
-        // remove any previous mini-chart
-        const prevSvg = tooltip.querySelector('svg');
-        if (prevSvg) prevSvg.remove();
-
-        // Show mini-chart only when hovered bar value is within the low-value range
-        if (d.events > 0) {
-            const countryData = data.filter(x => x.country === d.country);
-            const countryMax = d3.max(countryData, x => x.events) || 0;
-
-            // create an svg inside tooltip to show the country's breakdown with a local y-scale
-            const miniWidth = 400;
-            const miniHeight = 200;
-            const miniMargin = { top: 20, right: 6, bottom: 20, left: 50 };
-            const miniInnerW = miniWidth - miniMargin.left - miniMargin.right;
-            const miniInnerH = miniHeight - miniMargin.top - miniMargin.bottom;
-            // Keep the mini-chart eventType order the same as the main chart by sorting in-place
-            countryData.sort((a, b) => {
-                const ia = eventTypes.indexOf(a.eventType);
-                const ib = eventTypes.indexOf(b.eventType);
-                return ia - ib;
-            });
-            const miniSvg = d3.select(tooltip)
-                .append('svg')
-                .attr('width', miniWidth)
-                .attr('height', miniHeight)
-                .style('display', 'block')
-                .style('margin-top', '8px');
-
-            const miniG = miniSvg.append('g')
-                .attr('transform', `translate(${miniMargin.left},${miniMargin.top})`);
-
-            const miniX = d3.scaleBand()
-                .domain(countryData.map(c => c.eventType))
-                .range([0, miniInnerW])
-                .padding(0.15);
-
-            const miniY = d3.scaleLinear()
-                .domain([0, Math.max(countryMax, 1)])
-                .range([miniInnerH, 0]);
-
-            // bars
-            miniG.selectAll('rect')
-                .data(countryData)
-                .join('rect')
-                .attr('x', d2 => miniX(d2.eventType))
-                .attr('y', d2 => miniY(d2.events))
-                .attr('width', miniX.bandwidth())
-                .attr('height', d2 => Math.max(0, miniInnerH - miniY(d2.events)))
-                .attr('fill', d2 => color(d2.eventType))
-                .style('opacity', d2 => d2.eventType === d.eventType ? 1 : 0.9)
-                .attr('stroke-width', d2 => d2.eventType === d.eventType ? 1 : 0);
-
-            // add value labels above each mini bar
-            miniG.selectAll('text.bar-value')
-                .data(countryData)
-                .join('text')
-                .attr('class', 'bar-value')
-                .attr('x', d2 => miniX(d2.eventType) + miniX.bandwidth() / 2)
-                .attr('y', d2 => miniY(d2.events) - 6)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', 11)
-                .attr('fill', '#111')
-                .text(d2 => d3.format(',')(d2.events));
-
-
-            // y axis
-            miniG.append('g')
-                .call(d3.axisLeft(miniY).ticks(4).tickFormat(d3.format(',')))
-                .selectAll('text')
-                .style('font-size', '10px');
-        }
-
-        tooltip.style.opacity = '1';
-        tooltip.style.transform = 'translateY(0px)';
-    };
+    // Tooltip: use utility to create/manage tooltip
+    const { tooltip, setContent, setVisible, setPosition } = createGroupedChartTooltip(container, {
+        data,
+        eventTypes,
+        color,
+        width,
+        height,
+        margins
+    });
 
     const handleMouseMove = (event) => {
         const [mx, my] = d3.pointer(event, container);
@@ -174,15 +85,7 @@ export function renderGroupedBarChart(container, data, margins) {
         let top = my + 12;
         if (left + ttRect.width > contRect.width) left = mx - ttRect.width - 12;
         if (top + ttRect.height > contRect.height) top = my - ttRect.height - 12;
-        tooltip.style.left = `${Math.max(4, left)}px`;
-        tooltip.style.top = `${Math.max(4, top)}px`;
-    };
-
-    const handleMouseLeave = () => {
-        const prevSvg2 = tooltip.querySelector('svg');
-        if (prevSvg2) prevSvg2.remove();
-        tooltip.style.opacity = '0';
-        tooltip.style.transform = 'translateY(4px)';
+        setPosition(Math.max(4, left), Math.max(4, top));
     };
 
     // Create invisible hit areas positioned near the top of each bar so hovering close to the bar head triggers the popup.
@@ -210,10 +113,15 @@ export function renderGroupedBarChart(container, data, margins) {
         .style('fill', 'transparent')
         .style('pointer-events', 'all')
         .style('cursor', 'pointer')
-        .on('mouseenter', handleMouseEnter)
+        .on('mouseenter', (event, d) => {
+            setContent(d);
+            setVisible(true);
+            handleMouseMove(event);
+        })
         .on('mousemove', handleMouseMove)
-        .on('mouseleave', handleMouseLeave);
-
+        .on('mouseleave', () => {
+            setVisible(false);
+        });
 
     // Append the x axis (countries) at the bottom and rotate labels 45°.
     svg.append("g")
@@ -235,7 +143,7 @@ export function renderGroupedBarChart(container, data, margins) {
         .call(g => g.selectAll(".domain").remove());
 
     // Legend: event types with color swatches.
-    const legendX = width - margins.right - 160;
+    const legendX = width - margins.right - legendWidth + 20;
     const legendY = margins.top;
     const legend = svg.append("g")
         .attr("transform", `translate(${legendX},${legendY})`);
@@ -243,31 +151,20 @@ export function renderGroupedBarChart(container, data, margins) {
     const legendItem = legend.selectAll("g")
         .data(eventTypes)
         .join("g")
-        .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+        .attr("transform", (_, i) => `translate(0, ${i * 30})`);
 
     legendItem.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", 12)
-        .attr("height", 12)
+        .attr("width", 14)
+        .attr("height", 14)
+        .attr("rx", 3)
         .attr("fill", d => color(d));
 
     legendItem.append("text")
         .attr("x", 18)
-        .attr("y", 10)
+        .attr("y", 11)
         .attr("font-size", 12)
-        .attr("fill", "#111")
         .text(d => d);
-    /*
-    const title = "Events types in Middle Eastern countries (2020-today)";
-    svg.append("text")
-        .attr("x", width / 2)
-        .attr("y", margins.top / 2)
-        .attr("text-anchor", "middle")
-        .attr("font-size", 14)
-        .attr("font-weight", "bold")
-        .text(title);
-    */
+
     // Append the SVG to the container.
     container.appendChild(svg.node());
 }

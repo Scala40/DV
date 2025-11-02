@@ -115,16 +115,7 @@ export function renderWaffleChart(container, data, margins) {
                 .style('font-size', '11px')
                 .attr('fill', '#555');
         });
-    /*
-    const title = "Events types distribution in Middle Eastern countries (2020-today)";
-    svg.append("text")
-        .attr("x", width / 2)
-        .attr("y", margins.top / 2)
-        .attr("text-anchor", "middle")
-        .attr("font-size", 14)
-        .attr("font-weight", "bold")
-        .text(title);
-    */
+
     // append the svg to the container
     container.appendChild(svg.node());
 }
