@@ -4,6 +4,7 @@ import sys
 import os
 
 import pandas as pd
+from pathlib import Path
 
 file = sys.argv[1]
 df = pd.read_csv(file)
@@ -15,7 +16,7 @@ WEEK,REGION,COUNTRY,ADMIN1,EVENT_TYPE,SUB_EVENT_TYPE,EVENTS,FATALITIES,POPULATIO
 2017-02-11,Middle East,Bahrain,Capital,Explosions/Remote violence,Remote explosive/landmine/IED,2,0,,Political violence,285,26.1927,50.5508
 """
 
-output_dir = os.getcwd() + "/../src/csv/"
+output_dir = Path.cwd().parent / "src" / "csv"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
@@ -28,21 +29,21 @@ print(f"Data from {df['WEEK'].min().date()} to {df['WEEK'].max().date()}")
 
 # barchart
 # Total casualties by country
-output = output_dir + "fatalities_by_country.csv"
+output = output_dir / "fatalities_by_country.csv"
 df_country = df.groupby("COUNTRY")["FATALITIES"].sum().reset_index()
 df_country = df_country[df_country["FATALITIES"] > 0]
 df_country.to_csv(output, index=False)
 
 # grouped barchart and full barchart
 # Total number of events by country and event type
-output = output_dir + "events_by_country_event_type.csv"
+output = output_dir / "events_by_country_event_type.csv"
 df_country_event = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
 df_country_event = df_country_event[df_country_event["EVENTS"] > 0]
 df_country_event.to_csv(output, index=False)
 
-# heatmap chart
-# Extract data for geo heatmap
-output = output_dir + "events_by_lat_lon.csv"
+# Geo chart
+# Extract data for geo chart
+output = output_dir / "events_by_lat_lon.csv"
 df_country_lat_lon = (
     df.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE"])["EVENTS"]
     .sum()
@@ -51,9 +52,17 @@ df_country_lat_lon = (
 df_country_lat_lon = df_country_lat_lon[df_country_lat_lon["EVENTS"] > 0]
 df_country_lat_lon.to_csv(output, index=False)
 
+# Heatmap chart
+# Number of events by years and country
+output = output_dir / "events_by_year_country.csv"
+df["YEAR"] = df["WEEK"].dt.year
+df_year_country = df.groupby(["YEAR", "COUNTRY"])["EVENTS"].sum().reset_index()
+df_year_country = df_year_country[df_year_country["EVENTS"] > 0]
+df_year_country.to_csv(output, index=False)
+
 # waffle chart
 # Number of events by event type
-output = output_dir + "events_by_event_type.csv"
+output = output_dir / "events_by_event_type.csv"
 df_event_type = df.groupby("EVENT_TYPE")["EVENTS"].sum().reset_index()
 df_event_type = df_event_type[df_event_type["EVENTS"] > 0]
 df_event_type.to_csv(output, index=False)

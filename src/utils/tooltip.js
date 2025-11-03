@@ -143,3 +143,37 @@ export function createGroupedChartTooltip(container, { data, eventTypes, color }
 
     return { tooltip, setContent, setVisible, setPosition };
 }
+
+export function createHeatmapTooltip(container) {
+    if (window.getComputedStyle(container).position === 'static') {
+        container.style.position = 'relative';
+    }
+
+    const tooltip = document.createElement('div');
+    // Use the same tooltip class as other charts so CSS is consistent
+    tooltip.className = 'chart-tooltip';
+    container.appendChild(tooltip);
+
+    function setContent({ x, y, value }) {
+        tooltip.innerHTML = '';
+        const line1 = document.createElement('strong');
+        line1.textContent = `${y} (${x})`;
+        const line2 = document.createElement('div');
+        line2.textContent = value == null ? 'No event' : `Events: ${value}`;
+        tooltip.appendChild(line1);
+        tooltip.appendChild(line2);
+    }
+
+    function setVisible(visible) {
+        // rely on shared CSS transition and class for appearance
+        tooltip.style.opacity = visible ? '1' : '0';
+        tooltip.style.transform = visible ? 'translateY(0px)' : 'translateY(4px)';
+    }
+
+    function setPosition(left, top) {
+        tooltip.style.left = `${Math.max(4, left)}px`;
+        tooltip.style.top = `${Math.max(4, top)}px`;
+    }
+
+    return { tooltip, setContent, setVisible, setPosition };
+}

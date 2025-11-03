@@ -23,7 +23,7 @@ export const groupedBarChartMargins = new Margin({
 
 export const heatmapChartMargins = new Margin({
     top: 40,
-    right: 40,
+    right: 100,
     bottom: 60,
     left: 100
 });
