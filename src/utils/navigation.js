@@ -1,10 +1,5 @@
-import { isMobile } from './device.js';
-
 export function initNavigation() {
-    if (isMobile()) {
-        initMobileMenu();
-    }
-
+    initMobileMenu();
     initScrollSpy();
 }
 
