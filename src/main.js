@@ -8,7 +8,8 @@ import {
     groupedBarChartMargins,
     heatmapChartMargins,
     fullBarChartMargins,
-    waffleChartMargins
+    waffleChartMargins,
+    circlePackingChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
@@ -16,11 +17,18 @@ import { renderGroupedBarChart } from './charts/groupedBarChart.js';
 import { renderHeatmapChart } from './charts/heatmapChart.js';
 import { renderFullBarChart } from './charts/fullChart.js';
 import { renderWaffleChart } from './charts/waffleChart.js';
+import { renderCirclePackingChart } from './charts/circlePackingChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 
 // Data imports
-import { barChartData, groupedBarChartData, heatmapChartData, waffleChartData } from './data/dataLoader.js';
+import {
+    barChartData,
+    groupedBarChartData,
+    heatmapChartData,
+    waffleChartData,
+    circlePackingChartData
+} from './data/dataLoader.js';
 
 // Initialize navigation menu
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,4 +69,12 @@ observeRender(
     renderWaffleChart,
     waffleChartData,
     waffleChartMargins
+);
+
+// Additional charts
+observeRender(
+    document.getElementById("circle-packing-chart"),
+    renderCirclePackingChart,
+    circlePackingChartData,
+    circlePackingChartMargins
 );
