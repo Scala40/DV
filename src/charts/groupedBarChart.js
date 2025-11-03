@@ -93,7 +93,7 @@ export function renderGroupedBarChart(container, data, margins) {
     const hitZoneAbove = 50; // px above the bar top to include in hit area
     const hitZoneBelow = height;  // px below the bar top to include in hit area
 
-    const overlays = countryGroups.selectAll('rect.hit')
+    countryGroups.selectAll('rect.hit')
         .data(country => data.filter(d => d.country === country))
         .join('rect')
         .attr('class', 'hit')
@@ -141,6 +141,25 @@ export function renderGroupedBarChart(container, data, margins) {
         .attr("transform", `translate(${margins.left},0)`)
         .call(d3.axisLeft(y).ticks(null, "s").tickFormat(formatK))
         .call(g => g.selectAll(".domain").remove());
+
+    // Add a vertical direction label left of the y axis: arrow up, "Events", arrow down
+    const labelX = margins.left - 40; // distance left of the y axis
+    const centerY = margins.top + (height - margins.top - margins.bottom) / 2;
+
+    const dirGroup = svg.append("g")
+        .attr("transform", `translate(${labelX},0)`)
+        .attr("class", "y-direction-label");
+
+    dirGroup.append("text")
+        .attr("x", 0)
+        .attr("y", centerY)
+        .attr("transform", `rotate(-90, 0, ${centerY})`)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 12)
+        .attr("font-weight", "600")
+        .attr("fill", "#333")
+        .attr("dy", "0.35em")
+        .text("Number of events");
 
     // Legend: event types with color swatches.
     const legendX = width - margins.right - legendWidth + 20;

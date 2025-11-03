@@ -22,16 +22,13 @@ export function renderBarChart(container, data, margins) {
         .range([margins.top, height - margins.bottom])
         .padding(0.12);
 
-    // grid
-    svg.append("g")
-        .attr("stroke", "lightgray")
-        .attr("stroke-opacity", 0.8)
-        .selectAll("line")
-        .join("line")
-        .attr("x1", d => x(d))
-        .attr("x2", d => x(d))
-        .attr("y1", margins.top)
-        .attr("y2", height - margins.bottom);
+    // Small label to indicate these are fatalities
+    svg.append("text")
+        .attr("x", x(0))
+        .attr("y", Math.max(12, margins.top - 6))
+        .attr("font-size", 12)
+        .attr("fill", "currentColor")
+        .text("Fatalities ￫");
 
     // bars (horizontal)
     svg.append("g")
@@ -72,9 +69,8 @@ export function renderBarChart(container, data, margins) {
     svg.append("g")
         .attr("transform", `translate(${margins.left},0)`)
         .call(d3.axisLeft(y).tickSizeOuter(0))
-        .call(g => g.select(".domain").remove());
+        .call(g => g.select(".domain").remove())
 
     // append the svg to the container
     container.appendChild(svg.node());
-
 }

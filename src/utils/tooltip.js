@@ -58,11 +58,12 @@ export function createGroupedChartTooltip(container, { data, eventTypes, color }
 
         const strong = document.createElement('strong');
         const line = document.createElement('div');
-        
+
         strong.style.fontSize = '20px';
         strong.textContent = d.country;
 
-        line.textContent = `Total Events: ${d.events}`;
+        const totalEvents = data.filter(x => x.country === d.country).reduce((sum, x) => sum + x.events, 0);
+        line.textContent = `Total Events: ${totalEvents}`;
         line.style.fontSize = '16px';
 
         tooltip.appendChild(strong);
@@ -86,6 +87,7 @@ export function createGroupedChartTooltip(container, { data, eventTypes, color }
                 const ib = eventTypes.indexOf(b.eventType);
                 return ia - ib;
             });
+
             const miniSvg = d3.select(tooltip)
                 .append('svg')
                 .attr('width', miniWidth)
@@ -128,7 +130,6 @@ export function createGroupedChartTooltip(container, { data, eventTypes, color }
                 .attr('font-size', 11)
                 .attr('fill', '#111')
                 .text(d2 => d3.format(',')(d2.events));
-
 
             // y axis
             miniG.append('g')

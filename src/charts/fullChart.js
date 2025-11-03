@@ -87,14 +87,14 @@ export function renderFullBarChart(container, data, margins) {
         const hoveredKey = d.key;
         const hoveredCountry = d.country;
         // Set opacities:
-        // - segments in the same country but different key -> 0.1
-        // - segments in other countries -> 0.8
+        // - segments in the same country but different key -> 0.25
+        // - segments in other countries -> 0.5
         // - hovered segment -> 1
         rects.transition().duration(120).style('opacity', function (d0) {
             if (d0.country === hoveredCountry) {
                 return d0.key === hoveredKey ? 1 : 0.5;
             }
-            return 0.1;
+            return 0.25;
         });
 
         const total = d3.sum(eventTypes, et => countsByCountry.get(d.country).get(et));

@@ -9,8 +9,8 @@ class Margin {
 
 export const barChartMargins = new Margin({
     top: 25,
-    right: 20,
-    bottom: 40,
+    right: 0,
+    bottom: 0,
     left: 120
 });
 
@@ -18,20 +18,20 @@ export const groupedBarChartMargins = new Margin({
     top: 25,
     right: 20,
     bottom: 90,
-    left: 30
+    left: 50
 });
 
 export const heatmapChartMargins = new Margin({
     top: 40,
     right: 100,
-    bottom: 60,
+    bottom: 40,
     left: 100
 });
 
 export const fullBarChartMargins = new Margin({
-    top: 40,
+    top: 10,
     right: 20,
-    bottom: 20,
+    bottom: 10,
     left: 110
 });
 

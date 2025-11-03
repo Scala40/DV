@@ -12,7 +12,7 @@ export function renderWaffleChart(container, data, margins) {
     const svg = createResponsiveSvg(width, height);
 
     const padding = 3; // px between cells
-    const gridWidth = 20;
+    const gridWidth = 18;
     const gridHeight = 10;
     const cellsCount = gridHeight * gridWidth;
 
@@ -70,13 +70,15 @@ export function renderWaffleChart(container, data, margins) {
     const cellSel = chartG.selectAll('rect.cell')
         .data(cells.map((d, i) => ({ ...d, i, x: i % gridWidth, y: Math.floor(i / gridWidth) })))
         .join('rect')
+        .attr('class', 'cell')
         .attr('width', cellSize)
         .attr('height', cellSize)
         .attr('x', d => d.x * (cellSize + padding))
         .attr('y', d => d.y * (cellSize + padding))
         .attr('fill', d => color(String(d.idx)))
         .attr('rx', roundAmount)
-        .attr('ry', roundAmount);
+        .attr('ry', roundAmount)
+        .style('cursor', 'pointer');
 
     // title / tooltip
     cellSel.append('title').text(d => `${data[d.idx].eventType}`);
@@ -90,7 +92,9 @@ export function renderWaffleChart(container, data, margins) {
     const legendItems = legendG.selectAll('g.legend-item')
         .data(raw.map((d, i) => ({ ...d, idx: i, pct: (d.events / total) * 100 })))
         .join('g')
-        .attr('transform', (_, i) => `translate(0, ${i * 30})`);
+        .attr('class', 'legend-item')
+        .attr('transform', (_, i) => `translate(0, ${i * 30})`)
+        .style('cursor', 'pointer');
 
     legendItems.append('rect')
         .attr('width', 14)
@@ -115,6 +119,46 @@ export function renderWaffleChart(container, data, margins) {
                 .style('font-size', '11px')
                 .attr('fill', '#555');
         });
+
+    // --- Selection handling: clicking a cell or legend item selects the whole group ---
+    let selectedIdx = null;
+
+    function updateSelection(idx) {
+        selectedIdx = idx;
+
+        // highlight cells: selected group full opacity + stroke, others faded
+        cellSel
+            .attr('opacity', d => (selectedIdx === null ? 1 : (d.idx === selectedIdx ? 1 : 0.25)))
+            .attr('stroke', d => (selectedIdx !== null && d.idx === selectedIdx ? '#000' : 'none'))
+            .attr('stroke-width', d => (selectedIdx !== null && d.idx === selectedIdx ? 1.5 : 0));
+
+        // legend highlight
+        legendItems.selectAll('rect')
+            .attr('stroke', d => (selectedIdx !== null && d.idx === selectedIdx ? '#000' : 'none'))
+            .attr('stroke-width', d => (selectedIdx !== null && d.idx === selectedIdx ? 1.5 : 0));
+
+        legendItems.selectAll('text')
+            .style('font-weight', d => (selectedIdx !== null && d.idx === selectedIdx ? '700' : '400'));
+    }
+
+    // cell click: select group
+    cellSel.on('click', (event, d) => {
+        const idx = d.idx;
+        const next = (selectedIdx === idx) ? null : idx;
+        updateSelection(next);
+        event.stopPropagation();
+    });
+
+    // legend click: select group
+    legendItems.on('click', (event, d) => {
+        const idx = d.idx;
+        const next = (selectedIdx === idx) ? null : idx;
+        updateSelection(next);
+        event.stopPropagation();
+    });
+
+    // clicking empty space clears selection
+    svg.on('click', () => updateSelection(null));
 
     // append the svg to the container
     container.appendChild(svg.node());

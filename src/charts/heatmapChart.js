@@ -36,14 +36,18 @@ export function renderHeatmapChart(container, data, margins) {
         }
     }
 
-    const xScale = d3.scaleBand().domain(years).range([0, innerWidth]).padding(0.05);
-    const yScale = d3.scaleBand().domain(countries).range([0, innerHeight]).padding(0.05);
+    const xScale = d3.scaleBand().domain(years).range([0, innerWidth]).padding(0.02);
+    const yScale = d3.scaleBand().domain(countries).range([innerHeight, 0]).padding(0.10);
 
     // color scale only considers numeric values (ignore nulls)
     const numericValues = cells.filter(d => d.value != null).map(d => +d.value);
     const vmin = numericValues.length ? d3.min(numericValues) : 0;
     const vmax = numericValues.length ? d3.max(numericValues) : 1;
-    const color = d3.scaleSequential(d3.interpolateYlOrRd).domain([vmin === vmax ? vmin - 1 : vmin, vmax]);
+
+    const startT = 0.09; // increase to make the low end more saturated
+    const color = d3.scaleSequential(
+        t => d3.interpolateYlOrRd(startT + (1 - startT) * t)
+    ).domain([vmin === vmax ? vmin - 1 : vmin, vmax]);
 
     // axes
     g.append("g")
@@ -60,7 +64,7 @@ export function renderHeatmapChart(container, data, margins) {
         .call(g => g.select(".domain").remove());
 
     // tooltip (moved to shared utility)
-    const { tooltip, setContent, setVisible, setPosition } = createHeatmapTooltip(container);
+    const { _, setContent, setVisible, setPosition } = createHeatmapTooltip(container);
 
     // rounded corners for cells dimension
     const roundAmount = Math.max(0, Math.round(xScale.bandwidth() * 0.03));
@@ -90,27 +94,37 @@ export function renderHeatmapChart(container, data, margins) {
         .attr("x", d => xScale(d.x))
         .attr("y", d => yScale(d.y))
         .attr("width", xScale.bandwidth())
+        .attr("height", yScale.bandwidth())
         .attr('rx', roundAmount)
         .attr('ry', roundAmount)
-        .attr("height", yScale.bandwidth())
         .attr("fill", d => d.value == null ? `url(#${patternId})` : color(d.value))
-        .style("stroke-width", 1)
-        .on("mousemove", (event, d) => {
-            const [mx, my] = d3.pointer(event, container);
+        .attr("stroke", "none")
+        .attr("stroke-width", 1.5)
+        .style("opacity", 0.9)
+        .on("mouseover", function (_, d) {
+            d3.select(this)
+                .attr("stroke", "#333")
+                .style("opacity", 1.0);
             setContent({ x: d.x, y: d.y, value: d.value });
-            setPosition(mx + 8, my + 8);
             setVisible(true);
         })
-        .on("mouseleave", () => {
+        .on("mousemove", function (event, _) {
+            const [mx, my] = d3.pointer(event, container);
+            setPosition(mx + 8, my + 8);
+        })
+        .on("mouseleave", function () {
+            d3.select(this)
+                .attr("stroke", "none")
+                .style("opacity", 0.9);
             setVisible(false);
         });
 
     // colorbar (vertical) legend placed to the right of the plot
     const legendWidth = 12;
-    const legendHeight = innerHeight; // span full plot height
-    const legendGap = 20;
-    const legendX = innerWidth + legendGap; // inside g coordinates
     const legendY = 0;
+    const legendHeight = innerHeight - legendY;
+    const legendGap = 16;
+    const legendX = innerWidth + legendGap;
 
     const defs = g.append("defs");
     const gradientId = `heatmap-gradient-${Math.random().toString(36).slice(2, 9)}`;
@@ -132,6 +146,19 @@ export function renderHeatmapChart(container, data, margins) {
     const legendG = g.append('g')
         .attr('class', 'heatmap-legend')
         .attr('transform', `translate(${legendX}, ${legendY})`);
+
+    // legend title (two lines)
+    legendG.append('text')
+        .attr('x', legendWidth / 2)
+        .attr('y', -28)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', 11)
+        .attr('fill', '#333')
+        .style('pointer-events', 'none')
+        .each(function () {
+            d3.select(this).append('tspan').attr('x', legendWidth / 2).text('Events');
+            d3.select(this).append('tspan').attr('x', legendWidth / 2).attr('dy', '1.1em').text('intensity');
+        });
 
     // gradient rect (vertical)
     legendG.append('rect')
@@ -156,17 +183,31 @@ export function renderHeatmapChart(container, data, margins) {
     const swY = legendY + legendHeight + 8; // just below gradient with small gap
     const swGroup = g.append('g')
         .attr('transform', `translate(${swX}, ${swY})`);
+
     swGroup.append('rect')
         .attr('width', legendWidth)
         .attr('height', legendWidth)
         .attr('fill', `url(#${patternId})`)
         .attr('stroke', '#ddd');
+
     swGroup.append('text')
-        .attr('x', 18)
-        .attr('y', 11)
+        .attr('x', legendWidth + 8)
+        .attr('y', legendWidth / 2)
         .attr('font-size', 11)
-        .attr('fill', '#111')
-        .text('No data');
+        .attr('fill', '#333')
+        .attr('dominant-baseline', 'middle')
+        .style('pointer-events', 'none')
+        .each(function () {
+            d3.select(this)
+                .append('tspan')
+                .attr('x', legendWidth + 8)
+                .text('No events');
+            d3.select(this)
+                .append('tspan')
+                .attr('x', legendWidth + 8)
+                .attr('dy', '1.2em')
+                .text('recorded');
+        });
 
     container.appendChild(svg.node());
 }
