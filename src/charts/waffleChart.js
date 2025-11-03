@@ -118,4 +118,26 @@ export function renderWaffleChart(container, data, margins) {
 
     // append the svg to the container
     container.appendChild(svg.node());
+
+    // Recalculate container height based on actual rendered SVG content.
+    // Many layouts use a fixed container height; here we compute the SVG
+    // bounding box after rendering and resize the container so the chart
+    // fills it without extra whitespace.
+
+    const svgNode = svg.node();
+    // getBBox requires the node to be in the DOM (we appended it above)
+    const bbox = svgNode.getBBox();
+
+    // compute a safe desired height (include any top/bottom margins)
+    const desiredHeight = Math.max(50, Math.ceil(bbox.y + bbox.height + margins.top + margins.bottom));
+
+    // set the container height in pixels so the SVG with height:100% will fill it
+    container.style.height = desiredHeight + 'px';
+
+    // update the svg viewBox height so it matches the rendered content width/height
+    // keep width at least the original width
+    const newViewBoxWidth = Math.max(width, Math.ceil(bbox.width));
+    const newViewBoxHeight = Math.max(50, Math.ceil(bbox.y + bbox.height));
+    svg.attr('viewBox', `0 0 ${newViewBoxWidth} ${newViewBoxHeight}`);
+
 }

@@ -76,4 +76,5 @@ export function renderBarChart(container, data, margins) {
 
     // append the svg to the container
     container.appendChild(svg.node());
+
 }
