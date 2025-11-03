@@ -52,10 +52,7 @@ export function renderHeatmapChart(container, data, margins) {
         .call(d3.axisBottom(xScale).tickSize(0))
         .call(g => g.select(".domain").remove())
         .selectAll("text")
-        .attr("dy", "1.35em")
-        .attr("dx", "-0.5em")
         .attr("transform", "rotate(0)")
-        .style("text-anchor", "end");
 
     g.append("g")
         .attr("class", "y axis")
