@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 
 import pandas as pd
 
@@ -14,7 +15,11 @@ WEEK,REGION,COUNTRY,ADMIN1,EVENT_TYPE,SUB_EVENT_TYPE,EVENTS,FATALITIES,POPULATIO
 2017-02-11,Middle East,Bahrain,Capital,Explosions/Remote violence,Remote explosive/landmine/IED,2,0,,Political violence,285,26.1927,50.5508
 """
 
-# Only keep events from 2020 onwards
+output_dir = os.getcwd() + "/../src/csv/"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# # Only keep events from 2020 onwards
 df["WEEK"] = pd.to_datetime(df["WEEK"])
 cutoff_date = pd.to_datetime("2020-01-01")
 df = df[df["WEEK"] >= cutoff_date]
@@ -23,21 +28,32 @@ print(f"Data from {df['WEEK'].min().date()} to {df['WEEK'].max().date()}")
 
 # barchart
 # Total casualties by country
-output = "fatalities_by_country.csv"
+output = output_dir + "fatalities_by_country.csv"
 df_country = df.groupby("COUNTRY")["FATALITIES"].sum().reset_index()
 df_country = df_country[df_country["FATALITIES"] > 0]
 df_country.to_csv(output, index=False)
 
 # grouped barchart and full barchart
 # Total number of events by country and event type
-output = "events_by_country_event_type.csv"
+output = output_dir + "events_by_country_event_type.csv"
 df_country_event = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
 df_country_event = df_country_event[df_country_event["EVENTS"] > 0]
 df_country_event.to_csv(output, index=False)
 
+# heatmap chart
+# Extract data for geo heatmap
+output = output_dir + "events_by_lat_lon.csv"
+df_country_lat_lon = (
+    df.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE"])["EVENTS"]
+    .sum()
+    .reset_index()
+)
+df_country_lat_lon = df_country_lat_lon[df_country_lat_lon["EVENTS"] > 0]
+df_country_lat_lon.to_csv(output, index=False)
+
 # waffle chart
 # Number of events by event type
-output = "events_by_event_type.csv"
+output = output_dir + "events_by_event_type.csv"
 df_event_type = df.groupby("EVENT_TYPE")["EVENTS"].sum().reset_index()
 df_event_type = df_event_type[df_event_type["EVENTS"] > 0]
 df_event_type.to_csv(output, index=False)

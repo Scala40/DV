@@ -1,0 +1,87 @@
+COUNTRY,EVENT_TYPE,EVENTS
+Bahrain,Battles,7
+Bahrain,Explosions/Remote violence,15
+Bahrain,Protests,9340
+Bahrain,Riots,4155
+Bahrain,Strategic developments,154
+Bahrain,Violence against civilians,62
+Iran,Battles,476
+Iran,Explosions/Remote violence,519
+Iran,Protests,28704
+Iran,Riots,1280
+Iran,Strategic developments,1311
+Iran,Violence against civilians,733
+Iraq,Battles,13230
+Iraq,Explosions/Remote violence,31411
+Iraq,Protests,8862
+Iraq,Riots,1410
+Iraq,Strategic developments,7435
+Iraq,Violence against civilians,3656
+Israel,Battles,371
+Israel,Explosions/Remote violence,5097
+Israel,Protests,9438
+Israel,Riots,1243
+Israel,Strategic developments,2154
+Israel,Violence against civilians,285
+Jordan,Battles,98
+Jordan,Explosions/Remote violence,30
+Jordan,Protests,3311
+Jordan,Riots,394
+Jordan,Strategic developments,153
+Jordan,Violence against civilians,19
+Kuwait,Battles,1
+Kuwait,Protests,92
+Kuwait,Riots,3
+Kuwait,Strategic developments,33
+Kuwait,Violence against civilians,1
+Lebanon,Battles,1056
+Lebanon,Explosions/Remote violence,16807
+Lebanon,Protests,10665
+Lebanon,Riots,2764
+Lebanon,Strategic developments,2619
+Lebanon,Violence against civilians,430
+Oman,Battles,1
+Oman,Explosions/Remote violence,1
+Oman,Protests,26
+Oman,Riots,6
+Oman,Strategic developments,30
+Oman,Violence against civilians,6
+Palestine,Battles,5844
+Palestine,Explosions/Remote violence,22667
+Palestine,Protests,5090
+Palestine,Riots,28591
+Palestine,Strategic developments,14343
+Palestine,Violence against civilians,5869
+Qatar,Explosions/Remote violence,2
+Qatar,Protests,44
+Qatar,Riots,2
+Qatar,Strategic developments,17
+Saudi Arabia,Battles,668
+Saudi Arabia,Explosions/Remote violence,2331
+Saudi Arabia,Protests,18
+Saudi Arabia,Riots,6
+Saudi Arabia,Strategic developments,484
+Saudi Arabia,Violence against civilians,48
+Syria,Battles,29325
+Syria,Explosions/Remote violence,81690
+Syria,Protests,5793
+Syria,Riots,592
+Syria,Strategic developments,12596
+Syria,Violence against civilians,15296
+Turkey,Battles,3692
+Turkey,Explosions/Remote violence,1727
+Turkey,Protests,31969
+Turkey,Riots,726
+Turkey,Strategic developments,7544
+Turkey,Violence against civilians,938
+United Arab Emirates,Explosions/Remote violence,10
+United Arab Emirates,Protests,11
+United Arab Emirates,Riots,2
+United Arab Emirates,Strategic developments,19
+United Arab Emirates,Violence against civilians,5
+Yemen,Battles,26243
+Yemen,Explosions/Remote violence,48160
+Yemen,Protests,20687
+Yemen,Riots,671
+Yemen,Strategic developments,6653
+Yemen,Violence against civilians,5415
