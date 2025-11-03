@@ -15,7 +15,7 @@ export function renderCirclePackingChart(container, data, margins) {
     const customData = data.map(d => ({
         country: d.country,
         fatalities: d.fatalities,
-        adjustedFatalities: d.fatalities < 50 ? d.fatalities + 40 : d.fatalities
+        adjustedFatalities: d.fatalities < 80 ? 80 : d.fatalities
     }));
 
     // prepare hierarchy for packing
@@ -125,6 +125,51 @@ export function renderCirclePackingChart(container, data, margins) {
                 .style("opacity", d => d.r > 20 ? 1 : 0)
                 .attr("font-size", d => Math.max(9, Math.min(12, d.r / 4)));
         });
+
+    const legendWidth = 220;
+    const legendPadding = 8;
+    const lx = innerWidth - legendWidth - legendPadding;
+    const ly = legendPadding;
+
+    const legend = svg.append("g")
+        .attr("class", "cp-legend")
+        .attr("transform", `translate(${margins.left + Math.max(0, lx)},${margins.top + ly})`)
+        .style("font-family", "sans-serif")
+        .style("font-size", "15px")
+        .style("pointer-events", "none")
+        .attr("fill", "currentColor");
+
+    // background box
+    legend.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", legendWidth)
+        .attr("height", 62)
+        .attr("rx", 6)
+        .attr("fill", "rgba(255,255,255,0.80)")
+        .attr("stroke", "rgba(0,0,0,0.20)");
+
+    // title
+    legend.append("text")
+        .attr("x", 12)
+        .attr("y", 16)
+        .attr("font-weight", 600)
+        .text("How to read");
+
+    legend.append("text")
+        .attr("x", 12)
+        .attr("y", 32)
+        .attr("fill", "rgba(0,0,0,0.7)")
+        .attr("font-size", 15)
+        .text("Circle area ≈ fatalities");
+
+    // small explanatory footnote about boosted tiny values
+    legend.append("text")
+        .attr("x", 12)
+        .attr("y", 50)
+        .attr("font-size", 12)
+        .attr("fill", "rgba(0,0,0,0.6)")
+        .text("Tiny values were boosted for visibility");
 
     // append the svg to the container
     container.appendChild(svg.node());
