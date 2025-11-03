@@ -64,16 +64,20 @@ export function renderHeatmapChart(container, data, margins) {
 
     // tooltip (moved to shared utility)
     const { tooltip, setContent, setVisible, setPosition } = createHeatmapTooltip(container);
-
+    // rounded corners for cells dimension
+    const roundAmount = Math.max(0, Math.round(xScale.bandwidth() * 0.03));
     g.selectAll("rect")
         .data(cells)
         .join("rect")
         .attr("x", d => xScale(d.x))
         .attr("y", d => yScale(d.y))
         .attr("width", xScale.bandwidth())
-    .attr("height", yScale.bandwidth())
-    .attr("fill", d => d.value == null ? '#ffffff' : color(d.value))
-        .style("stroke", "#fff")
+        .attr('rx', roundAmount)
+        .attr('ry', roundAmount)
+        .attr("height", yScale.bandwidth())
+        .attr("fill", d => d.value == null ? '#ffffff' : color(d.value))
+        .style("stroke", d => d.value == null ? '#ccc' : '#fff')
+        .style("stroke-width", 1)
         .on("mousemove", (event, d) => {
             const [mx, my] = d3.pointer(event, container);
             setContent({ x: d.x, y: d.y, value: d.value });
