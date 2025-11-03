@@ -66,6 +66,22 @@ export function renderHeatmapChart(container, data, margins) {
     const { tooltip, setContent, setVisible, setPosition } = createHeatmapTooltip(container);
     // rounded corners for cells dimension
     const roundAmount = Math.max(0, Math.round(xScale.bandwidth() * 0.03));
+    // create a small diagonal line pattern for "no data" cells
+    const patternId = `heatmap-hatch-${Math.random().toString(36).slice(2, 9)}`;
+    const pat = g.append("defs")
+        .append("pattern")
+        .attr("id", patternId)
+        .attr("patternUnits", "userSpaceOnUse")
+        .attr("width", 6)
+        .attr("height", 6)
+        .attr("patternTransform", "rotate(-45)");
+
+    pat.append("rect").attr("width", 6).attr("height", 6).attr("fill", "#ffffff");
+    pat.append("path")
+        .attr("d", "M0 0 L6 0")
+        .attr("stroke", "#ccc")
+        .attr("stroke-width", 1);
+
     g.selectAll("rect")
         .data(cells)
         .join("rect")
@@ -75,8 +91,7 @@ export function renderHeatmapChart(container, data, margins) {
         .attr('rx', roundAmount)
         .attr('ry', roundAmount)
         .attr("height", yScale.bandwidth())
-        .attr("fill", d => d.value == null ? '#ffffff' : color(d.value))
-        .style("stroke", d => d.value == null ? '#ccc' : '#fff')
+        .attr("fill", d => d.value == null ? `url(#${patternId})` : color(d.value))
         .style("stroke-width", 1)
         .on("mousemove", (event, d) => {
             const [mx, my] = d3.pointer(event, container);
@@ -130,7 +145,7 @@ export function renderHeatmapChart(container, data, margins) {
     const swX = legendX; // align with left edge of gradient
     const swY = legendY + legendHeight + 8; // just below gradient with small gap
     const swGroup = g.append('g').attr('transform', `translate(${swX}, ${swY})`);
-    swGroup.append('rect').attr('width', 14).attr('height', 14).attr('fill', '#ffffff').attr('stroke', '#ccc');
+    swGroup.append('rect').attr('width', legendWidth).attr('height', legendWidth).attr('fill', `url(#${patternId})`).attr('stroke', '#ddd');
     swGroup.append('text').attr('x', 18).attr('y', 11).attr('font-size', 11).attr('fill', '#111').text('No data');
 
     container.appendChild(svg.node());
