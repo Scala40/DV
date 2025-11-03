@@ -139,5 +139,4 @@ export function renderWaffleChart(container, data, margins) {
     const newViewBoxWidth = Math.max(width, Math.ceil(bbox.width));
     const newViewBoxHeight = Math.max(50, Math.ceil(bbox.y + bbox.height));
     svg.attr('viewBox', `0 0 ${newViewBoxWidth} ${newViewBoxHeight}`);
-
 }

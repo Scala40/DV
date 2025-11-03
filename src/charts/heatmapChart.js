@@ -23,18 +23,18 @@ export function renderHeatmapChart(container, data, margins) {
     const years = Array.from(new Set(data.map(d => d.year))).sort();
     const countries = Array.from(new Set(data.map(d => d.country))).sort();
 
-    // Build lookup for existing values
-    const lookup = new Map();
-    data.forEach(d => lookup.set(`${d.year}||${d.country}`, +d.events));
-
     const cells = [];
-    for (const y of years) {
-        for (const c of countries) {
-            const key = `${y}||${c}`;
-            const val = lookup.has(key) ? lookup.get(key) : null;
-            cells.push({ x: y, y: c, value: val });
-        }
-    }
+    data.forEach(d => {
+        cells.push({ x: d.year, y: d.country, value: +d.events });
+    });
+
+    years.forEach(year => {
+        countries.forEach(country => {
+            if (!cells.find(c => c.x === year && c.y === country)) {
+                cells.push({ x: year, yu: country, value: null });
+            }
+        });
+    });
 
     const xScale = d3.scaleBand().domain(years).range([0, innerWidth]).padding(0.05);
     const yScale = d3.scaleBand().domain(countries).range([0, innerHeight]).padding(0.05);
@@ -61,6 +61,7 @@ export function renderHeatmapChart(container, data, margins) {
 
     // tooltip (moved to shared utility)
     const { tooltip, setContent, setVisible, setPosition } = createHeatmapTooltip(container);
+
     // rounded corners for cells dimension
     const roundAmount = Math.max(0, Math.round(xScale.bandwidth() * 0.03));
     // create a small diagonal line pattern for "no data" cells
@@ -73,13 +74,17 @@ export function renderHeatmapChart(container, data, margins) {
         .attr("height", 6)
         .attr("patternTransform", "rotate(-45)");
 
-    pat.append("rect").attr("width", 6).attr("height", 6).attr("fill", "#ffffff");
+    pat.append("rect")
+        .attr("width", 6)
+        .attr("height", 6)
+        .attr("fill", "#ffffff");
     pat.append("path")
         .attr("d", "M0 0 L6 0")
         .attr("stroke", "#ccc")
         .attr("stroke-width", 1);
 
-    g.selectAll("rect")
+    g.append("g")
+        .selectAll("rect")
         .data(cells)
         .join("rect")
         .attr("x", d => xScale(d.x))
@@ -109,8 +114,14 @@ export function renderHeatmapChart(container, data, margins) {
 
     const defs = g.append("defs");
     const gradientId = `heatmap-gradient-${Math.random().toString(36).slice(2, 9)}`;
+
     // vertical gradient (top -> bottom)
-    const grad = defs.append("linearGradient").attr("id", gradientId).attr("x1", "0%").attr("x2", "0%").attr("y1", "0%").attr("y2", "100%");
+    const grad = defs.append("linearGradient")
+        .attr("id", gradientId)
+        .attr("x1", "0%")
+        .attr("x2", "0%")
+        .attr("y1", "0%")
+        .attr("y2", "100%");
 
     const stops = d3.range(0, 1.01, 0.05);
     stops.forEach(t => grad.append("stop")
@@ -118,7 +129,9 @@ export function renderHeatmapChart(container, data, margins) {
         .attr("stop-color", color(vmin + (1 - t) * (vmax - vmin)))
     );
 
-    const legendG = g.append('g').attr('class', 'heatmap-legend').attr('transform', `translate(${legendX}, ${legendY})`);
+    const legendG = g.append('g')
+        .attr('class', 'heatmap-legend')
+        .attr('transform', `translate(${legendX}, ${legendY})`);
 
     // gradient rect (vertical)
     legendG.append('rect')
@@ -141,11 +154,19 @@ export function renderHeatmapChart(container, data, margins) {
     // 'No data' swatch and label placed directly beneath the gradient
     const swX = legendX; // align with left edge of gradient
     const swY = legendY + legendHeight + 8; // just below gradient with small gap
-    const swGroup = g.append('g').attr('transform', `translate(${swX}, ${swY})`);
-    swGroup.append('rect').attr('width', legendWidth).attr('height', legendWidth).attr('fill', `url(#${patternId})`).attr('stroke', '#ddd');
-    swGroup.append('text').attr('x', 18).attr('y', 11).attr('font-size', 11).attr('fill', '#111').text('No data');
+    const swGroup = g.append('g')
+        .attr('transform', `translate(${swX}, ${swY})`);
+    swGroup.append('rect')
+        .attr('width', legendWidth)
+        .attr('height', legendWidth)
+        .attr('fill', `url(#${patternId})`)
+        .attr('stroke', '#ddd');
+    swGroup.append('text')
+        .attr('x', 18)
+        .attr('y', 11)
+        .attr('font-size', 11)
+        .attr('fill', '#111')
+        .text('No data');
 
     container.appendChild(svg.node());
-
-
 }
