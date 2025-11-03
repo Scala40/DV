@@ -23,18 +23,18 @@ export function renderHeatmapChart(container, data, margins) {
     const years = Array.from(new Set(data.map(d => d.year))).sort();
     const countries = Array.from(new Set(data.map(d => d.country))).sort();
 
-    const cells = [];
-    data.forEach(d => {
-        cells.push({ x: d.year, y: d.country, value: +d.events });
-    });
+    // Build lookup for existing values
+    const lookup = new Map();
+    data.forEach(d => lookup.set(`${d.year}||${d.country}`, +d.events));
 
-    years.forEach(year => {
-        countries.forEach(country => {
-            if (!cells.find(c => c.x === year && c.y === country)) {
-                cells.push({ x: year, yu: country, value: null });
-            }
-        });
-    });
+    const cells = [];
+    for (const y of years) {
+        for (const c of countries) {
+            const key = `${y}||${c}`;
+            const val = lookup.has(key) ? lookup.get(key) : null;
+            cells.push({ x: y, y: c, value: val });
+        }
+    }
 
     const xScale = d3.scaleBand().domain(years).range([0, innerWidth]).padding(0.05);
     const yScale = d3.scaleBand().domain(countries).range([0, innerHeight]).padding(0.05);
