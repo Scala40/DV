@@ -38,6 +38,6 @@ export const fullBarChartMargins = new Margin({
 export const waffleChartMargins = new Margin({
     top: 20,
     right: 20,
-    bottom: 20,
+    bottom: 0,
     left: 20
 });

@@ -57,9 +57,16 @@ export function createGroupedChartTooltip(container, { data, eventTypes, color }
         tooltip.innerHTML = '';
 
         const strong = document.createElement('strong');
+        const line = document.createElement('div');
+        
         strong.style.fontSize = '20px';
         strong.textContent = d.country;
+
+        line.textContent = `Total Events: ${d.events}`;
+        line.style.fontSize = '16px';
+
         tooltip.appendChild(strong);
+        tooltip.appendChild(line);
 
         // Show mini-chart only when hovered bar value is > 0
         if (d.events > 0) {
