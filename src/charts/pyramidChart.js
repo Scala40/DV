@@ -5,6 +5,7 @@ import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 export function renderPyramidChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
+
     // clear previous SVG but keep any controls (like the country selector) intact
     const existingSvg = container.querySelector('svg');
     if (existingSvg) existingSvg.remove();
@@ -12,10 +13,33 @@ export function renderPyramidChart(container, data, margins) {
     // Create the SVG container.
     const svg = createResponsiveSvg(width, height);
 
-    // Keep a reference to the original full dataset on the container so re-renders
+    // Keep a reference to the original raw data on the container so re-renders
     // (triggered by changing the selector) always use the complete data.
-    let fullData = container.__pyramidFullData || data;
-    container.__pyramidFullData = fullData;
+    // Accept either a flat array (legacy) or an object of named datasets
+    // e.g. { population: [...], Deaths: [...] }
+    const rawData = container.__pyramidRawData || data;
+    // selected dataset key persists on the container between renders
+    let datasetKey = container.__pyramidDatasetKey || 'population';
+    let fullData;
+
+    if (rawData && typeof rawData === 'object' && !Array.isArray(rawData)) {
+        // rawData is an object with named datasets
+        const keys = Object.keys(rawData);
+        if (!rawData[datasetKey]) {
+            // default to first available key if requested one isn't present
+            datasetKey = keys[0];
+        }
+        fullData = rawData[datasetKey];
+        container.__pyramidRawData = rawData;
+        container.__pyramidDatasetKey = datasetKey;
+        container.__pyramidFullData = fullData;
+    } else {
+        // rawData is already an array
+        fullData = container.__pyramidFullData || rawData;
+        container.__pyramidFullData = fullData;
+        container.__pyramidRawData = null;
+        container.__pyramidDatasetKey = null;
+    }
 
     // NOTE: do NOT clear any running animation here - the animation should
     // continue across re-renders triggered by the play loop. The animation
@@ -32,6 +56,40 @@ export function renderPyramidChart(container, data, margins) {
         controls = document.createElement('div');
         controls.className = 'pyramid-controls';
         container.appendChild(controls);
+    }
+
+    // If the source provided multiple named datasets, expose a small selector
+    // so the user can switch between e.g. population vs Deaths.
+    if (container.__pyramidRawData) {
+        let datasetSelect = controls.querySelector('.pyramid-dataset-select');
+        if (!datasetSelect) {
+            const dsLabel = document.createElement('label');
+            dsLabel.textContent = 'Dataset: ';
+            datasetSelect = document.createElement('select');
+            datasetSelect.className = 'pyramid-dataset-select';
+
+            Object.keys(container.__pyramidRawData).forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                // make the label user-friendly
+                opt.text = (k.toLowerCase() === 'population') ? 'Population' : k;
+                datasetSelect.appendChild(opt);
+            });
+
+            // ensure current selection is set
+            datasetSelect.value = container.__pyramidDatasetKey || Object.keys(container.__pyramidRawData)[0];
+
+            // attach handler to switch dataset and re-render
+            datasetSelect.addEventListener('change', () => {
+                container.__pyramidDatasetKey = datasetSelect.value;
+                // force re-render using the raw data object so internal logic selects the right key
+                renderPyramidChart(container, container.__pyramidRawData, margins);
+            });
+
+            // insert selector at the top of controls so it reads Dataset -> Country -> Year
+            controls.appendChild(dsLabel);
+            controls.appendChild(datasetSelect);
+        }
     }
 
     // COUNTRY select

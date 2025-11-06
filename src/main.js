@@ -21,6 +21,7 @@ import { renderFullBarChart } from './charts/fullChart.js';
 import { renderWaffleChart } from './charts/waffleChart.js';
 import { renderCirclePackingChart } from './charts/circlePackingChart.js';
 import { renderPyramidChart } from './charts/pyramidChart.js';
+import { renderBoxplotChart } from './charts/boxplotChart.js';
 import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
 
 import { initNavigation } from './utils/navigation.js';
@@ -91,6 +92,13 @@ observeRender(
 observeRender(
     document.getElementById("pyramid-chart"),
     renderPyramidChart,
+    pyramidChartData,
+    pyramidChartMargins
+);
+
+observeRender(
+    document.getElementById("boxplot-chart"),
+    renderBoxplotChart,
     pyramidChartData,
     pyramidChartMargins
 );
