@@ -51,3 +51,145 @@
     transition: opacity 120ms ease, transform 120ms ease;
     transform: translateY(4px);
 }
+
+/* Pyramid chart controls styling */
+.pyramid-controls {
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--default-font-family);
+}
+
+.pyramid-controls label {
+    margin-right: 6px;
+}
+
+.pyramid-country-select {
+    min-width: 220px;
+}
+
+.pyramid-year-select {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.pyramid-year-display {
+    min-width: 40px;
+    display: inline-block;
+    text-align: left;
+}
+
+.pyramid-play-btn {
+    margin-left: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: white;
+    cursor: pointer;
+}
+
+/* Slider styling using university blue variable */
+.pyramid-controls .pyramid-year-select[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    /* CSS variable used to paint the left (filled) portion of the track */
+    --pct: 0%;
+    background: transparent;
+    outline: none;
+}
+
+.pyramid-controls .pyramid-year-select[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    /* Use the --pct variable set on the element to paint the left side up to the thumb */
+    background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
+    border-radius: 3px;
+}
+
+.pyramid-controls .pyramid-year-select[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-unige-blue);
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+    margin-top: -5px;
+    cursor: pointer;
+}
+
+.pyramid-controls .pyramid-year-select[type="range"]::-moz-range-track {
+    height: 6px;
+    background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
+    border-radius: 3px;
+}
+.pyramid-controls .pyramid-year-select[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-unige-blue);
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+    cursor: pointer;
+}
+
+.pyramid-controls .pyramid-year-select[type="range"]:focus::-webkit-slider-thumb,
+.pyramid-controls .pyramid-year-select[type="range"]:hover::-webkit-slider-thumb,
+.pyramid-controls .pyramid-year-select[type="range"]:focus::-moz-range-thumb,
+.pyramid-controls .pyramid-year-select[type="range"]:hover::-moz-range-thumb {
+    transform: scale(1.05);
+}
+
+/* Pyramid bar colors (use CSS vars so colors live in the stylesheet) */
+:root {
+    --pyramid-male-color: var(--color-unige-blue);
+    --pyramid-female-color: var(--color-farmacia);
+}
+
+/* UniGe 11-color palette (use these variables in charts) */
+:root {
+    
+    --unige-palette-0: #0061A0; /* giurisprudenza (blue) */
+    --unige-palette-1: #F4633A; /* architettura-design (orange) */
+    --unige-palette-2: #007C58; /* scienze-mfn (green) */
+    --unige-palette-3:  #9B3259; /* scienze-formazione  */
+    --unige-palette-4: #F1C400; /* economia (purple) */
+    --unige-palette-5: #B79A81; /* lettere-filosofia (warm neutral) */
+    --unige-palette-6: #E0A4A1; /* farmacia (pink) */
+    --unige-palette-7: #A4BCC2; /* lingue-culture (light gray/cool) */
+    --unige-palette-8: #574676; /* ingegneria*/
+    --unige-palette-9: #00A7B5; /* scienze-politiche (cyan) */
+    --unige-palette-10:#EF3340; /* medicina */
+}
+
+/* helper class to preview swatches (optional, useful during design) */
+.unige-swatch {
+    display: inline-block;
+    width: 22px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.bar.male {
+    fill: var(--pyramid-male-color);
+}
+
+.bar.female {
+    fill: var(--pyramid-female-color);
+}
+
+/* Legend rects use classes 'legend-rect male' / 'legend-rect female' */
+.legend-rect.male {
+    fill: var(--pyramid-male-color);
+}
+.legend-rect.female {
+    fill: var(--pyramid-female-color);
+}
+
+/* Generic bar using UniGe blue for other charts */
+.bar-unige {
+    fill: var(--color-unige-blue);
+}

@@ -19,6 +19,11 @@ export function renderPyramidChart(container, data, margins) {
     let fullData = container.__pyramidFullData || data;
     container.__pyramidFullData = fullData;
 
+    // NOTE: do NOT clear any running animation here — the animation should
+    // continue across re-renders triggered by the play loop. The animation
+    // is stopped explicitly when the user moves the slider manually or
+    // when the play button is clicked again.
+
     // --- Controls UI (country + year selectors) ---
     const countries = Array.from(new Set(fullData.map(d => d.Country))).sort();
     const years = Array.from(new Set(fullData.map(d => d.Year))).sort((a, b) => b - a);
@@ -28,7 +33,6 @@ export function renderPyramidChart(container, data, margins) {
     if (!controls) {
         controls = document.createElement('div');
         controls.className = 'pyramid-controls';
-        controls.style.marginBottom = '8px';
         container.appendChild(controls);
     }
 
@@ -37,11 +41,11 @@ export function renderPyramidChart(container, data, margins) {
     if (!countrySelect) {
         const label = document.createElement('label');
         label.textContent = 'Country: ';
-        label.style.marginRight = '6px';
+    // styling moved to CSS
 
         countrySelect = document.createElement('select');
         countrySelect.className = 'pyramid-country-select';
-        countrySelect.style.minWidth = '220px';
+    // styling moved to CSS
 
         // populate options
         countries.forEach(c => {
@@ -57,36 +61,116 @@ export function renderPyramidChart(container, data, margins) {
 
         controls.appendChild(label);
         controls.appendChild(countrySelect);
+        // attach listener once when the control is created
+        countrySelect.addEventListener('change', () => renderPyramidChart(container, fullData, margins));
     }
 
     // YEAR select
+    // YEAR slider
     let yearSelect = controls.querySelector('.pyramid-year-select');
     if (!yearSelect) {
         const yLabel = document.createElement('label');
         yLabel.textContent = 'Year: ';
-        yLabel.style.margin = '0 6px 0 12px';
+    // styling moved to CSS
 
-        yearSelect = document.createElement('select');
+        // create a slider (range input) for years
+        yearSelect = document.createElement('input');
+        yearSelect.type = 'range';
         yearSelect.className = 'pyramid-year-select';
-        yearSelect.style.minWidth = '100px';
+        const minYear = Math.min(...years);
+        const maxYear = Math.max(...years);
+        yearSelect.min = minYear;
+        yearSelect.max = maxYear;
+        yearSelect.step = 1;
+    // styling moved to CSS
 
-        years.forEach(y => {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.text = y;
-            yearSelect.appendChild(opt);
-        });
+        // display current value
+        const yearDisplay = document.createElement('span');
+        yearDisplay.className = 'pyramid-year-display';
+    // styling moved to CSS
 
-        const defaultYear = years.includes(2022) ? 2022 : years[0];
+        const defaultYear = years.includes(2023) ? 2023 : years[0];
         yearSelect.value = defaultYear;
+        yearDisplay.textContent = defaultYear;
+
+        // helper to update range fill (colored track up to thumb)
+        function updateYearSliderFill() {
+            const min = +yearSelect.min;
+            const max = +yearSelect.max;
+            const val = +yearSelect.value;
+            const pct = (val - min) / (max - min) * 100;
+            // set CSS variable used by the track pseudo-elements so the left side
+            // of the track is painted with --color-unige-blue up to the thumb
+            yearSelect.style.setProperty('--pct', `${pct}%`);
+        }
+        // initialize fill
+        updateYearSliderFill();
+
+        // update display when slider moves
+        yearSelect.addEventListener('input', () => {
+            yearDisplay.textContent = yearSelect.value;
+            // update visual fill
+            updateYearSliderFill();
+            // live update the chart while sliding
+            renderPyramidChart(container, fullData, margins);
+            // if user moves the slider manually, stop any running animation
+            if (container.__pyramidAnimationId) {
+                clearInterval(container.__pyramidAnimationId);
+                container.__pyramidAnimationId = null;
+                const playBtn = controls.querySelector('.pyramid-play-btn');
+                if (playBtn) playBtn.textContent = 'Play';
+            }
+        });
 
         controls.appendChild(yLabel);
         controls.appendChild(yearSelect);
+        controls.appendChild(yearDisplay);
+
+        // Play/Stop button to animate the slider through the years
+        let playBtn = controls.querySelector('.pyramid-play-btn');
+        if (!playBtn) {
+            playBtn = document.createElement('button');
+            playBtn.className = 'pyramid-play-btn';
+            playBtn.textContent = 'Play';
+                // styling moved to CSS
+            controls.appendChild(playBtn);
+
+            playBtn.addEventListener('click', () => {
+                // toggle animation
+                if (container.__pyramidAnimationId) {
+                    clearInterval(container.__pyramidAnimationId);
+                    container.__pyramidAnimationId = null;
+                    playBtn.textContent = 'Play';
+                    return;
+                }
+
+                playBtn.textContent = 'Stop';
+                const minY = +yearSelect.min;
+                const maxY = +yearSelect.max;
+                let current = +yearSelect.value || minY;
+                // if currently at max, start from min
+                if (current >= maxY) current = minY - 1;
+                const stepMs = 400; // milliseconds per year step
+                container.__pyramidAnimationId = setInterval(() => {
+                    current += 1;
+                    if (current > maxY) {
+                        clearInterval(container.__pyramidAnimationId);
+                        container.__pyramidAnimationId = null;
+                        playBtn.textContent = 'Play';
+                        return;
+                    }
+                    yearSelect.value = current;
+                    const disp = controls.querySelector('.pyramid-year-display');
+                    if (disp) disp.textContent = current;
+                    // update fill before rendering
+                    updateYearSliderFill();
+                    renderPyramidChart(container, fullData, margins);
+                }, stepMs);
+            });
+        }
     }
 
-    // when either selection changes, re-render the chart using the original full data
-    countrySelect.addEventListener('change', () => renderPyramidChart(container, fullData, margins));
-    yearSelect.addEventListener('change', () => renderPyramidChart(container, fullData, margins));
+    // listeners are attached when controls are created (to avoid duplicate handlers on re-render)
 
     // determine selected country and year and filter data (use fullData as the source)
     const selectedCountry = countrySelect.value || (countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : countries[0]);
@@ -184,8 +268,7 @@ export function renderPyramidChart(container, data, margins) {
         .attr("y", d => (y(d.Age_Group_5yr) || 0))
         // width proportional to male population using the left-side scale
         .attr("width", d => xLeft(d.Population))
-        .attr("height", y.bandwidth())
-        .attr("fill", "#1f77b4");
+    .attr("height", y.bandwidth());
 
     svg.append("g")
         .attr("font-size", 12)
@@ -225,8 +308,7 @@ export function renderPyramidChart(container, data, margins) {
         .attr("x", d => centerX + centerGap / 2)
         .attr("y", d => (y(d.Age_Group_5yr) || 0))
         .attr("width", d => xRight(d.Population))
-        .attr("height", y.bandwidth())
-        .attr("fill", "#ff7f0e");
+    .attr("height", y.bandwidth());
 
     svg.append("g")
         .attr("font-size", 12)
@@ -268,8 +350,8 @@ export function renderPyramidChart(container, data, margins) {
 
         // --- Add legend to top right ---
         const legendData = [
-            { label: "Male", color: "#1f77b4" },
-            { label: "Female", color: "#ff7f0e" }
+            { label: "Male", cls: 'male' },
+            { label: "Female", cls: 'female' }
         ];
 
         const legendWidth = 120;
@@ -286,7 +368,7 @@ export function renderPyramidChart(container, data, margins) {
             .attr("y", (d, i) => i * 22)
             .attr("width", 18)
             .attr("height", 18)
-            .attr("fill", d => d.color);
+            .attr("class", d => `legend-rect ${d.cls}`);
 
         legend.selectAll("text")
             .data(legendData)

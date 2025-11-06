@@ -2,6 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import { createGroupedChartTooltip } from '../utils/tooltip.js';
+import { createUnigeOrdinalScale } from '../utils/palette.js';
 
 export function renderGroupedBarChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -36,11 +37,9 @@ export function renderGroupedBarChart(container, data, margins) {
         .nice()
         .range([height - margins.bottom, margins.top]);
 
-    // color per event type; safe fallback palette if needed.
-    const fallback = d3.schemeTableau10;
-    const color = d3.scaleOrdinal()
+    // color per event type using the UniGe 11-color palette
+    const color = createUnigeOrdinalScale()
         .domain(eventTypes)
-        .range(eventTypes.map((_, i) => fallback[i % fallback.length]))
         .unknown("#ccc");
 
     // Create the SVG container.

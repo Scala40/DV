@@ -54,54 +54,131 @@ function processAndVisualize(data) {
 export function renderRidgePlotChart(container, data, margins) {
 
     const { width, height } = getContainerDimensions(container);
-    container.innerHTML = "";
 
-    // --- Year Filter Buttons ---
-    const years = [2020, 2021, 2022, 2023, 2024, 2025];
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.textAlign = "center";
-    buttonContainer.style.margin = "16px 0";
+    // preserve the original full dataset on the container so re-renders work
+    const fullData = container.__ridgeFullData || data;
+    container.__ridgeFullData = fullData;
 
-    let selectedYear = years[0];
+    container.querySelector('svg')?.remove();
 
-    years.forEach(year => {
-        const btn = document.createElement("button");
-        btn.textContent = year;
-        btn.style.margin = "0 4px";
-        btn.style.padding = "6px 16px";
-        btn.style.borderRadius = "6px";
-        btn.style.border = "1px solid #888";
-        btn.style.background = year === selectedYear ? "#4f8cff" : "#f0f0f0";
-        btn.style.color = year === selectedYear ? "#fff" : "#222";
-        btn.style.cursor = "pointer";
-        btn.onclick = () => {
-            selectedYear = year;
-            render(selectedYear);
-        };
-        buttonContainer.appendChild(btn);
-    });
-    container.appendChild(buttonContainer);
+    // --- Country selector (switch which country to plot across all years) ---
+    const countries = Array.from(new Set(fullData.map(d => d.country))).sort();
+    let controls = container.querySelector('.ridge-controls');
+    if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'ridge-controls';
+        controls.style.textAlign = 'center';
+        controls.style.margin = '12px 0';
+        container.prepend(controls);
+    }
 
-    function render(year) {
-        // Update button styles
-        Array.from(buttonContainer.children).forEach((btn, i) => {
-            btn.style.background = years[i] === year ? "#4f8cff" : "#f0f0f0";
-            btn.style.color = years[i] === year ? "#fff" : "#222";
+    let countrySelect = controls.querySelector('.ridge-country-select');
+    if (!countrySelect) {
+        const label = document.createElement('label');
+        label.textContent = 'Country: ';
+        label.style.marginRight = '8px';
+
+        countrySelect = document.createElement('select');
+        countrySelect.className = 'ridge-country-select';
+        countrySelect.style.minWidth = '220px';
+
+        countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.text = c;
+            countrySelect.appendChild(opt);
         });
 
+        const defaultCountry = countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : countries[0];
+        countrySelect.value = defaultCountry;
+        controls.appendChild(label);
+        controls.appendChild(countrySelect);
+    }
+
+    // Normalization toggle: global vs per-year
+    let normalizeToggle = controls.querySelector('.ridge-normalize-toggle');
+    if (!normalizeToggle) {
+        const chkLabel = document.createElement('label');
+        chkLabel.style.marginLeft = '12px';
+        chkLabel.style.marginRight = '6px';
+        chkLabel.textContent = 'Normalize across years';
+
+        normalizeToggle = document.createElement('input');
+        normalizeToggle.type = 'checkbox';
+        normalizeToggle.className = 'ridge-normalize-toggle';
+        normalizeToggle.checked = true; // default: global normalization
+        // use --unige-color for the checkbox when checked
+        normalizeToggle.style.accentColor = 'var(--color-unige-blue)';
+
+        controls.appendChild(chkLabel);
+        controls.appendChild(normalizeToggle);
+    }
+
+    // when selection changes, re-render the chart using the original full data
+    countrySelect.addEventListener('change', () => render(countrySelect.value));
+    // re-render when normalization toggle changes
+    normalizeToggle.addEventListener('change', () => render(countrySelect.value));
+
+    // years to plot as ridgelines
+    const years = [2020, 2021, 2022, 2023, 2024, 2025];
+
+    function render(selectedCountry) {
         // Remove previous chart if exists
         const oldSvg = container.querySelector("svg");
         if (oldSvg) oldSvg.remove();
 
-        // Filter data by year
-        const filteredData = data.filter(d => {
-            const date = new Date(d.week);
-            return date.getFullYear() === year;
-        });
-
         // Create the SVG container.
         const svg = createResponsiveSvg(width, height);
-        const processed = processAndVisualize(filteredData);
+
+    // For each year, compute density for the selected country
+    const processed = [];
+    // read normalization mode from the checkbox (true => global normalization)
+    const normalizeAcrossYears = !!controls.querySelector('.ridge-normalize-toggle').checked;
+    years.forEach(year => {
+            const filtered = fullData.filter(d => d.country === selectedCountry && new Date(d.week).getFullYear() === year);
+
+            // aggregate events by dayOfYear
+            const eventsByDay = d3.rollup(
+                filtered,
+                v => d3.sum(v, d => +d.events || 0),
+                d => {
+                    const date = new Date(d.week);
+                    const start = new Date(date.getFullYear(), 0, 0);
+                    const diff = date - start;
+                    const oneDay = 1000 * 60 * 60 * 24;
+                    return Math.floor(diff / oneDay);
+                }
+            );
+
+            // build density array
+            const densityData = [];
+            const bandwidth = 7;
+            for (let day = 1; day <= 365; day++) {
+                let density = 0;
+                eventsByDay.forEach((weight, eventDay) => {
+                    density += weight * Math.exp(-0.5 * Math.pow((day - eventDay) / bandwidth, 2));
+                });
+                densityData.push({ day, density });
+            }
+
+            // record per-year max but do NOT normalize yet if using global normalization
+            const maxDensity = d3.max(densityData, d => d.density) || 0;
+            processed.push({ year, densityData, maxDensity });
+        });
+
+    // If requested, normalize all years by the single global maximum so amplitudes
+        // are directly comparable across years. Otherwise fall back to per-year normalization.
+        if (normalizeAcrossYears) {
+            const globalMax = d3.max(processed, p => p.maxDensity) || 1;
+            processed.forEach(p => {
+                p.densityData.forEach(d => { d.density = d.density / globalMax; });
+            });
+        } else {
+            processed.forEach(p => {
+                const m = p.maxDensity || 1;
+                p.densityData.forEach(d => { d.density = m > 0 ? d.density / m : 0; });
+            });
+        }
 
         // Month labels
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -110,6 +187,8 @@ export function renderRidgePlotChart(container, data, margins) {
         // Inner drawing dimensions (respect margins)
         const innerWidth = Math.max(0, width - margins.left - margins.right);
         const innerHeight = Math.max(0, height - margins.top - margins.bottom);
+
+        
 
         // Scales
         const xScale = d3.scaleLinear()
@@ -140,6 +219,25 @@ export function renderRidgePlotChart(container, data, margins) {
         const gMain = svg.append("g")
             .attr("transform", `translate(${margins.left},${margins.top})`);
 
+        // Description of normalization behaviors (placed above the plotting area)
+        const desc = gMain.append("text")
+            .attr("class", "normalize-desc")
+            .attr("x", innerWidth - 10)
+            .attr("y", -8)
+            .attr("text-anchor", "end")
+            .attr("font-size", 11)
+            .attr("fill", "#333");
+
+        desc.append("tspan").text("Normalization modes:");
+        desc.append("tspan")
+            .attr("x", innerWidth - 10)
+            .attr("dy", "1.15em")
+            .text("Global: amplitudes comparable across years");
+        desc.append("tspan")
+            .attr("x", innerWidth - 10)
+            .attr("dy", "1.15em")
+            .text("Per-year: each year scaled to its own max");
+
         // Draw ridges
         processed.forEach((countryData, i) => {
             const g = gMain.append("g")
@@ -162,14 +260,14 @@ export function renderRidgePlotChart(container, data, margins) {
                 .attr("stroke", colorScale(i))
                 .attr("stroke-width", 2);
 
-            // Country label (placed just left of the plotting area)
+            // Year label (placed just left of the plotting area)
             g.append("text")
-                .attr("class", "country-label")
+                .attr("class", "year-label")
                 .attr("x", -10)
                 .attr("y", ridgeHeight / 2)
                 .attr("text-anchor", "end")
                 .attr("dominant-baseline", "middle")
-                .text(countryData.country);
+                .text(countryData.year);
         });
 
         // X-axis
@@ -188,7 +286,7 @@ export function renderRidgePlotChart(container, data, margins) {
         // X-axis label
         gMain.append("text")
             .attr("x", innerWidth / 2)
-            .attr("y", innerHeight + Math.max(0, margins.bottom - 10))
+            .attr("y", height - margins.bottom + 10)
             .attr("text-anchor", "middle")
             .style("font-weight", "bold")
             .style("font-size", "14px")
@@ -198,6 +296,6 @@ export function renderRidgePlotChart(container, data, margins) {
         container.appendChild(svg.node());
     }
 
-    // Initial render
-    render(selectedYear);
+    // Initial render (use currently selected country)
+    render(countrySelect.value);
 }

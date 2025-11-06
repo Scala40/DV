@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
+import { createUnigeOrdinalScale } from '../utils/palette.js';
 
 export function renderWaffleChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -61,8 +62,8 @@ export function renderWaffleChart(container, data, margins) {
     const chartG = svg.append('g')
         .attr('transform', `translate(${chartGX},${chartGY})`);
 
-    // color scale
-    const color = d3.scaleOrdinal(d3.schemeTableau10)
+    // color scale (use the UniGe 11-color palette)
+    const color = createUnigeOrdinalScale()
         .domain(d3.range(data.length).map(String));
 
     // draw cells

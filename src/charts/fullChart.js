@@ -2,6 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import { createFullChartTooltip } from '../utils/tooltip.js';
+import { createUnigeOrdinalScale } from '../utils/palette.js';
 
 export function renderFullBarChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -54,9 +55,9 @@ export function renderFullBarChart(container, data, margins) {
         .range([margins.top, height - margins.bottom])
         .padding(0.12);
 
-    const color = d3.scaleOrdinal()
+    // Use the UniGe 11-color palette for event type coloring
+    const color = createUnigeOrdinalScale()
         .domain(eventTypes)
-        .range(d3.schemeTableau10)
         .unknown('#ccc');
 
     const formatPct = d3.format('.1%');

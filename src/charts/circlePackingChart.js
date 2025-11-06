@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
+import { createUnigeOrdinalScale } from '../utils/palette.js';
 
 export function renderCirclePackingChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -35,8 +36,8 @@ export function renderCirclePackingChart(container, data, margins) {
     const g = svg.append("g")
         .attr("transform", `translate(${margins.left},${margins.top})`);
 
-    // color scale for countries
-    const color = d3.scaleOrdinal(d3.schemeTableau10)
+    // color scale for countries (UniGe palette)
+    const color = createUnigeOrdinalScale()
         .domain(data.map(d => d.country));
 
     // node groups positioned at computed x/y. We'll add an inner group to scale around center.

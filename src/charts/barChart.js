@@ -30,12 +30,12 @@ export function renderBarChart(container, data, margins) {
         .attr("fill", "currentColor")
         .text("Fatalities ￫");
 
-    // bars (horizontal)
+    // bars (horizontal) — use CSS class so color comes from stylesheet (UniGe blue)
     svg.append("g")
-        .attr("fill", "steelblue")
         .selectAll("rect")
         .data(data)
         .join("rect")
+        .attr("class", "bar-unige")
         .attr("y", d => y(d.country))
         .attr("x", _ => x(0))
         .attr("height", y.bandwidth())
