@@ -40,6 +40,26 @@ export function renderCirclePackingChart(container, data, margins) {
     const color = createUnigeOrdinalScale()
         .domain(data.map(d => d.country));
 
+    // helper: compute contrast-aware label style from a fill color (cached)
+    function computeLabelStyle(radius, fillColor) {
+        console.log("computing label style for color:", fillColor, "and radius:", radius);
+        if (radius < 16) {
+            return "#000000";
+        }
+
+        const c = d3.color(fillColor).rgb();
+        const r = c.r / 255, g = c.g / 255, b = c.b / 255;
+        const lin = v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        const bgLum = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+
+        const contrastWithWhite = (1 + 0.05) / (bgLum + 0.05);
+        const contrastWithBlack = (bgLum + 0.05) / 0.05;
+
+        const useWhite = contrastWithWhite > contrastWithBlack;
+
+        return useWhite ? "#FFFFFF" : "#000000";
+    }
+
     // node groups positioned at computed x/y. We'll add an inner group to scale around center.
     const nodes = g.selectAll("g.node")
         .data(root.leaves())
@@ -65,8 +85,8 @@ export function renderCirclePackingChart(container, data, margins) {
         .attr("dy", d => d.r > 22 ? "-0.25em" : "0em")
         .attr("pointer-events", "none")
         .attr("font-size", d => Math.max(9, Math.min(14, d.r / 3)))
-        .attr("fill", "black")
         .style("opacity", d => d.r > 16 ? 1 : 0) // hide small ones initially
+        .attr("fill", d => computeLabelStyle(d.r, color(d.data.country)))
         .text(d => d.data.country);
 
     // Fatalities label (always created, but hidden for small circles)
@@ -76,8 +96,8 @@ export function renderCirclePackingChart(container, data, margins) {
         .attr("dy", "1.1em")
         .attr("pointer-events", "none")
         .attr("font-size", d => Math.max(9, Math.min(12, d.r / 4)))
-        .attr("fill", "black")
         .style("opacity", d => d.r > 16 ? 1 : 0) // hide small ones initially
+        .attr("fill", d => computeLabelStyle(d.r, color(d.data.country)))
         .text(d => d.data.fatalities);
 
     // Hover interaction: zoom (scale) the inner group and reveal labels for the hovered node.
