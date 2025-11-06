@@ -66,3 +66,9 @@ output = output_dir / "events_by_event_type.csv"
 df_event_type = df.groupby("EVENT_TYPE")["EVENTS"].sum().reset_index()
 df_event_type = df_event_type[df_event_type["EVENTS"] > 0]
 df_event_type.to_csv(output, index=False)
+
+# ridge plot
+# Events over time for each country
+output = output_dir / "events_over_time_by_country.csv"
+df_week_country = df[["WEEK", "COUNTRY", "EVENTS"]]
+df_week_country.to_csv(output, index=False)

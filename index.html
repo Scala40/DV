@@ -126,7 +126,7 @@
                             <p class="text-gray-600 text-sm leading-relaxed">
                                 The phrase <em>“war never changes”</em> captures more than fatalism, it reflects the
                                 persistence of
-                                patterns that data continues to reveal.<br/>
+                                patterns that data continues to reveal.<br />
                                 Across centuries, the maps of conflict redraw
                                 themselves,
                                 but the underlying metrics remain painfully familiar: rising casualties, displaced
@@ -335,6 +335,89 @@
                         </article>
                     </div>
                 </section>
+
+                <!-- Section 3 - Distributions -->
+                <!-- 
+                Pyramid chart: age distribution in Syria over the years
+                Ridgeline plot: event distribution in a year (e.g., 2022) across countries
+                Boxplot: TODO
+                -->
+                <section id="section-3" aria-labelledby="section-3-title"
+                    class="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1 h-8 bg-linear-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                        <h2 id="section-3-title" class="text-3xl font-bold text-gray-900">
+                            Section 3: Showing trends through distributions
+                        </h2>
+                    </div>
+
+                    <h3 id="section-3-subtitle" class="mt-2 mb-6 text-gray-600 text-base sm:text-lg font-medium">
+                        Visualizing distributions to highlight trends and patterns in the data
+                    </h3>
+
+                    <div class="grid gap-6 sm:grid-cols-1">
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-blue-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                Pyramid Chart: Age Distribution in Syria Over the Years
+                            </h3>
+                            <figure class="mt-4">
+                                <div id="pyramid-chart" class="h-160 w-full" role="img"
+                                    aria-label="Pyramid chart visualization">
+                                    <span class="sr-only">Pyramid chart visualization loading</span>
+                                </div>
+                                <figcaption class="mt-3 text-sm text-gray-600">
+                                    This pyramid chart illustrates the age distribution of conflict-related fatalities
+                                    in Syria over multiple years. By visualizing the data in this format, we can
+                                    observe how different age groups have been affected by the ongoing conflict,
+                                    revealing shifts in vulnerability and impact over time.
+                                </figcaption>
+                            </figure>
+                        </article>
+
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-purple-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                Ridgeline Plot: Event Distribution in 2022 Across Countries
+                            </h3>
+                            <figure class="mt-4">
+                                <div id="ridgeline-plot" class="h-175 w-full" role="img"
+                                    aria-label="Ridgeline plot visualization">
+                                    <span class="sr-only">Ridgeline plot visualization loading</span>
+                                </div>
+                                <figcaption class="mt-3 text-sm text-gray-600">
+                                    This ridgeline plot displays the distribution of conflict events across various
+                                    Middle Eastern countries in the year 2022. Each ridge represents a different
+                                    country, allowing for easy comparison of event frequency and intensity over time.
+                                    The visualization highlights patterns and peaks in conflict activity throughout the
+                                    year.
+                                </figcaption>
+                            </figure>
+                        </article>
+
+                        <article
+                            class="bg-linear-to-br from-gray-50 to-white rounded-xl p-5 border border-gray-200 hover:border-green-300 transition-colors duration-300">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                Boxplot: Distribution of Fatalities by Event Type
+                            </h3>
+                            <figure class="mt-4">
+                                <div id="boxplot-chart" class="h-256 w-full" role="img"
+                                    aria-label="Boxplot visualization">
+                                    <span class="sr-only">Boxplot visualization loading</span>
+                                </div>
+                                <figcaption class="mt-3 text-sm text-gray-600">
+                                    This boxplot visualizes the distribution of fatalities across different event types
+                                    in Middle Eastern conflicts. By examining the spread and central tendencies of
+                                    fatalities for each event category, we can identify which types of events tend to
+                                    result in higher or lower death tolls, providing insights into the nature of the
+                                    conflicts.
+                                </figcaption>
+                            </figure>
+                        </article>
+                    </div>
             </main>
 
             <!-- Footer -->

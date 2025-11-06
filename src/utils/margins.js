@@ -48,3 +48,17 @@ export const circlePackingChartMargins = new Margin({
     bottom: 20,
     left: 20
 });
+
+export const pyramidChartMargins = new Margin({
+    top: 20,
+    right: 20,
+    bottom: 20,
+    left: 40
+});
+
+export const ridgePlotMargins = new Margin({
+    top: 20,
+    right: 20,
+    bottom: 50,
+    left: 100
+});
