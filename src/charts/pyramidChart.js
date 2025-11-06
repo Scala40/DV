@@ -5,25 +5,98 @@ import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 export function renderPyramidChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
-    // clear previous content
-    container.innerHTML = "";
+    // clear previous SVG but keep any controls (like the country selector) intact
+    const existingSvg = container.querySelector('svg');
+    if (existingSvg) existingSvg.remove();
 
     // Create the SVG container.
     const svg = createResponsiveSvg(width, height);
 
     console.log(data);
 
-    data = data.filter(d => d.Year == 2022);
-    data = data.filter(d => d.Country === "Syrian Arab Republic");
+    // Keep a reference to the original full dataset on the container so re-renders
+    // (triggered by changing the selector) always use the complete data.
+    let fullData = container.__pyramidFullData || data;
+    container.__pyramidFullData = fullData;
+
+    // --- Controls UI (country + year selectors) ---
+    const countries = Array.from(new Set(fullData.map(d => d.Country))).sort();
+    const years = Array.from(new Set(fullData.map(d => d.Year))).sort((a, b) => b - a);
+
+    // try to find an existing controls wrapper inside container
+    let controls = container.querySelector('.pyramid-controls');
+    if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'pyramid-controls';
+        controls.style.marginBottom = '8px';
+        container.appendChild(controls);
+    }
+
+    // COUNTRY select
+    let countrySelect = controls.querySelector('.pyramid-country-select');
+    if (!countrySelect) {
+        const label = document.createElement('label');
+        label.textContent = 'Country: ';
+        label.style.marginRight = '6px';
+
+        countrySelect = document.createElement('select');
+        countrySelect.className = 'pyramid-country-select';
+        countrySelect.style.minWidth = '220px';
+
+        // populate options
+        countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.text = c;
+            countrySelect.appendChild(opt);
+        });
+
+        // default selection: keep Syrian Arab Republic if present, otherwise first
+        const defaultCountry = countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : countries[0];
+        countrySelect.value = defaultCountry;
+
+        controls.appendChild(label);
+        controls.appendChild(countrySelect);
+    }
+
+    // YEAR select
+    let yearSelect = controls.querySelector('.pyramid-year-select');
+    if (!yearSelect) {
+        const yLabel = document.createElement('label');
+        yLabel.textContent = 'Year: ';
+        yLabel.style.margin = '0 6px 0 12px';
+
+        yearSelect = document.createElement('select');
+        yearSelect.className = 'pyramid-year-select';
+        yearSelect.style.minWidth = '100px';
+
+        years.forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.text = y;
+            yearSelect.appendChild(opt);
+        });
+
+        const defaultYear = years.includes(2022) ? 2022 : years[0];
+        yearSelect.value = defaultYear;
+
+        controls.appendChild(yLabel);
+        controls.appendChild(yearSelect);
+    }
+
+    // when either selection changes, re-render the chart using the original full data
+    countrySelect.addEventListener('change', () => renderPyramidChart(container, fullData, margins));
+    yearSelect.addEventListener('change', () => renderPyramidChart(container, fullData, margins));
+
+    // determine selected country and year and filter data (use fullData as the source)
+    const selectedCountry = countrySelect.value || (countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : countries[0]);
+    const selectedYear = yearSelect.value || (years.includes(2022) ? 2022 : years[0]);
+    data = fullData.filter(d => d.Year == selectedYear && d.Country === selectedCountry);
 
     // Process data
     const ageGroups = Array.from(new Set(data.map(d => d.Age_Group_5yr)));
     const maleData = data.filter(d => d.Sex === "Male");
     const femaleData = data.filter(d => d.Sex === "Female");
-
-    console.log(ageGroups);
-    console.log(maleData);
-    console.log(femaleData);
 
     // Scales
     const x = d3.scaleLinear()
@@ -45,30 +118,27 @@ export function renderPyramidChart(container, data, margins) {
     const yAxis = d3.axisLeft(y);
 
     const centerGap = 40;
-    // compute separate scales for left (male) and right (female) so each side can have its own x axis
-    const maxMale = d3.max(maleData, d => d.Population) || 0;
-    const maxFemale = d3.max(femaleData, d => d.Population) || 0;
     const centerX = x(0);
     const availableLeft = centerX - margins.left;
     const availableRight = (width - margins.right) - centerX;
-
+    const maxPop = d3.max(data, d => d.Population) || 0;
     // scales map population value -> pixel length from the center outward
     const xLeft = d3.scaleLinear()
-        .domain([0, maxMale])
+        .domain([0, maxPop])
         .range([0, Math.max(0, availableLeft - centerGap / 2)]);
 
     const xRight = d3.scaleLinear()
-        .domain([0, maxFemale])
+        .domain([0, maxPop])
         .range([0, Math.max(0, availableRight - centerGap / 2)]);
 
     // axis scales map 0..max -> pixel positions so we can draw independent axis ticks for each side
     const axisLeftScale = d3.scaleLinear()
-        .domain([0, maxMale])
-        .range([centerX - centerGap / 2, centerX - (xLeft(maxMale))]);
+        .domain([0, maxPop])
+        .range([centerX - centerGap / 2, centerX - (xLeft(maxPop))]);
 
     const axisRightScale = d3.scaleLinear()
-        .domain([0, maxFemale])
-        .range([centerX + centerGap / 2, centerX + (xRight(maxFemale))]);
+        .domain([0, maxPop])
+        .range([centerX + centerGap / 2, centerX + (xRight(maxPop))]);
 
     const xAxisLeft = d3.axisBottom(axisLeftScale)
         .ticks(5)
