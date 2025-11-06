@@ -7,20 +7,20 @@ import * as d3 from 'd3';
  * Returns an array of 11 color strings (CSS values). If a variable is missing,
  * the function falls back to a sensible default.
  */
-export function getUnigePalette() {
+function getUnigePalette() {
     const root = getComputedStyle(document.documentElement);
     const names = [
-        '--unige-palette-0',
-        '--unige-palette-1',
-        '--unige-palette-2',
-        '--unige-palette-3',
-        '--unige-palette-4',
-        '--unige-palette-5',
-        '--unige-palette-6',
-        '--unige-palette-7',
-        '--unige-palette-8',
-        '--unige-palette-9',
-        '--unige-palette-10'
+        '--color-giurisprudenza',
+        '--color-architettura-design',
+        '--color-scienze-mfn',
+        '--color-scienze-formazione',
+        '--color-economia',
+        '--color-lettere-filosofia',
+        '--color-farmacia',
+        '--color-lingue-culture',
+        '--color-ingegneria',
+        '--color-scienze-politiche',
+        '--color-medicina'
     ];
 
     return names.map(n => (root.getPropertyValue(n) || '').trim() || '#999999');
@@ -39,8 +39,3 @@ export function createUnigeOrdinalScale() {
     const palette = getUnigePalette();
     return d3.scaleOrdinal().range(palette);
 }
-
-export default {
-    getUnigePalette,
-    createUnigeOrdinalScale
-};

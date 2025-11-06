@@ -84,7 +84,7 @@
     margin-left: 8px;
     padding: 6px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     background: white;
     cursor: pointer;
 }
@@ -115,7 +115,7 @@
     border-radius: 50%;
     background: var(--color-unige-blue);
     border: 2px solid white;
-    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
     margin-top: -5px;
     cursor: pointer;
 }
@@ -125,13 +125,14 @@
     background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
     border-radius: 3px;
 }
+
 .pyramid-controls .pyramid-year-select[type="range"]::-moz-range-thumb {
     width: 16px;
     height: 16px;
     border-radius: 50%;
     background: var(--color-unige-blue);
     border: 2px solid white;
-    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
     cursor: pointer;
 }
 
@@ -148,29 +149,13 @@
     --pyramid-female-color: var(--color-farmacia);
 }
 
-/* UniGe 11-color palette (use these variables in charts) */
-:root {
-    
-    --unige-palette-0: #0061A0; /* giurisprudenza (blue) */
-    --unige-palette-1: #F4633A; /* architettura-design (orange) */
-    --unige-palette-2: #007C58; /* scienze-mfn (green) */
-    --unige-palette-3:  #9B3259; /* scienze-formazione  */
-    --unige-palette-4: #F1C400; /* economia (purple) */
-    --unige-palette-5: #B79A81; /* lettere-filosofia (warm neutral) */
-    --unige-palette-6: #E0A4A1; /* farmacia (pink) */
-    --unige-palette-7: #A4BCC2; /* lingue-culture (light gray/cool) */
-    --unige-palette-8: #574676; /* ingegneria*/
-    --unige-palette-9: #00A7B5; /* scienze-politiche (cyan) */
-    --unige-palette-10:#EF3340; /* medicina */
-}
-
 /* helper class to preview swatches (optional, useful during design) */
 .unige-swatch {
     display: inline-block;
     width: 22px;
     height: 14px;
     border-radius: 3px;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .bar.male {
@@ -185,6 +170,7 @@
 .legend-rect.male {
     fill: var(--pyramid-male-color);
 }
+
 .legend-rect.female {
     fill: var(--pyramid-female-color);
 }
