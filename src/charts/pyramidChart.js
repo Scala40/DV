@@ -12,14 +12,12 @@ export function renderPyramidChart(container, data, margins) {
     // Create the SVG container.
     const svg = createResponsiveSvg(width, height);
 
-    console.log(data);
-
     // Keep a reference to the original full dataset on the container so re-renders
     // (triggered by changing the selector) always use the complete data.
     let fullData = container.__pyramidFullData || data;
     container.__pyramidFullData = fullData;
 
-    // NOTE: do NOT clear any running animation here — the animation should
+    // NOTE: do NOT clear any running animation here - the animation should
     // continue across re-renders triggered by the play loop. The animation
     // is stopped explicitly when the user moves the slider manually or
     // when the play button is clicked again.
@@ -41,11 +39,11 @@ export function renderPyramidChart(container, data, margins) {
     if (!countrySelect) {
         const label = document.createElement('label');
         label.textContent = 'Country: ';
-    // styling moved to CSS
+        // styling moved to CSS
 
         countrySelect = document.createElement('select');
         countrySelect.className = 'pyramid-country-select';
-    // styling moved to CSS
+        // styling moved to CSS
 
         // populate options
         countries.forEach(c => {
@@ -71,7 +69,7 @@ export function renderPyramidChart(container, data, margins) {
     if (!yearSelect) {
         const yLabel = document.createElement('label');
         yLabel.textContent = 'Year: ';
-    // styling moved to CSS
+        // styling moved to CSS
 
         // create a slider (range input) for years
         yearSelect = document.createElement('input');
@@ -82,12 +80,12 @@ export function renderPyramidChart(container, data, margins) {
         yearSelect.min = minYear;
         yearSelect.max = maxYear;
         yearSelect.step = 1;
-    // styling moved to CSS
+        // styling moved to CSS
 
         // display current value
         const yearDisplay = document.createElement('span');
         yearDisplay.className = 'pyramid-year-display';
-    // styling moved to CSS
+        // styling moved to CSS
 
         const defaultYear = years.includes(2023) ? 2023 : years[0];
         yearSelect.value = defaultYear;
@@ -132,7 +130,7 @@ export function renderPyramidChart(container, data, margins) {
             playBtn = document.createElement('button');
             playBtn.className = 'pyramid-play-btn';
             playBtn.textContent = 'Play';
-                // styling moved to CSS
+            // styling moved to CSS
             controls.appendChild(playBtn);
 
             playBtn.addEventListener('click', () => {
@@ -192,8 +190,6 @@ export function renderPyramidChart(container, data, margins) {
         .range([height - margins.bottom, margins.top])
         .padding(0.1);
 
-    console.log(y.domain());
-
     // Axes
     const xAxis = d3.axisBottom(x)
         .ticks(5)
@@ -244,7 +240,7 @@ export function renderPyramidChart(container, data, margins) {
         .call(xAxisRight);
     */
     const yAxisG = svg.append("g")
-        .attr("transform", `translate(${x(0)},0)`) 
+        .attr("transform", `translate(${x(0)},0)`)
         .call(yAxis);
 
     // center the tick labels so they sit between the male and female bars
@@ -253,7 +249,7 @@ export function renderPyramidChart(container, data, margins) {
         .attr("text-anchor", "middle");
     // shorten/hide tick lines so they don't extend into bars
     yAxisG.selectAll("line").attr("x2", 0);
-   
+
     yAxisG.selectAll("path").attr("stroke", "none");
     yAxisG.selectAll("line").attr("stroke", "none");
 
@@ -268,14 +264,14 @@ export function renderPyramidChart(container, data, margins) {
         .attr("y", d => (y(d.Age_Group_5yr) || 0))
         // width proportional to male population using the left-side scale
         .attr("width", d => xLeft(d.Population))
-    .attr("height", y.bandwidth());
+        .attr("height", y.bandwidth());
 
     svg.append("g")
         .attr("font-size", 12)
         .selectAll("text")
         .data(maleData)
         .join("text")
-        .attr("y", d => (y(d.Age_Group_5yr) ?? 0)+ y.bandwidth() / 2)
+        .attr("y", d => (y(d.Age_Group_5yr) ?? 0) + y.bandwidth() / 2)
         .attr("x", d => {
             const barStart = centerX - centerGap / 2 - xLeft(d.Population);
             const barEnd = centerX - centerGap / 2;
@@ -295,9 +291,9 @@ export function renderPyramidChart(container, data, margins) {
             const barEnd = centerX - centerGap / 2;
             return (barEnd - barStart > 40) ? "white" : "currentColor";
         })
-    .text(d => d3.format('.2f')(+d.Population) + "k");
+        .text(d => d3.format('.2f')(+d.Population) + "k");
 
-        
+
 
     // Draw bars for females (use inner band y1 and start at center + gap, extend rightwards using xRight)
     svg.append("g")
@@ -308,7 +304,7 @@ export function renderPyramidChart(container, data, margins) {
         .attr("x", d => centerX + centerGap / 2)
         .attr("y", d => (y(d.Age_Group_5yr) || 0))
         .attr("width", d => xRight(d.Population))
-    .attr("height", y.bandwidth());
+        .attr("height", y.bandwidth());
 
     svg.append("g")
         .attr("font-size", 12)
@@ -335,46 +331,46 @@ export function renderPyramidChart(container, data, margins) {
             const barEnd = centerX + centerGap / 2 + xRight(d.Population);
             return (barEnd - barStart > 40) ? "white" : "currentColor";
         })
-    .text(d => d3.format('.2f')(+d.Population) + "k");
+        .text(d => d3.format('.2f')(+d.Population) + "k");
 
 
     // Y axis label centered along the shared y-axis
     svg.append("text")
-        .attr("x", (width + centerGap/2) / 2)
-        .attr("y", margins.top/2)
+        .attr("x", (width + centerGap / 2) / 2)
+        .attr("y", margins.top / 2)
         .attr("text-anchor", "middle")
         .attr("font-size", 15)
         .text("Age");
 
     container.appendChild(svg.node());
 
-        // --- Add legend to top right ---
-        const legendData = [
-            { label: "Male", cls: 'male' },
-            { label: "Female", cls: 'female' }
-        ];
+    // --- Add legend to top right ---
+    const legendData = [
+        { label: "Male", cls: 'male' },
+        { label: "Female", cls: 'female' }
+    ];
 
-        const legendWidth = 120;
-        const legendHeight = 50;
-        const legendMargin = 10;
-        const legend = svg.append("g")
-            .attr("class", "pyramid-legend")
-            .attr("transform", `translate(${width - legendWidth - legendMargin},${legendMargin})`);
+    const legendWidth = 120;
+    const legendHeight = 50;
+    const legendMargin = 10;
+    const legend = svg.append("g")
+        .attr("class", "pyramid-legend")
+        .attr("transform", `translate(${width - legendWidth - legendMargin},${legendMargin})`);
 
-        legend.selectAll("rect")
-            .data(legendData)
-            .join("rect")
-            .attr("x", 0)
-            .attr("y", (d, i) => i * 22)
-            .attr("width", 18)
-            .attr("height", 18)
-            .attr("class", d => `legend-rect ${d.cls}`);
+    legend.selectAll("rect")
+        .data(legendData)
+        .join("rect")
+        .attr("x", 0)
+        .attr("y", (d, i) => i * 22)
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("class", d => `legend-rect ${d.cls}`);
 
-        legend.selectAll("text")
-            .data(legendData)
-            .join("text")
-            .attr("x", 26)
-            .attr("y", (d, i) => i * 22 + 13)
-            .attr("font-size", 14)
-            .text(d => d.label);
+    legend.selectAll("text")
+        .data(legendData)
+        .join("text")
+        .attr("x", 26)
+        .attr("y", (d, i) => i * 22 + 13)
+        .attr("font-size", 14)
+        .text(d => d.label);
 }

@@ -130,11 +130,11 @@ export function renderRidgePlotChart(container, data, margins) {
         // Create the SVG container.
         const svg = createResponsiveSvg(width, height);
 
-    // For each year, compute density for the selected country
-    const processed = [];
-    // read normalization mode from the checkbox (true => global normalization)
-    const normalizeAcrossYears = !!controls.querySelector('.ridge-normalize-toggle').checked;
-    years.forEach(year => {
+        // For each year, compute density for the selected country
+        const processed = [];
+        // read normalization mode from the checkbox (true => global normalization)
+        const normalizeAcrossYears = !!controls.querySelector('.ridge-normalize-toggle').checked;
+        years.forEach(year => {
             const filtered = fullData.filter(d => d.country === selectedCountry && new Date(d.week).getFullYear() === year);
 
             // aggregate events by dayOfYear
@@ -166,7 +166,7 @@ export function renderRidgePlotChart(container, data, margins) {
             processed.push({ year, densityData, maxDensity });
         });
 
-    // If requested, normalize all years by the single global maximum so amplitudes
+        // If requested, normalize all years by the single global maximum so amplitudes
         // are directly comparable across years. Otherwise fall back to per-year normalization.
         if (normalizeAcrossYears) {
             const globalMax = d3.max(processed, p => p.maxDensity) || 1;
@@ -188,7 +188,7 @@ export function renderRidgePlotChart(container, data, margins) {
         const innerWidth = Math.max(0, width - margins.left - margins.right);
         const innerHeight = Math.max(0, height - margins.top - margins.bottom);
 
-        
+
 
         // Scales
         const xScale = d3.scaleLinear()
