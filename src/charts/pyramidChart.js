@@ -255,20 +255,6 @@ export function renderPyramidChart(container, data, margins) {
         })
     .text(d => d3.format('.2f')(+d.Population) + "k");
 
-    // Axis labels
-    svg.append("text")
-        .attr("x", (width + centerGap/2) / 3)
-        .attr("y", margins.top/2)
-        .attr("text-anchor", "middle")
-        .attr("font-size", 15)
-        .text("Male");
-
-    svg.append("text")
-        .attr("x", (width + centerGap/2) * 2 / 3)
-        .attr("y", margins.top/2)
-        .attr("text-anchor", "middle")
-        .attr("font-size", 15)
-        .text("Female");
 
     // Y axis label centered along the shared y-axis
     svg.append("text")
@@ -279,4 +265,34 @@ export function renderPyramidChart(container, data, margins) {
         .text("Age");
 
     container.appendChild(svg.node());
+
+        // --- Add legend to top right ---
+        const legendData = [
+            { label: "Male", color: "#1f77b4" },
+            { label: "Female", color: "#ff7f0e" }
+        ];
+
+        const legendWidth = 120;
+        const legendHeight = 50;
+        const legendMargin = 10;
+        const legend = svg.append("g")
+            .attr("class", "pyramid-legend")
+            .attr("transform", `translate(${width - legendWidth - legendMargin},${legendMargin})`);
+
+        legend.selectAll("rect")
+            .data(legendData)
+            .join("rect")
+            .attr("x", 0)
+            .attr("y", (d, i) => i * 22)
+            .attr("width", 18)
+            .attr("height", 18)
+            .attr("fill", d => d.color);
+
+        legend.selectAll("text")
+            .data(legendData)
+            .join("text")
+            .attr("x", 26)
+            .attr("y", (d, i) => i * 22 + 13)
+            .attr("font-size", 14)
+            .text(d => d.label);
 }
