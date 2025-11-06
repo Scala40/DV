@@ -39,11 +39,9 @@ export function renderPyramidChart(container, data, margins) {
     if (!countrySelect) {
         const label = document.createElement('label');
         label.textContent = 'Country: ';
-        // styling moved to CSS
 
         countrySelect = document.createElement('select');
         countrySelect.className = 'pyramid-country-select';
-        // styling moved to CSS
 
         // populate options
         countries.forEach(c => {
@@ -69,7 +67,6 @@ export function renderPyramidChart(container, data, margins) {
     if (!yearSelect) {
         const yLabel = document.createElement('label');
         yLabel.textContent = 'Year: ';
-        // styling moved to CSS
 
         // create a slider (range input) for years
         yearSelect = document.createElement('input');
@@ -80,12 +77,10 @@ export function renderPyramidChart(container, data, margins) {
         yearSelect.min = minYear;
         yearSelect.max = maxYear;
         yearSelect.step = 1;
-        // styling moved to CSS
 
         // display current value
         const yearDisplay = document.createElement('span');
         yearDisplay.className = 'pyramid-year-display';
-        // styling moved to CSS
 
         const defaultYear = years.includes(2023) ? 2023 : years[0];
         yearSelect.value = defaultYear;
@@ -130,7 +125,6 @@ export function renderPyramidChart(container, data, margins) {
             playBtn = document.createElement('button');
             playBtn.className = 'pyramid-play-btn';
             playBtn.textContent = 'Play';
-            // styling moved to CSS
             controls.appendChild(playBtn);
 
             playBtn.addEventListener('click', () => {
@@ -202,6 +196,7 @@ export function renderPyramidChart(container, data, margins) {
     const availableLeft = centerX - margins.left;
     const availableRight = (width - margins.right) - centerX;
     const maxPop = d3.max(data, d => d.Population) || 0;
+
     // scales map population value -> pixel length from the center outward
     const xLeft = d3.scaleLinear()
         .domain([0, maxPop])
@@ -211,34 +206,6 @@ export function renderPyramidChart(container, data, margins) {
         .domain([0, maxPop])
         .range([0, Math.max(0, availableRight - centerGap / 2)]);
 
-    // axis scales map 0..max -> pixel positions so we can draw independent axis ticks for each side
-    const axisLeftScale = d3.scaleLinear()
-        .domain([0, maxPop])
-        .range([centerX - centerGap / 2, centerX - (xLeft(maxPop))]);
-
-    const axisRightScale = d3.scaleLinear()
-        .domain([0, maxPop])
-        .range([centerX + centerGap / 2, centerX + (xRight(maxPop))]);
-
-    const xAxisLeft = d3.axisBottom(axisLeftScale)
-        .ticks(5)
-        .tickFormat(d => Math.abs(d) + "k");
-
-    const xAxisRight = d3.axisBottom(axisRightScale)
-        .ticks(5)
-        .tickFormat(d => Math.abs(d) + "k");
-    // Draw axes
-
-    // x axes for left and right (each side has its own independent scale)
-    /*
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margins.bottom})`)
-        .call(xAxisLeft);
-
-    svg.append("g")
-        .attr("transform", `translate(0,${height - margins.bottom})`)
-        .call(xAxisRight);
-    */
     const yAxisG = svg.append("g")
         .attr("transform", `translate(${x(0)},0)`)
         .call(yAxis);
@@ -247,7 +214,8 @@ export function renderPyramidChart(container, data, margins) {
     yAxisG.selectAll("text")
         .attr("x", 0)
         .attr("text-anchor", "middle");
-    // shorten/hide tick lines so they don't extend into bars
+
+        // shorten/hide tick lines so they don't extend into bars
     yAxisG.selectAll("line").attr("x2", 0);
 
     yAxisG.selectAll("path").attr("stroke", "none");
@@ -351,7 +319,6 @@ export function renderPyramidChart(container, data, margins) {
     ];
 
     const legendWidth = 120;
-    const legendHeight = 50;
     const legendMargin = 10;
     const legend = svg.append("g")
         .attr("class", "pyramid-legend")

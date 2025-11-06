@@ -2,57 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-function processAndVisualize(data) {
-    // Parse dates and extract day of year
-    data.forEach(d => {
-        d.date = new Date(d.week);
-        const start = new Date(d.date.getFullYear(), 0, 0);
-        const diff = d.date - start;
-        const oneDay = 1000 * 60 * 60 * 24;
-        d.dayOfYear = Math.floor(diff / oneDay);
-        d.events = +d.events || 0;
-    });
-
-    // Group by country and aggregate events by day of year
-    const countryData = d3.group(data, d => d.country);
-    const processedData = [];
-
-    countryData.forEach((values, country) => {
-        const eventsByDay = d3.rollup(
-            values,
-            v => d3.sum(v, d => d.events),
-            d => d.dayOfYear
-        );
-
-        // Create smooth density curve using weighted Gaussian
-        const densityData = [];
-        const bandwidth = 7;
-
-        for (let day = 1; day <= 365; day++) {
-            let density = 0;
-            eventsByDay.forEach((weight, eventDay) => {
-                density += weight * Math.exp(-0.5 * Math.pow((day - eventDay) / bandwidth, 2));
-            });
-            densityData.push({ day, density });
-        }
-
-        // Normalize
-        const maxDensity = d3.max(densityData, d => d.density);
-        if (maxDensity > 0) {
-            densityData.forEach(d => d.density /= maxDensity);
-        }
-
-        processedData.push({
-            country,
-            densityData
-        });
-    });
-
-    return processedData;
-}
-
 export function renderRidgePlotChart(container, data, margins) {
-
     const { width, height } = getContainerDimensions(container);
 
     // preserve the original full dataset on the container so re-renders work
@@ -107,17 +57,10 @@ export function renderRidgePlotChart(container, data, margins) {
         normalizeToggle.type = 'checkbox';
         normalizeToggle.className = 'ridge-normalize-toggle';
         normalizeToggle.checked = true; // default: global normalization
-        // use --unige-color for the checkbox when checked
-        normalizeToggle.style.accentColor = 'var(--color-unige-blue)';
 
         controls.appendChild(chkLabel);
         controls.appendChild(normalizeToggle);
     }
-
-    // when selection changes, re-render the chart using the original full data
-    countrySelect.addEventListener('change', () => render(countrySelect.value));
-    // re-render when normalization toggle changes
-    normalizeToggle.addEventListener('change', () => render(countrySelect.value));
 
     // years to plot as ridgelines
     const years = [2020, 2021, 2022, 2023, 2024, 2025];
@@ -132,6 +75,7 @@ export function renderRidgePlotChart(container, data, margins) {
 
         // For each year, compute density for the selected country
         const processed = [];
+
         // read normalization mode from the checkbox (true => global normalization)
         const normalizeAcrossYears = !!controls.querySelector('.ridge-normalize-toggle').checked;
         years.forEach(year => {
@@ -187,8 +131,6 @@ export function renderRidgePlotChart(container, data, margins) {
         // Inner drawing dimensions (respect margins)
         const innerWidth = Math.max(0, width - margins.left - margins.right);
         const innerHeight = Math.max(0, height - margins.top - margins.bottom);
-
-
 
         // Scales
         const xScale = d3.scaleLinear()
@@ -298,4 +240,9 @@ export function renderRidgePlotChart(container, data, margins) {
 
     // Initial render (use currently selected country)
     render(countrySelect.value);
+
+    // when selection changes, re-render the chart using the original full data
+    countrySelect.addEventListener('change', () => render(countrySelect.value));
+    // re-render when normalization toggle changes
+    normalizeToggle.addEventListener('change', () => render(countrySelect.value));
 }

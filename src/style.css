@@ -179,3 +179,7 @@
 .bar-unige {
     fill: var(--color-unige-blue);
 }
+
+.ridge-normalize-toggle {
+    accent-color: var(--color-unige-blue)
+}
