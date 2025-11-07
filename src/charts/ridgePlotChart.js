@@ -159,7 +159,8 @@ function drawRidgePlot(svg, processed, width, height, margins) {
 
     drawNormalizationDescription(gMain, innerWidth);
     drawRidges(gMain, processed, generators, scales, ridgeHeight);
-    drawXAxis(gMain, innerWidth, scales.xScale);
+    // draw x axis at the bottom of the plotting area (use innerHeight)
+    drawXAxis(gMain, innerHeight, scales.xScale);
 }
 
 function createScales(innerWidth, ridgeHeight, dataLength) {
