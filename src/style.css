@@ -150,8 +150,13 @@
     min-width: 220px;
 }
 
-.boxplot-country-select-a { color: var(--color-unige-blue); }
-.boxplot-country-select-b { color: var(--color-unige-red); }
+.boxplot-country-select-a {
+    color: var(--color-unige-blue);
+}
+
+.boxplot-country-select-b {
+    color: var(--color-unige-red);
+}
 
 .boxplot-controls-row-top,
 .boxplot-controls-row-bottom {

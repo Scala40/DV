@@ -4,15 +4,22 @@ import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
 export function renderRidgePlotChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
-
-    // preserve the original full dataset on the container so re-renders work
     const fullData = container.__ridgeFullData || data;
     container.__ridgeFullData = fullData;
 
     container.querySelector('svg')?.remove();
 
-    // --- Country selector (switch which country to plot across all years) ---
     const countries = Array.from(new Set(fullData.map(d => d.country))).sort();
+    const { countrySelect, normalizeToggle } = createControls(container, countries);
+
+    const render = () => renderChart(container, fullData, countrySelect.value, normalizeToggle.checked, width, height, margins);
+
+    render();
+    countrySelect.addEventListener('change', render);
+    normalizeToggle.addEventListener('change', render);
+}
+
+function createControls(container, countries) {
     let controls = container.querySelector('.ridge-controls');
     if (!controls) {
         controls = document.createElement('div');
@@ -22,6 +29,13 @@ export function renderRidgePlotChart(container, data, margins) {
         container.prepend(controls);
     }
 
+    const countrySelect = createCountrySelect(controls, countries);
+    const normalizeToggle = createNormalizeToggle(controls);
+
+    return { countrySelect, normalizeToggle };
+}
+
+function createCountrySelect(controls, countries) {
     let countrySelect = controls.querySelector('.ridge-country-select');
     if (!countrySelect) {
         const label = document.createElement('label');
@@ -44,8 +58,10 @@ export function renderRidgePlotChart(container, data, margins) {
         controls.appendChild(label);
         controls.appendChild(countrySelect);
     }
+    return countrySelect;
+}
 
-    // Normalization toggle: global vs per-year
+function createNormalizeToggle(controls) {
     let normalizeToggle = controls.querySelector('.ridge-normalize-toggle');
     if (!normalizeToggle) {
         const chkLabel = document.createElement('label');
@@ -56,186 +72,181 @@ export function renderRidgePlotChart(container, data, margins) {
         normalizeToggle = document.createElement('input');
         normalizeToggle.type = 'checkbox';
         normalizeToggle.className = 'ridge-normalize-toggle';
-        normalizeToggle.checked = true; // default: global normalization
+        normalizeToggle.checked = true;
 
         controls.appendChild(chkLabel);
         controls.appendChild(normalizeToggle);
     }
+    return normalizeToggle;
+}
 
-    // years to plot as ridgelines
+function renderChart(container, fullData, selectedCountry, normalizeAcrossYears, width, height, margins) {
+    const oldSvg = container.querySelector("svg");
+    if (oldSvg) oldSvg.remove();
+
+    const svg = createResponsiveSvg(width, height);
     const years = [2020, 2021, 2022, 2023, 2024, 2025];
 
-    function render(selectedCountry) {
-        // Remove previous chart if exists
-        const oldSvg = container.querySelector("svg");
-        if (oldSvg) oldSvg.remove();
+    const processed = computeDensities(fullData, selectedCountry, years, normalizeAcrossYears);
+    drawRidgePlot(svg, processed, width, height, margins);
 
-        // Create the SVG container.
-        const svg = createResponsiveSvg(width, height);
+    container.appendChild(svg.node());
+}
 
-        // For each year, compute density for the selected country
-        const processed = [];
+function computeDensities(fullData, selectedCountry, years, normalizeAcrossYears) {
+    const processed = [];
 
-        // read normalization mode from the checkbox (true => global normalization)
-        const normalizeAcrossYears = !!controls.querySelector('.ridge-normalize-toggle').checked;
-        years.forEach(year => {
-            const filtered = fullData.filter(d => d.country === selectedCountry && new Date(d.week).getFullYear() === year);
+    years.forEach(year => {
+        const filtered = fullData.filter(d => d.country === selectedCountry && new Date(d.week).getFullYear() === year);
+        const densityData = computeYearDensity(filtered);
+        const maxDensity = d3.max(densityData, d => d.density) || 0;
+        processed.push({ year, densityData, maxDensity });
+    });
 
-            // aggregate events by dayOfYear
-            const eventsByDay = d3.rollup(
-                filtered,
-                v => d3.sum(v, d => +d.events || 0),
-                d => {
-                    const date = new Date(d.week);
-                    const start = new Date(date.getFullYear(), 0, 0);
-                    const diff = date - start;
-                    const oneDay = 1000 * 60 * 60 * 24;
-                    return Math.floor(diff / oneDay);
-                }
-            );
+    normalizeData(processed, normalizeAcrossYears);
+    return processed;
+}
 
-            // build density array
-            const densityData = [];
-            const bandwidth = 7;
-            for (let day = 1; day <= 365; day++) {
-                let density = 0;
-                eventsByDay.forEach((weight, eventDay) => {
-                    density += weight * Math.exp(-0.5 * Math.pow((day - eventDay) / bandwidth, 2));
-                });
-                densityData.push({ day, density });
-            }
-
-            // record per-year max but do NOT normalize yet if using global normalization
-            const maxDensity = d3.max(densityData, d => d.density) || 0;
-            processed.push({ year, densityData, maxDensity });
-        });
-
-        // If requested, normalize all years by the single global maximum so amplitudes
-        // are directly comparable across years. Otherwise fall back to per-year normalization.
-        if (normalizeAcrossYears) {
-            const globalMax = d3.max(processed, p => p.maxDensity) || 1;
-            processed.forEach(p => {
-                p.densityData.forEach(d => { d.density = d.density / globalMax; });
-            });
-        } else {
-            processed.forEach(p => {
-                const m = p.maxDensity || 1;
-                p.densityData.forEach(d => { d.density = m > 0 ? d.density / m : 0; });
-            });
+function computeYearDensity(filtered) {
+    const eventsByDay = d3.rollup(
+        filtered,
+        v => d3.sum(v, d => +d.events || 0),
+        d => {
+            const date = new Date(d.week);
+            const start = new Date(date.getFullYear(), 0, 0);
+            const diff = date - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            return Math.floor(diff / oneDay);
         }
+    );
 
-        // Month labels
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const monthStarts = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+    const densityData = [];
+    const bandwidth = 7;
+    for (let day = 1; day <= 365; day++) {
+        let density = 0;
+        eventsByDay.forEach((weight, eventDay) => {
+            density += weight * Math.exp(-0.5 * Math.pow((day - eventDay) / bandwidth, 2));
+        });
+        densityData.push({ day, density });
+    }
+    return densityData;
+}
 
-        // Inner drawing dimensions (respect margins)
-        const innerWidth = Math.max(0, width - margins.left - margins.right);
-        const innerHeight = Math.max(0, height - margins.top - margins.bottom);
+function normalizeData(processed, normalizeAcrossYears) {
+    if (normalizeAcrossYears) {
+        const globalMax = d3.max(processed, p => p.maxDensity) || 1;
+        processed.forEach(p => {
+            p.densityData.forEach(d => { d.density = d.density / globalMax; });
+        });
+    } else {
+        processed.forEach(p => {
+            const m = p.maxDensity || 1;
+            p.densityData.forEach(d => { d.density = m > 0 ? d.density / m : 0; });
+        });
+    }
+}
 
-        // Scales
-        const xScale = d3.scaleLinear()
-            .domain([1, 365])
-            .range([0, innerWidth]);
+function drawRidgePlot(svg, processed, width, height, margins) {
+    const innerWidth = Math.max(0, width - margins.left - margins.right);
+    const innerHeight = Math.max(0, height - margins.top - margins.bottom);
+    const ridgeHeight = innerHeight / Math.max(1, processed.length);
 
-        const ridgeHeight = innerHeight / Math.max(1, processed.length);
-        const yScale = d3.scaleLinear()
-            .domain([0, 1.2])
-            .range([ridgeHeight * 0.8, 0]);
+    const scales = createScales(innerWidth, ridgeHeight, processed.length);
+    const generators = createGenerators(scales, ridgeHeight);
 
-        const colorScale = d3.scaleSequential(d3.interpolateViridis)
-            .domain([0, processed.length - 1]);
+    const gMain = svg.append("g")
+        .attr("transform", `translate(${margins.left},${margins.top})`);
 
-        // Create area generator
-        const area = d3.area()
-            .x(d => xScale(d.day))
+    drawNormalizationDescription(gMain, innerWidth);
+    drawRidges(gMain, processed, generators, scales, ridgeHeight);
+    drawXAxis(gMain, innerWidth, scales.xScale);
+}
+
+function createScales(innerWidth, ridgeHeight, dataLength) {
+    return {
+        xScale: d3.scaleLinear().domain([1, 365]).range([0, innerWidth]),
+        yScale: d3.scaleLinear().domain([0, 1.2]).range([ridgeHeight * 0.8, 0]),
+        colorScale: d3.scaleSequential(d3.interpolateViridis).domain([0, dataLength - 1])
+    };
+}
+
+function createGenerators(scales, ridgeHeight) {
+    return {
+        area: d3.area()
+            .x(d => scales.xScale(d.day))
             .y0(ridgeHeight * 0.8)
-            .y1(d => yScale(d.density))
-            .curve(d3.curveBasis);
+            .y1(d => scales.yScale(d.density))
+            .curve(d3.curveBasis),
+        line: d3.line()
+            .x(d => scales.xScale(d.day))
+            .y(d => scales.yScale(d.density))
+            .curve(d3.curveBasis)
+    };
+}
 
-        const line = d3.line()
-            .x(d => xScale(d.day))
-            .y(d => yScale(d.density))
-            .curve(d3.curveBasis);
+function drawNormalizationDescription(gMain, innerWidth) {
+    const desc = gMain.append("text")
+        .attr("class", "normalize-desc")
+        .attr("x", innerWidth - 10)
+        .attr("y", -8)
+        .attr("text-anchor", "end")
+        .attr("font-size", 11)
+        .attr("fill", "#333");
 
-        // Main group translated by margins
-        const gMain = svg.append("g")
-            .attr("transform", `translate(${margins.left},${margins.top})`);
+    desc.append("tspan").text("Normalization modes:");
+    desc.append("tspan")
+        .attr("x", innerWidth - 10)
+        .attr("dy", "1.15em")
+        .text("Global: amplitudes comparable across years");
+    desc.append("tspan")
+        .attr("x", innerWidth - 10)
+        .attr("dy", "1.15em")
+        .text("Per-year: each year scaled to its own max");
+}
 
-        // Description of normalization behaviors (placed above the plotting area)
-        const desc = gMain.append("text")
-            .attr("class", "normalize-desc")
-            .attr("x", innerWidth - 10)
-            .attr("y", -8)
+function drawRidges(gMain, processed, generators, scales, ridgeHeight) {
+    processed.forEach((countryData, i) => {
+        const g = gMain.append("g")
+            .attr("transform", `translate(0,${i * ridgeHeight})`);
+
+        g.append("path")
+            .datum(countryData.densityData)
+            .attr("class", "ridge-path")
+            .attr("d", generators.area)
+            .attr("fill", scales.colorScale(i))
+            .attr("opacity", 0.7);
+
+        g.append("path")
+            .datum(countryData.densityData)
+            .attr("class", "ridge-path")
+            .attr("d", generators.line)
+            .attr("fill", "none")
+            .attr("stroke", scales.colorScale(i))
+            .attr("stroke-width", 2);
+
+        g.append("text")
+            .attr("class", "year-label")
+            .attr("x", -10)
+            .attr("y", ridgeHeight / 2)
             .attr("text-anchor", "end")
-            .attr("font-size", 11)
-            .attr("fill", "#333");
+            .attr("dominant-baseline", "middle")
+            .text(countryData.year);
+    });
+}
 
-        desc.append("tspan").text("Normalization modes:");
-        desc.append("tspan")
-            .attr("x", innerWidth - 10)
-            .attr("dy", "1.15em")
-            .text("Global: amplitudes comparable across years");
-        desc.append("tspan")
-            .attr("x", innerWidth - 10)
-            .attr("dy", "1.15em")
-            .text("Per-year: each year scaled to its own max");
+function drawXAxis(gMain, innerHeight, xScale) {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthStarts = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
 
-        // Draw ridges
-        processed.forEach((countryData, i) => {
-            const g = gMain.append("g")
-                .attr("transform", `translate(0,${i * ridgeHeight})`);
-
-            // Fill
-            g.append("path")
-                .datum(countryData.densityData)
-                .attr("class", "ridge-path")
-                .attr("d", area)
-                .attr("fill", colorScale(i))
-                .attr("opacity", 0.7);
-
-            // Stroke
-            g.append("path")
-                .datum(countryData.densityData)
-                .attr("class", "ridge-path")
-                .attr("d", line)
-                .attr("fill", "none")
-                .attr("stroke", colorScale(i))
-                .attr("stroke-width", 2);
-
-            // Year label (placed just left of the plotting area)
-            g.append("text")
-                .attr("class", "year-label")
-                .attr("x", -10)
-                .attr("y", ridgeHeight / 2)
-                .attr("text-anchor", "end")
-                .attr("dominant-baseline", "middle")
-                .text(countryData.year);
+    const xAxis = d3.axisBottom(xScale)
+        .tickValues(monthStarts)
+        .tickFormat(d => {
+            const idx = monthStarts.indexOf(d);
+            return idx >= 0 ? monthNames[idx] : "";
         });
 
-        // X-axis
-        const xAxis = d3.axisBottom(xScale)
-            .tickValues(monthStarts)
-            .tickFormat(d => {
-                const idx = monthStarts.indexOf(d);
-                return idx >= 0 ? monthNames[idx] : "";
-            });
-
-        gMain.append("g")
-            .attr("transform", `translate(0,${innerHeight})`)
-            .call(xAxis)
-            .style("font-size", "12px");
-
-        
-
-        // Append the SVG to the container
-        container.appendChild(svg.node());
-    }
-
-    // Initial render (use currently selected country)
-    render(countrySelect.value);
-
-    // when selection changes, re-render the chart using the original full data
-    countrySelect.addEventListener('change', () => render(countrySelect.value));
-    // re-render when normalization toggle changes
-    normalizeToggle.addEventListener('change', () => render(countrySelect.value));
+    gMain.append("g")
+        .attr("transform", `translate(0,${innerHeight})`)
+        .call(xAxis)
+        .style("font-size", "12px");
 }
