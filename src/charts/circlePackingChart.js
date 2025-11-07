@@ -42,7 +42,6 @@ export function renderCirclePackingChart(container, data, margins) {
 
     // helper: compute contrast-aware label style from a fill color (cached)
     function computeLabelStyle(radius, fillColor) {
-        console.log("computing label style for color:", fillColor, "and radius:", radius);
         if (radius < 16) {
             return "#000000";
         }
