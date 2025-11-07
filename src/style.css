@@ -89,59 +89,7 @@
     cursor: pointer;
 }
 
-/* Slider styling using university blue variable */
-.pyramid-controls .pyramid-year-select[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 6px;
-    /* CSS variable used to paint the left (filled) portion of the track */
-    --pct: 0%;
-    background: transparent;
-    outline: none;
-}
-
-.pyramid-controls .pyramid-year-select[type="range"]::-webkit-slider-runnable-track {
-    height: 6px;
-    /* Use the --pct variable set on the element to paint the left side up to the thumb */
-    background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
-    border-radius: 3px;
-}
-
-.pyramid-controls .pyramid-year-select[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--color-unige-blue);
-    border: 2px solid white;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
-    margin-top: -5px;
-    cursor: pointer;
-}
-
-.pyramid-controls .pyramid-year-select[type="range"]::-moz-range-track {
-    height: 6px;
-    background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
-    border-radius: 3px;
-}
-
-.pyramid-controls .pyramid-year-select[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--color-unige-blue);
-    border: 2px solid white;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
-    cursor: pointer;
-}
-
-.pyramid-controls .pyramid-year-select[type="range"]:focus::-webkit-slider-thumb,
-.pyramid-controls .pyramid-year-select[type="range"]:hover::-webkit-slider-thumb,
-.pyramid-controls .pyramid-year-select[type="range"]:focus::-moz-range-thumb,
-.pyramid-controls .pyramid-year-select[type="range"]:hover::-moz-range-thumb {
-    transform: scale(1.05);
-}
+/* (Pyramid-specific slider styles removed — use the universal [class$="-controls"] rules) */
 
 /* Pyramid bar colors (use CSS vars so colors live in the stylesheet) */
 :root {
@@ -182,4 +130,116 @@
 
 .ridge-normalize-toggle {
     accent-color: var(--color-unige-blue)
+}
+
+/* Boxplot controls mirror the pyramid slider/look and feel */
+.boxplot-controls {
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--default-font-family);
+}
+
+.boxplot-controls label {
+    margin-right: 6px;
+}
+
+.boxplot-country-select-a, .boxplot-country-select-b {
+    min-width: 220px;
+}
+
+.boxplot-country-select-a { color: var(--color-unige-blue); }
+.boxplot-country-select-b { color: var(--color-unige-red); }
+
+.boxplot-controls-row-top,
+.boxplot-controls-row-bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Chart-controls: thin black border for buttons, selects and inputs used in charts */
+[class$="-controls"] select,
+[class$="-controls"] button,
+[class$="-controls"] input[type="range"],
+[class$="-controls"] input[type="text"],
+[class$="-controls"] input[type="number"] {
+    border: 1px solid black;
+    border-radius: 6px;
+}
+
+.boxplot-year-select {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.boxplot-year-display {
+    min-width: 40px;
+    display: inline-block;
+    text-align: left;
+}
+
+.boxplot-play-button, .boxplot-play-btn {
+    margin-left: 8px;
+    padding: 6px 10px;
+    background: white;
+    cursor: pointer;
+}
+
+/* (Boxplot-specific slider styles removed — use the universal [class$="-controls"] rules) */
+
+/* Universal slider style for all chart controls (applies to any container whose
+   class ends with "-controls") */
+[class$="-controls"] input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    --pct: 0%;
+    background: transparent;
+    outline: none;
+}
+
+[class$="-controls"] input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
+    border-radius: 3px;
+}
+
+[class$="-controls"] input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-unige-blue);
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
+    margin-top: -5px;
+    cursor: pointer;
+}
+
+[class$="-controls"] input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: linear-gradient(90deg, var(--color-unige-blue) var(--pct), #ddd var(--pct));
+    border-radius: 3px;
+}
+
+[class$="-controls"] input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-unige-blue);
+    border: 2px solid white;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+}
+
+[class$="-controls"] input[type="range"]:focus::-webkit-slider-thumb,
+[class$="-controls"] input[type="range"]:hover::-webkit-slider-thumb,
+[class$="-controls"] input[type="range"]:focus::-moz-range-thumb,
+[class$="-controls"] input[type="range"]:hover::-moz-range-thumb {
+    transform: scale(1.05);
 }

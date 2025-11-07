@@ -55,7 +55,35 @@ export function renderPyramidChart(container, data, margins) {
     if (!controls) {
         controls = document.createElement('div');
         controls.className = 'pyramid-controls';
+        // layout: two centered rows
+        controls.style.display = 'flex';
+        controls.style.flexDirection = 'column';
+        controls.style.alignItems = 'center';
+        controls.style.gap = '8px';
         container.appendChild(controls);
+    }
+
+    // top row: dataset & country selectors
+    let rowTop = controls.querySelector('.pyramid-controls-row-top');
+    if (!rowTop) {
+        rowTop = document.createElement('div');
+        rowTop.className = 'pyramid-controls-row-top';
+        rowTop.style.display = 'flex';
+        rowTop.style.justifyContent = 'center';
+        rowTop.style.alignItems = 'center';
+        rowTop.style.gap = '10px';
+        controls.appendChild(rowTop);
+    }
+    // bottom row: year slider + play
+    let rowBottom = controls.querySelector('.pyramid-controls-row-bottom');
+    if (!rowBottom) {
+        rowBottom = document.createElement('div');
+        rowBottom.className = 'pyramid-controls-row-bottom';
+        rowBottom.style.display = 'flex';
+        rowBottom.style.justifyContent = 'center';
+        rowBottom.style.alignItems = 'center';
+        rowBottom.style.gap = '10px';
+        controls.appendChild(rowBottom);
     }
 
     // If the source provided multiple named datasets, expose a small selector
@@ -86,9 +114,9 @@ export function renderPyramidChart(container, data, margins) {
                 renderPyramidChart(container, container.__pyramidRawData, margins);
             });
 
-            // insert selector at the top of controls so it reads Dataset -> Country -> Year
-            controls.appendChild(dsLabel);
-            controls.appendChild(datasetSelect);
+            // insert selector into the top row
+            rowTop.appendChild(dsLabel);
+            rowTop.appendChild(datasetSelect);
         }
     }
 
@@ -110,11 +138,11 @@ export function renderPyramidChart(container, data, margins) {
         });
 
         // default selection: keep Syrian Arab Republic if present, otherwise first
-        const defaultCountry = countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : countries[0];
+        const defaultCountry = countries[0];
         countrySelect.value = defaultCountry;
 
-        controls.appendChild(label);
-        controls.appendChild(countrySelect);
+        rowTop.appendChild(label);
+        rowTop.appendChild(countrySelect);
         // attach listener once when the control is created
         countrySelect.addEventListener('change', () => renderPyramidChart(container, fullData, margins));
     }
@@ -173,9 +201,10 @@ export function renderPyramidChart(container, data, margins) {
             }
         });
 
-        controls.appendChild(yLabel);
-        controls.appendChild(yearSelect);
-        controls.appendChild(yearDisplay);
+        // put year controls into the bottom row
+        rowBottom.appendChild(yLabel);
+        rowBottom.appendChild(yearSelect);
+        rowBottom.appendChild(yearDisplay);
 
         // Play/Stop button to animate the slider through the years
         let playBtn = controls.querySelector('.pyramid-play-btn');
@@ -183,7 +212,7 @@ export function renderPyramidChart(container, data, margins) {
             playBtn = document.createElement('button');
             playBtn.className = 'pyramid-play-btn';
             playBtn.textContent = 'Play';
-            controls.appendChild(playBtn);
+            rowBottom.appendChild(playBtn);
 
             playBtn.addEventListener('click', () => {
                 // toggle animation
@@ -223,7 +252,7 @@ export function renderPyramidChart(container, data, margins) {
     // listeners are attached when controls are created (to avoid duplicate handlers on re-render)
 
     // determine selected country and year and filter data (use fullData as the source)
-    const selectedCountry = countrySelect.value || (countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : countries[0]);
+    const selectedCountry = countrySelect.value || (countries[0]);
     const selectedYear = yearSelect.value || (years.includes(2022) ? 2022 : years[0]);
     data = fullData.filter(d => d.Year == selectedYear && d.Country === selectedCountry);
 
@@ -273,7 +302,7 @@ export function renderPyramidChart(container, data, margins) {
         .attr("x", 0)
         .attr("text-anchor", "middle");
 
-        // shorten/hide tick lines so they don't extend into bars
+    // shorten/hide tick lines so they don't extend into bars
     yAxisG.selectAll("line").attr("x2", 0);
 
     yAxisG.selectAll("path").attr("stroke", "none");

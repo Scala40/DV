@@ -11,7 +11,8 @@ import {
     waffleChartMargins,
     circlePackingChartMargins,
     pyramidChartMargins,
-    ridgePlotMargins
+    ridgePlotMargins,
+    boxplotChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
@@ -100,7 +101,7 @@ observeRender(
     document.getElementById("boxplot-chart"),
     renderBoxplotChart,
     pyramidChartData,
-    pyramidChartMargins
+    boxplotChartMargins
 );
 
 observeRender(

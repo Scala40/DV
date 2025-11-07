@@ -101,7 +101,7 @@ export function renderBoxplotChart(container, data, margins) {
 
     const svg = createResponsiveSvg(width, height);
 
-    // Persist rawData/datasetKey on the container (like pyramidChart does)
+    // Persist rawData/datasetKey on the container (like boxplotChart does)
     const rawData = container.__boxplotRawData || data;
     let datasetKey = container.__boxplotDatasetKey || 'population';
     let fullData;
@@ -130,7 +130,35 @@ export function renderBoxplotChart(container, data, margins) {
     if (!controls) {
         controls = document.createElement('div');
         controls.className = 'boxplot-controls';
+        // layout: two centered rows
+        controls.style.display = 'flex';
+        controls.style.flexDirection = 'column';
+        controls.style.alignItems = 'center';
+        controls.style.gap = '8px';
         container.appendChild(controls);
+    }
+
+    // top row: dataset & country selectors (and optional sex)
+    let rowTop = controls.querySelector('.boxplot-controls-row-top');
+    if (!rowTop) {
+        rowTop = document.createElement('div');
+        rowTop.className = 'boxplot-controls-row-top';
+        rowTop.style.display = 'flex';
+        rowTop.style.justifyContent = 'center';
+        rowTop.style.alignItems = 'center';
+        rowTop.style.gap = '10px';
+        controls.appendChild(rowTop);
+    }
+    // bottom row: year slider + play button
+    let rowBottom = controls.querySelector('.boxplot-controls-row-bottom');
+    if (!rowBottom) {
+        rowBottom = document.createElement('div');
+        rowBottom.className = 'boxplot-controls-row-bottom';
+        rowBottom.style.display = 'flex';
+        rowBottom.style.justifyContent = 'center';
+        rowBottom.style.alignItems = 'center';
+        rowBottom.style.gap = '10px';
+        controls.appendChild(rowBottom);
     }
 
     // dataset selector when multiple named datasets available
@@ -152,8 +180,8 @@ export function renderBoxplotChart(container, data, margins) {
                 container.__boxplotDatasetKey = ds.value;
                 renderBoxplotChart(container, container.__boxplotRawData, margins);
             });
-            controls.appendChild(lbl);
-            controls.appendChild(ds);
+            rowTop.appendChild(lbl);
+            rowTop.appendChild(ds);
         }
     }
 
@@ -172,64 +200,163 @@ export function renderBoxplotChart(container, data, margins) {
         });
         sexSelect.value = 'All';
         sexSelect.addEventListener('change', () => renderBoxplotChart(container, container.__boxplotRawData || fullData, margins));
-        controls.appendChild(sLabel);
-        controls.appendChild(sexSelect);
+        rowTop.appendChild(sLabel);
+        rowTop.appendChild(sexSelect);
     }
 
-    // country selector
-    let countrySelect = controls.querySelector('.boxplot-country-select');
-    if (!countrySelect) {
-        const label = document.createElement('label');
-        label.textContent = ' Country: ';
-        countrySelect = document.createElement('select');
-        countrySelect.className = 'boxplot-country-select';
+    // two country selectors: Country A and Country B
+    let countrySelectA = controls.querySelector('.boxplot-country-select-a');
+    let countrySelectB = controls.querySelector('.boxplot-country-select-b');
+    if (!countrySelectA) {
+        const labelA = document.createElement('label');
+        labelA.textContent = 'Left : ';
+        countrySelectA = document.createElement('select');
+        countrySelectA.className = 'boxplot-country-select-a';
+        countrySelectA.style.color = 'var(--color-scienze-mfn)';
         countries.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c;
             opt.text = c;
-            countrySelect.appendChild(opt);
+            countrySelectA.appendChild(opt);
         });
-        // sensible default
-        countrySelect.value = countries.includes('Syrian Arab Republic') ? 'Syrian Arab Republic' : (countries[0] || '');
-        countrySelect.addEventListener('change', () => renderBoxplotChart(container, container.__boxplotRawData || fullData, margins));
-        controls.appendChild(label);
-        controls.appendChild(countrySelect);
+        // sensible default A
+        countrySelectA.value = countries[0]
+        countrySelectA.addEventListener('change', () => renderBoxplotChart(container, container.__boxplotRawData || fullData, margins));
+        rowTop.appendChild(labelA);
+        rowTop.appendChild(countrySelectA);
     }
+    if (!countrySelectB) {
+        const labelB = document.createElement('label');
+        labelB.textContent = 'Right : ';
+        countrySelectB = document.createElement('select');
+        countrySelectB.className = 'boxplot-country-select-b';
+        countrySelectB.style.color = 'var(--color-architettura-design)';
+        countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.text = c;
+            countrySelectB.appendChild(opt);
+        });
+        // default B: pick second country if available or different from A
+        countrySelectB.value = countries[1] && countries[1] !== countrySelectA.value ? countries[1] : (countries[0] === countrySelectA.value ? countries[1] || countries[0] : countries[0]);
+        countrySelectB.addEventListener('change', () => renderBoxplotChart(container, container.__boxplotRawData || fullData, margins));
+        rowTop.appendChild(labelB);
+        rowTop.appendChild(countrySelectB);
+    }
+    // Year slider
 
-    // year slider
     let yearSelect = controls.querySelector('.boxplot-year-select');
     if (!yearSelect) {
         const yLabel = document.createElement('label');
-        yLabel.textContent = ' Year: ';
+        yLabel.textContent = 'Year: ';
+
+        // create a slider (range input) for years
         yearSelect = document.createElement('input');
         yearSelect.type = 'range';
         yearSelect.className = 'boxplot-year-select';
-        const minYear = years.length ? Math.min(...years) : 0;
-        const maxYear = years.length ? Math.max(...years) : 0;
+        const minYear = Math.min(...years);
+        const maxYear = Math.max(...years);
         yearSelect.min = minYear;
         yearSelect.max = maxYear;
         yearSelect.step = 1;
+
+        // display current value
         const yearDisplay = document.createElement('span');
         yearDisplay.className = 'boxplot-year-display';
-        const defaultYear = years.includes(2023) ? 2023 : (years[years.length - 1] || minYear);
+
+        const defaultYear = years.includes(2023) ? 2023 : years[0];
         yearSelect.value = defaultYear;
         yearDisplay.textContent = defaultYear;
+
+        // helper to update range fill (colored track up to thumb)
+        function updateYearSliderFill() {
+            const min = +yearSelect.min;
+            const max = +yearSelect.max;
+            const val = +yearSelect.value;
+            const pct = (val - min) / (max - min) * 100;
+            
+            yearSelect.style.setProperty('--pct', `${pct}%`);
+        }
+
+        // initialize fill
+        updateYearSliderFill();
+
+        // update display when slider moves
         yearSelect.addEventListener('input', () => {
             yearDisplay.textContent = yearSelect.value;
-            renderBoxplotChart(container, container.__boxplotRawData || fullData, margins);
+            // update visual fill
+            updateYearSliderFill();
+            // live update the chart while sliding
+            renderBoxplotChart(container, fullData, margins);
+            // if user moves the slider manually, stop any running animation
+            if (container.__boxplotAnimationId) {
+                clearInterval(container.__boxplotAnimationId);
+                container.__boxplotAnimationId = null;
+                const playBtn = controls.querySelector('.boxplot-play-btn');
+                if (playBtn) playBtn.textContent = 'Play';
+            }
         });
-        controls.appendChild(yLabel);
-        controls.appendChild(yearSelect);
-        controls.appendChild(yearDisplay);
+        rowBottom.appendChild(yLabel);
+        rowBottom.appendChild(yearSelect);
+        rowBottom.appendChild(yearDisplay);
+
+
+        // Play/Stop button to animate the slider through the years
+        let playBtn = controls.querySelector('.boxplot-play-btn');
+        if (!playBtn) {
+            playBtn = document.createElement('button');
+            playBtn.className = 'boxplot-play-btn';
+            playBtn.textContent = 'Play';
+            rowBottom.appendChild(playBtn);
+
+            playBtn.addEventListener('click', () => {
+                // toggle animation
+                if (container.__boxplotAnimationId) {
+                    clearInterval(container.__boxplotAnimationId);
+                    container.__boxplotAnimationId = null;
+                    playBtn.textContent = 'Play';
+                    return;
+                }
+
+                playBtn.textContent = 'Stop';
+                const minY = +yearSelect.min;
+                const maxY = +yearSelect.max;
+                let current = +yearSelect.value || minY;
+                // if currently at max, start from min
+                if (current >= maxY) current = minY - 1;
+                const stepMs = 400; // milliseconds per year step
+                container.__boxplotAnimationId = setInterval(() => {
+                    current += 1;
+                    if (current > maxY) {
+                        clearInterval(container.__boxplotAnimationId);
+                        container.__boxplotAnimationId = null;
+                        playBtn.textContent = 'Play';
+                        return;
+                    }
+                    yearSelect.value = current;
+                    const disp = controls.querySelector('.boxplot-year-display');
+                    if (disp) disp.textContent = current;
+                    // update fill before rendering
+                    updateYearSliderFill();
+                    renderBoxplotChart(container, fullData, margins);
+                }, stepMs);
+            });
+        }
     }
 
-    const selectedCountry = countrySelect ? countrySelect.value : (countries[0] || null);
+
+    const selectedCountryA = countrySelectA ? countrySelectA.value : (countries[0] || null);
+    const selectedCountryB = countrySelectB ? countrySelectB.value : (countries[1] || selectedCountryA || null);
     const selectedYear = yearSelect ? +yearSelect.value : (years[years.length - 1] || null);
     const selectedSex = sexSelect ? sexSelect.value : 'All';
 
-    // filter data for chosen country/year and sex
-    let filtered = (fullData || []).filter(d => (!selectedYear || +d.Year === +selectedYear) && (!selectedCountry || d.Country === selectedCountry));
-    if (selectedSex && selectedSex !== 'All') filtered = filtered.filter(d => d.Sex === selectedSex);
+    // filter data for chosen countries/year and sex (produce two datasets)
+    let filteredA = (fullData || []).filter(d => (!selectedYear || +d.Year === +selectedYear) && (!selectedCountryA || d.Country === selectedCountryA));
+    let filteredB = (fullData || []).filter(d => (!selectedYear || +d.Year === +selectedYear) && (!selectedCountryB || d.Country === selectedCountryB));
+    if (selectedSex && selectedSex !== 'All') {
+        filteredA = filteredA.filter(d => d.Sex === selectedSex);
+        filteredB = filteredB.filter(d => d.Sex === selectedSex);
+    }
 
     // detect numeric value field (Population / Deaths / other) dynamically
     function detectValueField(sampleData) {
@@ -247,42 +374,57 @@ export function renderBoxplotChart(container, data, margins) {
         return null;
     }
 
-    const valueField = detectValueField(filtered) || 'Population';
+    // detect value field from the full dataset (not a filtered variable that was removed)
+    const valueField = detectValueField(fullData) || 'Population';
 
-    // Build weighted age midpoints: value (age midpoint) and weight (count)
-    const VW = filtered.map(d => {
+    // Build weighted age midpoints for A and B: value (age midpoint) and weight (count)
+    const VW_A = filteredA.map(d => {
+        const ageStr = d.Age_Group_5yr || d['Age group'] || d.Age_Group || d.Age;
+        return { v: ageGroupMidpoint(ageStr), w: Math.max(0, +d[valueField] || 0) };
+    }).filter(d => !isNaN(d.v) && d.w > 0);
+    const VW_B = filteredB.map(d => {
         const ageStr = d.Age_Group_5yr || d['Age group'] || d.Age_Group || d.Age;
         return { v: ageGroupMidpoint(ageStr), w: Math.max(0, +d[valueField] || 0) };
     }).filter(d => !isNaN(d.v) && d.w > 0);
 
-    if (VW.length === 0) {
-        svg.append('text').attr('x', width/2).attr('y', height/2).attr('text-anchor','middle').text('No data for selection');
+    if (VW_A.length === 0 && VW_B.length === 0) {
+        svg.append('text').attr('x', width / 2).attr('y', height / 2).attr('text-anchor', 'middle').text('No data for selection');
         container.appendChild(svg.node());
         return;
     }
 
-    // compute weighted stats
-    const vals = VW.map(d => d.v);
-    const ws = VW.map(d => d.w);
-    const stats = weightedBoxStats(vals, ws);
-    const minAge = d3.min(vals);
-    const maxAge = d3.max(vals);
+    // compute weighted stats for each (may be null if no data)
+    const valsA = VW_A.map(d => d.v);
+    const wsA = VW_A.map(d => d.w);
+    const statsA = VW_A.length ? weightedBoxStats(valsA, wsA) : null;
 
-    // vertical box: single category
-    const categories = ['All ages'];
+    const valsB = VW_B.map(d => d.v);
+    const wsB = VW_B.map(d => d.w);
+    const statsB = VW_B.length ? weightedBoxStats(valsB, wsB) : null;
+
+    const minAge = d3.min([d3.min(valsA) || Infinity, d3.min(valsB) || Infinity]);
+    const maxAge = d3.max([d3.max(valsA) || -Infinity, d3.max(valsB) || -Infinity]);
+
+    // vertical boxes: two categories (Country A, Country B)
+    const nameA = selectedCountryA || 'A';
+    const nameB = selectedCountryB || 'B';
+    const categories = [nameA, nameB];
     const xBand = d3.scaleBand().domain(categories).range([margins.left, width - margins.right]).padding(0.4);
     const yScale = d3.scaleLinear().domain([Math.max(0, minAge - 2), maxAge + 2]).nice().range([height - margins.bottom, margins.top]);
 
     // axes
-    const xAxis = d3.axisBottom(xBand).tickFormat(() => selectedSex === 'All' ? 'All' : selectedSex);
     const yAxis = d3.axisLeft(yScale).ticks(8).tickFormat(d3.format('.0f'));
-    svg.append('g').attr('transform', `translate(0,${height - margins.bottom})`).call(xAxis);
     svg.append('g').attr('transform', `translate(${margins.left},0)`).call(yAxis);
 
-    // draw vertical box using weighted stats
-    const cx = (xBand('All ages') || 0) + xBand.bandwidth() / 2;
+    // draw vertical boxes for A and B using weighted stats
     const boxWidth = Math.max(24, xBand.bandwidth() * 0.3);
-    if (stats) {
+    const cxA = (xBand(nameA) || 0) + xBand.bandwidth() / 2;
+    const cxB = (xBand(nameB) || 0) + xBand.bandwidth() / 2;
+    const colorA = 'var(--color-scienze-mfn)'; // green
+    const colorB = 'var(--color-architettura-design)'; // orange
+
+    function drawBoxFor(stats, cx, VW_arr, color, labelSuffix) {
+        if (!stats) return;
         const q1y = yScale(stats.q1);
         const q3y = yScale(stats.q3);
         const medy = yScale(stats.q2);
@@ -290,7 +432,12 @@ export function renderBoxplotChart(container, data, margins) {
         const upy = yScale(stats.upper);
 
         // whisker line
-        svg.append('line').attr('x1', cx).attr('x2', cx).attr('y1', lowy).attr('y2', upy).attr('stroke', 'currentColor');
+        svg.append('line')
+            .attr('x1', cx)
+            .attr('x2', cx)
+            .attr('y1', lowy)
+            .attr('y2', upy)
+            .attr('stroke', 'currentColor');
 
         // box
         svg.append('rect')
@@ -298,7 +445,7 @@ export function renderBoxplotChart(container, data, margins) {
             .attr('y', q3y)
             .attr('width', boxWidth)
             .attr('height', Math.max(1, q1y - q3y))
-            .attr('fill', '#60A5FA')
+            .attr('fill', color)
             .attr('opacity', 0.75);
 
         // median line
@@ -307,56 +454,63 @@ export function renderBoxplotChart(container, data, margins) {
             .attr('x2', cx + boxWidth / 2)
             .attr('y1', medy)
             .attr('y2', medy)
-            .attr('stroke', '#111')
-            .attr('stroke-width', 1.5);
+            .attr('stroke', 'black')
+            .attr('stroke-width', 1);
 
         // caps
-        svg.append('line').attr('x1', cx - boxWidth / 4).attr('x2', cx + boxWidth / 4).attr('y1', lowy).attr('y2', lowy).attr('stroke', 'currentColor');
-        svg.append('line').attr('x1', cx - boxWidth / 4).attr('x2', cx + boxWidth / 4).attr('y1', upy).attr('y2', upy).attr('stroke', 'currentColor');
+        svg.append('line')
+            .attr('x1', cx - boxWidth / 4)
+            .attr('x2', cx + boxWidth / 4)
+            .attr('y1', lowy)
+            .attr('y2', lowy)
+            .attr('stroke', 'currentColor');
+        svg.append('line')
+            .attr('x1', cx - boxWidth / 4)
+            .attr('x2', cx + boxWidth / 4)
+            .attr('y1', upy)
+            .attr('y2', upy)
+            .attr('stroke', 'currentColor');
 
-        // annotations: total weight and median above box
-        const totalW = d3.sum(ws) || 0;
-        svg.append('text')
-            .attr('x', cx)
-            .attr('y', margins.top + 12)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', 12)
-            .text(`n=${d3.format(',')(Math.round(totalW))}  med=${d3.format('.1f')(stats.q2)}`);
+        
     }
+    svg.append("text")
+        .attr("x", margins.left - 5)
+        .attr("y", margins.top - 12)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 15)
+        .text("Age");
 
-    // Violin: density across ages, weighted
+    // Violin: density across ages, weighted for A and B
     const bandwidth = Math.max((maxAge - minAge) * 0.08, 0.5);
     const kernel = epanechnikovKernel(bandwidth);
     const yVals = d3.range(Math.max(0, minAge - 2), maxAge + 2, Math.max((maxAge - minAge) / 80, 0.5));
     const kdeW = kernelDensityEstimatorWeighted(kernel, yVals);
-    const kdeData = kdeW(VW);
-    const maxDensity = d3.max(kdeData, d => d[1]) || 1;
+
+    // compute kde and density scales for each dataset
+    const kdeDataA = VW_A.length ? kdeW(VW_A) : [];
+    const kdeDataB = VW_B.length ? kdeW(VW_B) : [];
+    const maxDensity = d3.max([d3.max(kdeDataA, d => d[1]) || 0, d3.max(kdeDataB, d => d[1]) || 0]) || 1;
     const densityScale = d3.scaleLinear().domain([0, maxDensity]).range([0, xBand.bandwidth() / 2 - 6]);
 
-    // build mirrored polygon
-    const right = kdeData.map(d => [cx + densityScale(d[1]), yScale(d[0])]);
-    const left = kdeData.slice().reverse().map(d => [cx - densityScale(d[1]), yScale(d[0])]);
-    const pts = right.concat(left);
-    const area = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveCatmullRom);
-    svg.append('path').attr('d', area(pts)).attr('fill', '#60A5FA').attr('opacity', 0.25);
+    function drawViolinFor(kdeData, cx, color) {
+        if (!kdeData || kdeData.length === 0) return;
+        const right = kdeData.map(d => [cx + densityScale(d[1]), yScale(d[0])]);
+        const left = kdeData.slice().reverse().map(d => [cx - densityScale(d[1]), yScale(d[0])]);
+        const pts = right.concat(left);
+        const area = d3.line().x(d => d[0]).y(d => d[1]).curve(d3.curveCatmullRom);
+        svg.append('path').attr('d', area(pts))
+            .attr('fill', color)
+            .attr('opacity', 0.25);
+    }
 
-    // Title and labels
-    const datasetLabel = (container.__boxplotDatasetKey || 'Population');
-    svg.append('text')
-        .attr('x', width / 2)
-        .attr('y', Math.max(18, margins.top / 2))
-        .attr('text-anchor', 'middle')
-        .attr('font-size', 15)
-        .attr('font-weight', 600)
-        .text(`${datasetLabel} — Age distribution (${selectedCountry} ${selectedYear})`);
+    // draw for A and B
+    drawViolinFor(kdeDataA, cxA, colorA);
+    drawViolinFor(kdeDataB, cxB, colorB);
 
-    svg.append('text')
-        .attr('transform', `rotate(-90)`)
-        .attr('x', -height / 2)
-        .attr('y', margins.left - 44)
-        .attr('text-anchor', 'middle')
-        .attr('font-size', 12)
-        .text('Age (years)');
+    // draw boxes
+    drawBoxFor(statsA, cxA, VW_A, colorA, 'A:');
+    drawBoxFor(statsB, cxB, VW_B, colorB, 'B:');
+
 
     container.appendChild(svg.node());
 }

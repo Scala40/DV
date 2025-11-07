@@ -225,14 +225,7 @@ export function renderRidgePlotChart(container, data, margins) {
             .call(xAxis)
             .style("font-size", "12px");
 
-        // X-axis label
-        gMain.append("text")
-            .attr("x", innerWidth / 2)
-            .attr("y", height - margins.bottom + 10)
-            .attr("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .style("font-size", "14px")
-            .text("Day of Year");
+        
 
         // Append the SVG to the container
         container.appendChild(svg.node());
