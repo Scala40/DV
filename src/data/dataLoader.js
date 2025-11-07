@@ -1,63 +1,53 @@
 import * as d3 from "d3";
 
-import fatalitiesByCountry from "../csv/fatalities_by_country.csv?raw";
-import eventsByYearCountry from "../csv/events_by_year_country.csv?raw";
-import eventsByCountryEventType from "../csv/events_by_country_event_type.csv?raw";
-import eventsByEventType from "../csv/events_by_event_type.csv?raw";
+import fatalitiesByCountryUrl from "../csv/fatalities_by_country.csv?url";
+import eventsByYearCountryUrl from "../csv/events_by_year_country.csv?url";
+import eventsByCountryEventTypeUrl from "../csv/events_by_country_event_type.csv?url";
+import eventsByEventTypeUrl from "../csv/events_by_event_type.csv?url";
 
-import DemographicData from "../csv/population_long_format.csv?raw";
-import DeathsData from "../csv/deaths_long_format.csv?raw";
-import eventsOverTimeByCountry from "../csv/events_over_time_by_country.csv?raw";
+import DemographicDataUrl from "../csv/population_long_format.csv?url";
+import DeathsDataUrl from "../csv/deaths_long_format.csv?url";
+import eventsOverTimeByCountryUrl from "../csv/events_over_time_by_country.csv?url";
 
-// Parse the CSV data
-const parsedData_BarChart = d3.csvParse(fatalitiesByCountry, d3.autoType);
-const parsedData_GroupedBarChart = d3.csvParse(eventsByCountryEventType, d3.autoType);
-const parsedData_HeatmapChart = d3.csvParse(eventsByYearCountry, d3.autoType);
-const parsedData_WaffleChart = d3.csvParse(eventsByEventType, d3.autoType);
-const parsedData_CirclePackingChart = d3.csvParse(fatalitiesByCountry, d3.autoType);
+export async function loadBarChartData() {
+    const parsed = await d3.csv(fatalitiesByCountryUrl, d3.autoType);
+    return parsed
+        .map(d => ({ country: d.COUNTRY, fatalities: d.FATALITIES }))
+        .sort((a, b) => b.fatalities - a.fatalities);
+}
 
-const parsedData_PopulationPyramidChart = d3.csvParse(DemographicData, d3.autoType);
-const parsedData_DeathsPyramidChart = d3.csvParse(DeathsData, d3.autoType);
+export async function loadGroupedBarChartData() {
+    const parsed = await d3.csv(eventsByCountryEventTypeUrl, d3.autoType);
+    return parsed
+        .map(d => ({ country: d.COUNTRY, eventType: d.EVENT_TYPE, events: d.EVENTS }))
+        .sort((a, b) => b.events - a.events);
+}
 
-// Map and transform data for bar chart
-export const barChartData = parsedData_BarChart
-    .map(d => ({ country: d.COUNTRY, fatalities: d.FATALITIES }))
-    .sort((a, b) => b.fatalities - a.fatalities);
+export async function loadHeatmapChartData() {
+    const parsed = await d3.csv(eventsByYearCountryUrl, d3.autoType);
+    return parsed
+        .map(d => ({ year: d.YEAR, country: d.COUNTRY, events: d.EVENTS }))
+        .sort((a, b) => a.year - b.year || a.country.localeCompare(b.country));
+}
 
-// Map and transform data for grouped bar chart
-export const groupedBarChartData = parsedData_GroupedBarChart
-    .map(d => ({ country: d.COUNTRY, eventType: d.EVENT_TYPE, events: d.EVENTS }))
-    .sort((a, b) => b.events - a.events);
+export async function loadWaffleChartData() {
+    const parsed = await d3.csv(eventsByEventTypeUrl, d3.autoType);
+    return parsed
+        .map(d => ({ eventType: d.EVENT_TYPE, events: d.EVENTS }))
+        .sort((a, b) => b.events - a.events);
+}
 
-// Map and transform data for heatmap chart
-export const heatmapChartData = parsedData_HeatmapChart
-    .map(d => ({ year: d.YEAR, country: d.COUNTRY, events: d.EVENTS }))
-    .sort((a, b) => a.year - b.year || a.country.localeCompare(b.country));
+export async function loadPyramidChartData() {
+    const [population, deaths] = await Promise.all([
+        d3.csv(DemographicDataUrl, d3.autoType),
+        d3.csv(DeathsDataUrl, d3.autoType)
+    ]);
+    return { population, deaths };
+}
 
-// Map and transform data for waffle chart
-export const waffleChartData = parsedData_WaffleChart
-    .map(d => ({ eventType: d.EVENT_TYPE, events: d.EVENTS }))
-    .sort((a, b) => b.events - a.events);
-
-// Map and transform data for circle packing chart
-export const circlePackingChartData = parsedData_CirclePackingChart
-    .map(d => ({ country: d.COUNTRY, fatalities: d.FATALITIES }))
-    .sort((a, b) => b.fatalities - a.fatalities);
-
-// Map and transform data for pyramid chart
-export const pyramidChartData = {
-    population: parsedData_PopulationPyramidChart,
-    deaths: parsedData_DeathsPyramidChart
-};
-
-
-// Map and transform data for ridge plot chart
-export const ridgePlotData = d3.csvParse(eventsOverTimeByCountry, d3.autoType)
-    .map(d => ({ week: d.WEEK, country: d.COUNTRY, events: d.EVENTS }))
-    .sort((a, b) => a.country.localeCompare(b.country));
-
-// Map and transform data for box plot chart
-export const boxPlotData = {
-    population: parsedData_PopulationPyramidChart,
-    deaths: parsedData_DeathsPyramidChart
-};
+export async function loadRidgePlotData() {
+    const parsed = await d3.csv(eventsOverTimeByCountryUrl, d3.autoType);
+    return parsed
+        .map(d => ({ week: d.WEEK, country: d.COUNTRY, events: d.EVENTS }))
+        .sort((a, b) => a.country.localeCompare(b.country));
+}

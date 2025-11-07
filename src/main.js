@@ -26,87 +26,97 @@ import { renderBoxplotChart } from './charts/boxplotChart.js';
 import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
 
 import { initNavigation } from './utils/navigation.js';
-
-// Data imports
 import {
-    barChartData,
-    groupedBarChartData,
-    heatmapChartData,
-    waffleChartData,
-    circlePackingChartData,
-    pyramidChartData,
-    ridgePlotData
+    loadBarChartData,
+    loadGroupedBarChartData,
+    loadHeatmapChartData,
+    loadWaffleChartData,
+    loadPyramidChartData,
+    loadRidgePlotData
 } from './data/dataLoader.js';
 
 // Initialize navigation menu
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
+
+    // Bar chart and circle packing share the same source
+    loadBarChartData()
+        .then(data => {
+            observeRender(
+                document.getElementById('bar-chart'),
+                renderBarChart,
+                data,
+                barChartMargins
+            );
+            observeRender(
+                document.getElementById('circle-packing-chart'),
+                renderCirclePackingChart,
+                data,
+                circlePackingChartMargins
+            );
+        })
+        .catch(err => console.error('Bar chart data failed:', err));
+
+    // Grouped bar chart and full bar chart share the same source
+    loadGroupedBarChartData()
+        .then(data => {
+            observeRender(
+                document.getElementById('grouped-bar-chart'),
+                renderGroupedBarChart,
+                data,
+                groupedBarChartMargins
+            );
+            observeRender(
+                document.getElementById('full-bar-chart'),
+                renderFullBarChart,
+                data,
+                fullBarChartMargins
+            );
+        })
+        .catch(err => console.error('Grouped bar chart data failed:', err));
+
+    loadHeatmapChartData()
+        .then(data => observeRender(
+            document.getElementById('heatmap-chart'),
+            renderHeatmapChart,
+            data,
+            heatmapChartMargins
+        ))
+        .catch(err => console.error('Heatmap chart data failed:', err));
+
+    loadWaffleChartData()
+        .then(data => observeRender(
+            document.getElementById('waffle-chart'),
+            renderWaffleChart,
+            data,
+            waffleChartMargins
+        ))
+        .catch(err => console.error('Waffle chart data failed:', err));
+
+    // Pyramid and boxplot share the same source
+    loadPyramidChartData()
+        .then(data => {
+            observeRender(
+                document.getElementById('pyramid-chart'),
+                renderPyramidChart,
+                data,
+                pyramidChartMargins
+            );
+            observeRender(
+                document.getElementById('boxplot-chart'),
+                renderBoxplotChart,
+                data,
+                boxplotChartMargins
+            );
+        })
+        .catch(err => console.error('Pyramid/Boxplot data failed:', err));
+
+    loadRidgePlotData()
+        .then(data => observeRender(
+            document.getElementById('ridgeline-plot'),
+            renderRidgePlotChart,
+            data,
+            ridgePlotMargins
+        ))
+        .catch(err => console.error('Ridgeline data failed:', err));
 });
-
-// Set up observed rendering for the charts
-
-// Section 2 - Comparisons
-observeRender(
-    document.getElementById("bar-chart"),
-    renderBarChart,
-    barChartData,
-    barChartMargins
-);
-
-observeRender(
-    document.getElementById("grouped-bar-chart"),
-    renderGroupedBarChart,
-    groupedBarChartData,
-    groupedBarChartMargins
-);
-
-observeRender(
-    document.getElementById("heatmap-chart"),
-    renderHeatmapChart,
-    heatmapChartData,
-    heatmapChartMargins
-)
-
-observeRender(
-    document.getElementById("full-bar-chart"),
-    renderFullBarChart,
-    groupedBarChartData,
-    fullBarChartMargins
-);
-
-observeRender(
-    document.getElementById("waffle-chart"),
-    renderWaffleChart,
-    waffleChartData,
-    waffleChartMargins
-);
-
-// Additional charts
-observeRender(
-    document.getElementById("circle-packing-chart"),
-    renderCirclePackingChart,
-    circlePackingChartData,
-    circlePackingChartMargins
-);
-
-// Section 3 - Distributions
-observeRender(
-    document.getElementById("pyramid-chart"),
-    renderPyramidChart,
-    pyramidChartData,
-    pyramidChartMargins
-);
-
-observeRender(
-    document.getElementById("boxplot-chart"),
-    renderBoxplotChart,
-    pyramidChartData,
-    boxplotChartMargins
-);
-
-observeRender(
-    document.getElementById("ridgeline-plot"),
-    renderRidgePlotChart,
-    ridgePlotData,
-    ridgePlotMargins
-);
