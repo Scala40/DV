@@ -66,6 +66,6 @@ export const ridgePlotMargins = new Margin({
 export const boxplotChartMargins = new Margin({
     top: 30,
     right: 20,
-    bottom: 80,
+    bottom: 100,
     left: 40
 });
