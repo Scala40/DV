@@ -9,6 +9,12 @@ import DemographicDataUrl from "../csv/population_long_format.csv?url";
 import DeathsDataUrl from "../csv/deaths_long_format.csv?url";
 import eventsOverTimeByCountryUrl from "../csv/events_over_time_by_country.csv?url";
 
+const countryMap = {
+    "Iran (Islamic Republic of)": "Iran",
+    "State of Palestine": "Palestine",
+    "Syrian Arab Republic": "Syria",
+};
+
 export async function loadBarChartData() {
     const parsed = await d3.csv(fatalitiesByCountryUrl, d3.autoType);
     return parsed
@@ -42,7 +48,16 @@ export async function loadPyramidChartData() {
         d3.csv(DemographicDataUrl, d3.autoType),
         d3.csv(DeathsDataUrl, d3.autoType)
     ]);
-    return { population, deaths };
+    return {
+        population: population.map(d => ({
+            Sex: d.Sex,
+            Country: countryMap[d.Country] || d.Country,
+            Year: d.Year,
+            Age_Group_5yr: d.Age_Group_5yr,
+            Population: d.Population
+        })),
+        deaths,
+    };
 }
 
 export async function loadRidgePlotData() {
