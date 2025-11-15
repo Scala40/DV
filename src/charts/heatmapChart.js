@@ -45,11 +45,10 @@ export function renderHeatmapChart(container, data, margins) {
     const vmin = numericValues.length ? d3.min(numericValues) : 0;
     const vmax = numericValues.length ? d3.max(numericValues) : 1;
 
-    //use unige sequential color scale
-    // give more contrast to lower values
-    
-    const color = createUnigeSequentialScale_YlRd()
-        .domain([vmin, vmax]);
+    const startT = 0.09; // increase to make the low end more saturated
+    const color = d3.scaleSequential(
+        t => d3.interpolateYlOrRd(startT + (1 - startT) * t)
+    ).domain([vmin === vmax ? vmin - 1 : vmin, vmax]);
     
     // axes
     g.append("g")
