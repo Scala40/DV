@@ -187,7 +187,8 @@ export async function renderLineChart(container, data, margins) {
     const bisect = d3.bisector(d => d).left;
 
     // Use centralized tooltip helper (styles live in CSS .chart-tooltip)
-    const { setContent, setVisible, setPosition } = createLineChartTooltip(container, { color });
+    // also grab the tooltip element so we can measure it and avoid overflow when positioning
+    const { tooltip, setContent, setVisible, setPosition } = createLineChartTooltip(container, { color });
 
     // Hover group for vertical line and per-country markers
     const hoverG = svg.append("g")
@@ -212,7 +213,9 @@ export async function renderLineChart(container, data, margins) {
         .attr("fill", "none")
         .style("pointer-events", "all")
         .on("mousemove", (event) => {
-            const [mx] = d3.pointer(event, svg.node());
+                const [mx] = d3.pointer(event, svg.node());
+                // pointer relative to the container (for tooltip placement)
+                const [cMx, cMy] = d3.pointer(event, container);
             const xValue = xScale.invert(mx);
 
             // Find closest year in sortedYears
@@ -274,11 +277,14 @@ export async function renderLineChart(container, data, margins) {
                 applyHighlightSet(selectedCountries);
             }
 
-            // Position tooltip near mouse but inside container
-            const rect = container.getBoundingClientRect();
-            const left = Math.min(rect.width - 200, event.clientX - rect.left + 10);
-            const top = Math.min(rect.height - 140, event.clientY - rect.top + 10);
-            setPosition(left, top);
+            // Position tooltip near mouse but keep it inside the container using the tooltip's size
+            const ttRect = tooltip.getBoundingClientRect();
+            const contRect = container.getBoundingClientRect();
+            let left = cMx + 12;
+            let top = cMy + 12;
+            if (left + ttRect.width > contRect.width) left = cMx - ttRect.width - 12;
+            if (top + ttRect.height > contRect.height) top = cMy - ttRect.height/2;
+            setPosition(Math.max(4, left), Math.max(4, top));
         })
         .on("mouseout", () => {
             vLine.style("display", "none");
