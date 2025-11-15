@@ -37,3 +37,17 @@ export function createUnigeOrdinalScale() {
     const palette = getUnigePalette();
     return d3.scaleOrdinal().range(palette);
 }
+
+export function createUnigeSequentialScale_YlRd() {
+    const names = [
+        '--color-economia',
+        '--color-architettura-design',
+        '--color-medicina',
+        '--color-unige-red',
+        '--color-scienze-formazione',
+    ]
+    const root = getComputedStyle(document.documentElement);
+    const palette = names.map(n => (root.getPropertyValue(n) || '').trim() || '#999999');
+    return d3.scaleSequential()
+        .interpolator(d3.interpolateRgbBasis(palette));
+}

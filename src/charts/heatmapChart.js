@@ -2,6 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import { createHeatmapTooltip } from '../utils/tooltip.js';
+import { createUnigeSequentialScale_YlRd } from '../utils/palette.js';
 
 export function renderHeatmapChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
@@ -44,11 +45,12 @@ export function renderHeatmapChart(container, data, margins) {
     const vmin = numericValues.length ? d3.min(numericValues) : 0;
     const vmax = numericValues.length ? d3.max(numericValues) : 1;
 
-    const startT = 0.09; // increase to make the low end more saturated
-    const color = d3.scaleSequential(
-        t => d3.interpolateYlOrRd(startT + (1 - startT) * t)
-    ).domain([vmin === vmax ? vmin - 1 : vmin, vmax]);
-
+    //use unige sequential color scale
+    // give more contrast to lower values
+    
+    const color = createUnigeSequentialScale_YlRd()
+        .domain([vmin, vmax]);
+    
     // axes
     g.append("g")
         .attr("class", "x axis")
