@@ -41,9 +41,24 @@ export async function renderLineChart(container, data, margins) {
         .attr("transform", `translate(0,${height - margins.bottom})`)
         .call(xAxis);
 
-    svg.append("g")
+    const yAxisG = svg.append("g")
         .attr("transform", `translate(${margins.left},0)`)
         .call(yAxis);
+
+    // Remove axis path and tick lines.
+    yAxisG.select(".domain").remove();
+    yAxisG.selectAll(".tick line").remove();
+
+    // Add grid lines
+    yAxisG.selectAll(".tick")
+        .filter(d => d !== 0)
+        .append("line")
+        .attr("x1", 0)
+        .attr("x2", width - margins.left - margins.right)
+        .attr("y1", 0)
+        .attr("y2", 0)
+        .attr("stroke", "#e0e0e0")
+        .attr("stroke-dasharray", "4,4");
 
     // Line generator
     const line = d3.line()
