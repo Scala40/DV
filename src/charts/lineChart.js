@@ -60,6 +60,26 @@ export async function renderLineChart(container, data, margins) {
         .attr("stroke", "#e0e0e0")
         .attr("stroke-dasharray", "4,4");
 
+    // Y axis label with arrows
+    const labelX = margins.left - 50; // distance left of the y axis
+    const centerY = margins.top + (height - margins.top - margins.bottom) / 2;
+
+    const dirGroup = svg.append("g")
+        .attr("transform", `translate(${labelX},0)`) 
+        .attr("class", "y-direction-label");
+
+    // Main label rotated vertically
+    dirGroup.append("text")
+        .attr("x", 0)
+        .attr("y", centerY)
+        .attr("transform", `rotate(-90, 0, ${centerY})`)
+        .attr("text-anchor", "middle")
+        .attr("font-size", 12)
+        .attr("font-weight", "600")
+        .attr("fill", "#333")
+        .attr("dy", "0.35em")
+        .text("Number of Events");
+
     // Line generator
     const line = d3.line()
         .x(d => xScale(d.year))
@@ -160,8 +180,12 @@ export async function renderLineChart(container, data, margins) {
         .attr("x", d => d.x + 5)
         .attr("y", d => d.y)
         .attr("dy", "0.35em")
-        .attr("font-size", "12px")
+        .attr("font-size", "14px")
         .attr("fill", d => color(d.country))
+        .attr("stroke", "rgba(0,0,0,0.12)")
+        .attr("stroke-width", 1)
+        .style("paint-order", "stroke")
+        .style("stroke-linejoin", "round")
         .style("cursor", "pointer")
         .text(d => d.country)
         .on("mouseover", (_, d) => {
@@ -299,4 +323,126 @@ export async function renderLineChart(container, data, margins) {
 
     // Add svg to container
     container.appendChild(svg.node());
+
+    // --- Animation: draw lines + reveal points when chart becomes fully visible ---
+    // Prepare initial hidden states so animation can run when triggered.
+    // Store final point positions and set points to their final y but keep them invisible (opacity 0).
+    // This makes them appear in-place when revealed by the tracer rather than moving up from the baseline.
+    // set final cy on points but keep them hidden via style (safer than attribute so transitions behave)
+    svg.selectAll('.point').nodes().forEach((pt) => {
+        try {
+            const d = pt.__data__;
+            if (d) pt.setAttribute('data-final-cy', String(yScale(d.events)));
+            pt.setAttribute('cy', d ? String(yScale(d.events)) : pt.getAttribute('cy'));
+            pt.style.opacity = '0';
+            pt.style.transition = 'none';
+        } catch (e) {}
+    });
+
+    // Prepare lines with dash properties for draw animation
+    svg.selectAll('.line').nodes().forEach((path) => {
+        try {
+            const len = path.getTotalLength();
+            path.style.strokeDasharray = len;
+            path.style.strokeDashoffset = len;
+            // ensure smooth transitions when animating
+            path.style.transition = 'stroke-dashoffset 1000ms ease';
+            path.style.willChange = 'stroke-dashoffset';
+        } catch (e) {
+            // ignore if path length can't be measured
+        }
+    });
+
+    // Cleanup previous observer and timers if re-rendered
+    if (container._lineAnimObserver) {
+        try { container._lineAnimObserver.disconnect(); } catch (e) {}
+        container._lineAnimObserver = null;
+    }
+    if (container._lineAnimRevealTimeout) {
+        try { clearTimeout(container._lineAnimRevealTimeout); } catch (e) {}
+        container._lineAnimRevealTimeout = null;
+    }
+
+    const playAnimation = () => {
+        // draw lines with a small stagger and animate a tracer that follows each path left->right
+    const lineNodes = svg.selectAll('.line').nodes();
+    const allPointNodes = svg.selectAll('.point').nodes();
+    // no stagger: start all lines at the same time
+    const stagger = 0; // ms between line starts (0 -> simultaneous)
+    const duration = 1200; // ms duration of each line draw
+
+        // prepare array with point positions (cx) and country for reveal logic
+        const pointsData = allPointNodes.map(pt => ({
+            el: pt,
+            cx: Number(pt.getAttribute('cx')),
+            finalCy: pt.getAttribute('data-final-cy'),
+            revealed: false,
+            country: pt.__data__ ? pt.__data__.country : null
+        }));
+
+    lineNodes.forEach((path, i) => {
+            const len = path.getTotalLength();
+            const delay = i * stagger; // ms stagger between lines
+
+            // ensure rounded stroke ends for nicer draw
+            path.style.strokeLinecap = 'round';
+
+            // animate stroke dashoffset to draw the line
+            path.style.transition = `stroke-dashoffset 900ms ease ${delay}ms`;
+            setTimeout(() => {
+                path.style.strokeDashoffset = '0';
+            }, delay);
+
+
+            // animate the tracer along the path synchronized with the line draw
+            setTimeout(() => {
+                tracer.style.opacity = '1';
+                const start = performance.now();
+                function step(now) {
+                    const t = Math.min(1, (now - start) / duration);
+                    const traveled = t * len;
+                    let pt = null;
+                    try { pt = path.getPointAtLength(traveled); } catch (e) { }
+                    if (pt) {
+                        tracer.setAttribute('cx', pt.x);
+                        tracer.setAttribute('cy', pt.y);
+                    }
+                    
+
+                    if (t < 1) requestAnimationFrame(step);
+                    else {
+                        // remove tracer after finished
+                        try { tracer.parentNode && tracer.parentNode.removeChild(tracer); } catch (e) {}
+                    }
+                }
+                requestAnimationFrame(step);
+            }, delay);
+        });
+        // After the last line finishes drawing, reveal all points all at once
+        const lastDelay = Math.max(0, (lineNodes.length - 1) * stagger);
+        const revealAfter = lastDelay + duration + 40; // small buffer
+        container._lineAnimRevealTimeout = setTimeout(() => {
+            // reveal all points by transitioning their opacity to 1
+            pointsData.forEach((ptData) => {
+                if (ptData.el) {
+                    ptData.el.style.transition = 'opacity 500ms ease';
+                    ptData.el.style.opacity = '1';
+                }
+            });
+            container._lineAnimRevealTimeout = null;
+        }, revealAfter);
+    };
+
+
+    // IntersectionObserver: play when nearly fully visible, reset when out of view
+    const obs = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.99) {
+                playAnimation();
+            } 
+        }
+    }, { threshold: [0, 0.25, 0.5, 0.75, 0.99] });
+
+    obs.observe(container);
+    container._lineAnimObserver = obs;
 }

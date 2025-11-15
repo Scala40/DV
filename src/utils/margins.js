@@ -74,5 +74,5 @@ export const lineChartMargins = new Margin({
     top: 20,
     right: 75,
     bottom: 20,
-    left: 50
+    left: 60
 });
