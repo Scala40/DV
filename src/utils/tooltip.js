@@ -185,3 +185,90 @@ export function createHeatmapTooltip(container) {
 
     return { tooltip, setContent, setVisible, setPosition };
 }
+
+export function createLineChartTooltip(container, { color }) {
+    if (window.getComputedStyle(container).position === 'static') {
+        container.style.position = 'relative';
+    }
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'chart-tooltip';
+    container.appendChild(tooltip);
+
+    function setContent({ year, rows, selectedCountries }) {
+        tooltip.innerHTML = '';
+
+        const header = document.createElement('div');
+        header.style.fontWeight = '700';
+        header.style.marginBottom = '6px';
+        header.textContent = `Year: ${year}`;
+        tooltip.appendChild(header);
+
+        const list = document.createElement('div');
+        list.style.overflow = 'auto';
+
+        // Sort rows by value descending
+        rows.sort((a, b) => {
+            if (b.value === null && a.value === null) return 0;
+            if (b.value === null) return -1;
+            if (a.value === null) return 1;
+            return b.value - a.value;
+        });
+
+        for (const r of rows) {
+            const row = document.createElement('div');
+            row.style.margin = '2px 0';
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.justifyContent = 'space-between';
+            row.style.gap = '8px';
+
+            const left = document.createElement('div');
+            left.style.display = 'flex';
+            left.style.alignItems = 'center';
+            left.style.gap = '8px';
+
+            const sw = document.createElement('span');
+            sw.style.display = 'inline-block';
+            sw.style.width = '10px';
+            sw.style.height = '10px';
+            sw.style.borderRadius = '2px';
+            sw.style.background = color(r.country);
+
+            let opacity = 1.0
+            if (selectedCountries.size != 0 && !selectedCountries.has(r.country)) {
+                opacity = 0.2;
+            }
+            sw.style.opacity = opacity;
+
+            const name = document.createElement('span');
+            name.style.fontSize = '12px';
+            name.textContent = r.country;
+
+            left.appendChild(sw);
+            left.appendChild(name);
+
+            const val = document.createElement('span');
+            val.style.fontSize = '12px';
+            val.textContent = r.value !== null ? String(r.value) : '—';
+
+            row.appendChild(left);
+            row.appendChild(val);
+            list.appendChild(row);
+        }
+
+        tooltip.appendChild(list);
+    }
+
+    function setVisible(visible) {
+        tooltip.style.opacity = visible ? '1' : '0';
+        tooltip.style.transform = visible ? 'translateY(0px)' : 'translateY(4px)';
+    }
+
+    function setPosition(left, top) {
+        tooltip.style.left = `${Math.max(4, left)}px`;
+        tooltip.style.top = `${Math.max(4, top)}px`;
+    }
+
+    return { tooltip, setContent, setVisible, setPosition };
+}

@@ -69,3 +69,10 @@ export const boxplotChartMargins = new Margin({
     bottom: 100,
     left: 40
 });
+
+export const lineChartMargins = new Margin({
+    top: 20,
+    right: 75,
+    bottom: 20,
+    left: 50
+});

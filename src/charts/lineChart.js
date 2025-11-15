@@ -1,0 +1,281 @@
+import * as d3 from "d3";
+
+import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
+import { createUnigeOrdinalScale } from '../utils/palette.js';
+import { createLineChartTooltip } from '../utils/tooltip.js';
+
+export async function renderLineChart(container, data, margins) {
+    const { width, height } = getContainerDimensions(container);
+
+    // Clear previous content
+    container.innerHTML = "";
+    // ensure container can position absolute tooltip
+    container.style.position = container.style.position || "relative";
+
+    const svg = createResponsiveSvg(width, height);
+
+    // Color scale
+    const countries = Array.from(new Set(data.map(d => d.country)));
+    const color = createUnigeOrdinalScale()
+        .domain(countries)
+        .unknown("#ccc");
+
+    // Scales
+    const xScale = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.year))
+        .range([margins.left, width - margins.right])
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.events)])
+        .nice()
+        .range([height - margins.bottom, margins.top]);
+
+    // Axes
+    const xAxis = d3.axisBottom(xScale)
+        .tickFormat(d3.format("d"));
+
+    const yAxis = d3.axisLeft(yScale)
+        .ticks(6);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height - margins.bottom})`)
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("transform", `translate(${margins.left},0)`)
+        .call(yAxis);
+
+    // Line generator
+    const line = d3.line()
+        .x(d => xScale(d.year))
+        .y(d => yScale(d.events));
+
+    // Draw line
+    const grouped = d3.group(data, d => d.country);
+    const lineData = Array.from(grouped, ([country, values]) => ({ country, values }));
+
+    svg.selectAll(".line")
+        .data(lineData)
+        .enter()
+        .append("path")
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", d => color(d.country))
+        .attr("stroke-width", 2.5)
+        .attr("stroke-opacity", 1)
+        .attr("d", d => line(d.values.sort((a, b) => a.year - b.year)));
+
+    // Add points
+    svg.selectAll(".point")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("class", "point")
+        .attr("cx", d => xScale(d.year))
+        .attr("cy", d => yScale(d.events))
+        .attr("r", 4)
+        .attr("fill", d => color(d.country));
+
+    // Add legend near the end of the lines
+    const legendX = width - margins.right + 10;
+    const legendData = lineData.map(({ country, values }) => {
+        const lastPoint = values.reduce((a, b) => (a.year > b.year ? a : b));
+        return { country, x: legendX, y: yScale(lastPoint.events) };
+    });
+
+    // Ensure there's no overlap in legend labels
+    legendData.sort((a, b) => b.y - a.y);
+    for (let i = 1; i < legendData.length; i++) {
+        const desired = legendData[i - 1].y - 12;
+        if (legendData[i].y > desired) {
+            legendData[i].y = Math.max(margins.top, desired);
+        }
+    }
+
+    // Interaction state and helpers
+    const selectedCountries = new Set();
+
+    // Apply persistent highlight for a set of countries (empty set => show all)
+    function applyHighlightSet(set) {
+        if (!set || set.size === 0) {
+            svg.selectAll(".line").attr("stroke-opacity", 1);
+            svg.selectAll(".point").attr("display", null);
+            svg.selectAll(".legend").attr("font-weight", "400");
+            svg.selectAll(".hover-point").attr("fill", d => color(d.country));
+            return;
+        }
+
+        svg.selectAll(".line")
+            .attr("stroke-opacity", d => (set.has(d.country) ? 1 : 0.2));
+
+        svg.selectAll(".point")
+            .attr("display", d => (set.has(d.country) ? null : "none"));
+
+        svg.selectAll(".hover-point")
+            .attr("fill", d => (set.has(d.country) ? color(d.country) : "#ccc"));
+
+        svg.selectAll(".legend")
+            .attr("font-weight", d => (set.has(d.country) ? "700" : "400"));
+    }
+
+    function clearHighlight() {
+        selectedCountries.clear();
+        applyHighlightSet(null);
+    }
+
+    // Transient highlight (kept as a standalone function to minimize diffs)
+    function applyTransientHighlight(country) {
+        svg.selectAll(".line").attr("stroke-opacity", d => (d.country === country ? 1 : 0.2));
+        svg.selectAll(".point").attr("display", d => (d.country === country ? null : "none"));
+        svg.selectAll(".legend").attr("font-weight", d => (d.country === country ? "700" : "400"));
+        svg.selectAll(".hover-point").attr("fill", d => (d.country === country ? color(d.country) : "#ccc"));
+    }
+
+    function clearTransientHighlight() {
+        // restore persistent selection (could be multi) or clear
+        applyHighlightSet(selectedCountries.size > 0 ? selectedCountries : null);
+    }
+
+    // Legend
+    svg.selectAll(".legend")
+        .data(legendData)
+        .enter()
+        .append("text")
+        .attr("class", "legend")
+        .attr("x", d => d.x + 5)
+        .attr("y", d => d.y)
+        .attr("dy", "0.35em")
+        .attr("font-size", "12px")
+        .attr("fill", d => color(d.country))
+        .style("cursor", "pointer")
+        .text(d => d.country)
+        .on("mouseover", (_, d) => {
+            // transient single-country highlight (delegated)
+            applyTransientHighlight(d.country);
+        })
+        .on("mouseout", (_, d) => {
+            // restore persistent selection (could be multi) or clear (delegated)
+            clearTransientHighlight();
+        })
+        .on("click", (_, d) => {
+            // Toggle membership in selectedCountries (multi-selection)
+            if (selectedCountries.has(d.country)) selectedCountries.delete(d.country);
+            else selectedCountries.add(d.country);
+
+            if (selectedCountries.size > 0) applyHighlightSet(selectedCountries);
+            else clearHighlight();
+        });
+
+    // Tooltip and hover interaction
+    // prepare sorted unique years
+    const sortedYears = Array.from(new Set(data.map(d => d.year))).sort((a, b) => a - b);
+    const bisect = d3.bisector(d => d).left;
+
+    // Use centralized tooltip helper (styles live in CSS .chart-tooltip)
+    const { setContent, setVisible, setPosition } = createLineChartTooltip(container, { color });
+
+    // Hover group for vertical line and per-country markers
+    const hoverG = svg.append("g")
+        .attr("class", "hover")
+        .style("pointer-events", "none");
+    const vLine = hoverG.append("line")
+        .attr("class", "hover-line")
+        .attr("y1", margins.top)
+        .attr("y2", height - margins.bottom)
+        .attr("stroke", "#666")
+        .attr("stroke-dasharray", "3,3")
+        .attr("stroke-width", 1)
+        .style("display", "none");
+
+    // Oerlay to capture mouse events
+    svg.append("rect")
+        .attr("class", "overlay")
+        .attr("x", margins.left)
+        .attr("y", margins.top)
+        .attr("width", width - margins.left - margins.right)
+        .attr("height", height - margins.top - margins.bottom)
+        .attr("fill", "none")
+        .style("pointer-events", "all")
+        .on("mousemove", (event) => {
+            const [mx] = d3.pointer(event, svg.node());
+            const xValue = xScale.invert(mx);
+
+            // Find closest year in sortedYears
+            let i = bisect(sortedYears, xValue);
+            let closest;
+            if (i === 0) closest = sortedYears[0];
+            else if (i >= sortedYears.length) closest = sortedYears[sortedYears.length - 1];
+            else {
+                const a = sortedYears[i - 1], b = sortedYears[i];
+                closest = (Math.abs(xValue - a) <= Math.abs(xValue - b)) ? a : b;
+            }
+
+            // Update vertical line
+            const vx = xScale(closest);
+            vLine
+                .attr("x1", vx)
+                .attr("x2", vx)
+                .style("display", null);
+
+            // Prepare per-country values for this year
+            const rows = countries.map(country => {
+                const vals = grouped.get(country) || [];
+                const match = vals.find(dd => dd.year === closest);
+                return { country, value: match ? match.events : null };
+            });
+
+            // Update hover circles
+            const rowsWithValue = rows.filter(r => r.value !== null);
+            rowsWithValue.sort((a, b) => {
+                const aSel = selectedCountries.has(a.country);
+                const bSel = selectedCountries.has(b.country);
+                if (aSel === bSel) return 0;
+                return aSel ? 1 : -1;
+            });
+
+            const hoverPoints = hoverG
+                .selectAll(".hover-point")
+                .data(rowsWithValue, d => d.country);
+
+            hoverPoints.join(
+                enter => enter.append("circle")
+                    .attr("class", "hover-point")
+                    .attr("r", 5.5)
+                    .attr("fill", d => color(d.country))
+                    .attr("cx", vx)
+                    .attr("cy", d => yScale(d.value)),
+                update => update
+                    .attr("cx", vx)
+                    .attr("cy", d => yScale(d.value)),
+                exit => exit.remove()
+            );
+
+            // Set tooltip content and show it
+            setContent({ year: closest, rows, selectedCountries });
+            setVisible(true);
+
+            // Re-apply persistent selection (if any)
+            if (selectedCountries.size > 0) {
+                applyHighlightSet(selectedCountries);
+            }
+
+            // Position tooltip near mouse but inside container
+            const rect = container.getBoundingClientRect();
+            const left = Math.min(rect.width - 200, event.clientX - rect.left + 10);
+            const top = Math.min(rect.height - 140, event.clientY - rect.top + 10);
+            setPosition(left, top);
+        })
+        .on("mouseout", () => {
+            vLine.style("display", "none");
+            hoverG.selectAll(".hover-point")
+                .remove();
+            setVisible(false);
+
+            // Restore persistent selection or clear
+            if (selectedCountries.size > 0) applyHighlightSet(selectedCountries);
+            else clearHighlight();
+        });
+
+    // Add svg to container
+    container.appendChild(svg.node());
+}

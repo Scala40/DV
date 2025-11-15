@@ -21,23 +21,28 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 # # Only keep events from 2020 onwards
-df["WEEK"] = pd.to_datetime(df["WEEK"])
+df_less_weeks = df.copy()
+df_less_weeks["WEEK"] = pd.to_datetime(df_less_weeks["WEEK"])
 cutoff_date = pd.to_datetime("2020-01-01")
-df = df[df["WEEK"] >= cutoff_date]
+df_less_weeks = df_less_weeks[df_less_weeks["WEEK"] >= cutoff_date]
 
-print(f"Data from {df['WEEK'].min().date()} to {df['WEEK'].max().date()}")
+print(
+    f"Data from {df_less_weeks['WEEK'].min().date()} to {df_less_weeks['WEEK'].max().date()}"
+)
 
 # barchart
 # Total casualties by country
 output = output_dir / "fatalities_by_country.csv"
-df_country = df.groupby("COUNTRY")["FATALITIES"].sum().reset_index()
+df_country = df_less_weeks.groupby("COUNTRY")["FATALITIES"].sum().reset_index()
 df_country = df_country[df_country["FATALITIES"] > 0]
 df_country.to_csv(output, index=False)
 
 # grouped barchart and full barchart
 # Total number of events by country and event type
 output = output_dir / "events_by_country_event_type.csv"
-df_country_event = df.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
+df_country_event = (
+    df_less_weeks.groupby(["COUNTRY", "EVENT_TYPE"])["EVENTS"].sum().reset_index()
+)
 df_country_event = df_country_event[df_country_event["EVENTS"] > 0]
 df_country_event.to_csv(output, index=False)
 
@@ -45,7 +50,7 @@ df_country_event.to_csv(output, index=False)
 # Extract data for geo chart
 output = output_dir / "events_by_lat_lon.csv"
 df_country_lat_lon = (
-    df.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE"])["EVENTS"]
+    df_less_weeks.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE"])["EVENTS"]
     .sum()
     .reset_index()
 )
@@ -55,20 +60,43 @@ df_country_lat_lon.to_csv(output, index=False)
 # Heatmap chart
 # Number of events by years and country
 output = output_dir / "events_by_year_country.csv"
-df["YEAR"] = df["WEEK"].dt.year
-df_year_country = df.groupby(["YEAR", "COUNTRY"])["EVENTS"].sum().reset_index()
+df_less_weeks["YEAR"] = df_less_weeks["WEEK"].dt.year
+df_year_country = (
+    df_less_weeks.groupby(["YEAR", "COUNTRY"])["EVENTS"].sum().reset_index()
+)
 df_year_country = df_year_country[df_year_country["EVENTS"] > 0]
 df_year_country.to_csv(output, index=False)
 
 # waffle chart
 # Number of events by event type
 output = output_dir / "events_by_event_type.csv"
-df_event_type = df.groupby("EVENT_TYPE")["EVENTS"].sum().reset_index()
+df_event_type = df_less_weeks.groupby("EVENT_TYPE")["EVENTS"].sum().reset_index()
 df_event_type = df_event_type[df_event_type["EVENTS"] > 0]
 df_event_type.to_csv(output, index=False)
 
 # ridge plot
 # Events over time for each country
 output = output_dir / "events_over_time_by_country.csv"
-df_week_country = df[["WEEK", "COUNTRY", "EVENTS"]]
+df_week_country = df_less_weeks[["WEEK", "COUNTRY", "EVENTS"]]
 df_week_country.to_csv(output, index=False)
+
+# line chart
+# Yearly fatalities and events by country
+df_year = df.copy()
+output = output_dir / "yearly_fatalities_events_by_country.csv"
+df_year["YEAR"] = pd.to_datetime(df_year["WEEK"]).dt.year
+df_year = df_year[df_year["YEAR"] >= 2015]
+df_year_country_fatalities = (
+    df_year.groupby(["YEAR", "COUNTRY"])["FATALITIES"].sum().reset_index()
+)
+df_year_country_events = (
+    df_year.groupby(["YEAR", "COUNTRY"])["EVENTS"].sum().reset_index()
+)
+df_merged = pd.merge(
+    df_year_country_fatalities, df_year_country_events, on=["YEAR", "COUNTRY"]
+)
+
+df_sum = df_merged.groupby("COUNTRY")[["FATALITIES", "EVENTS"]].sum().reset_index()
+countries_less_events = df_sum[df_sum["EVENTS"] < 10000]["COUNTRY"].unique()
+df_merged = df_merged[~df_merged["COUNTRY"].isin(countries_less_events)]
+df_merged.to_csv(output, index=False)

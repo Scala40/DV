@@ -12,7 +12,8 @@ import {
     circlePackingChartMargins,
     pyramidChartMargins,
     ridgePlotMargins,
-    boxplotChartMargins
+    boxplotChartMargins,
+    lineChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
@@ -24,6 +25,7 @@ import { renderCirclePackingChart } from './charts/circlePackingChart.js';
 import { renderPyramidChart } from './charts/pyramidChart.js';
 import { renderBoxplotChart } from './charts/boxplotChart.js';
 import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
+import { renderLineChart } from './charts/lineChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 import {
@@ -32,7 +34,8 @@ import {
     loadHeatmapChartData,
     loadWaffleChartData,
     loadPyramidChartData,
-    loadRidgePlotData
+    loadRidgePlotData,
+    loadLineChartData
 } from './data/dataLoader.js';
 
 // Initialize navigation menu
@@ -119,4 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ridgePlotMargins
         ))
         .catch(err => console.error('Ridgeline data failed:', err));
+
+    loadLineChartData()
+        .then(data => observeRender(
+            document.getElementById('line-chart'),
+            renderLineChart,
+            data,
+            lineChartMargins
+        ))
+        .catch(err => console.error('Line chart data failed:', err));
 });

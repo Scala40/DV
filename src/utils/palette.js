@@ -20,7 +20,9 @@ function getUnigePalette() {
         '--color-lingue-culture',
         '--color-ingegneria',
         '--color-scienze-politiche',
-        '--color-medicina'
+        '--color-medicina',
+        '--color-unige-blue',
+        '--color-unige-dark',
     ];
 
     return names.map(n => (root.getPropertyValue(n) || '').trim() || '#999999');

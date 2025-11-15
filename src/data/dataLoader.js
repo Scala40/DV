@@ -4,10 +4,10 @@ import fatalitiesByCountryUrl from "../csv/fatalities_by_country.csv?url";
 import eventsByYearCountryUrl from "../csv/events_by_year_country.csv?url";
 import eventsByCountryEventTypeUrl from "../csv/events_by_country_event_type.csv?url";
 import eventsByEventTypeUrl from "../csv/events_by_event_type.csv?url";
-
-import DemographicDataUrl from "../csv/population_long_format.csv?url";
-import DeathsDataUrl from "../csv/deaths_long_format.csv?url";
+import demographicDataUrl from "../csv/population_long_format.csv?url";
+import deathsDataUrl from "../csv/deaths_long_format.csv?url";
 import eventsOverTimeByCountryUrl from "../csv/events_over_time_by_country.csv?url";
+import yearlyFatalitiesEventsByCountryUrl from "../csv/yearly_fatalities_events_by_country.csv?url";
 
 const countryMap = {
     "Iran (Islamic Republic of)": "Iran",
@@ -45,8 +45,8 @@ export async function loadWaffleChartData() {
 
 export async function loadPyramidChartData() {
     const [population, deaths] = await Promise.all([
-        d3.csv(DemographicDataUrl, d3.autoType),
-        d3.csv(DeathsDataUrl, d3.autoType)
+        d3.csv(demographicDataUrl, d3.autoType),
+        d3.csv(deathsDataUrl, d3.autoType)
     ]);
     return {
         population: population.map(d => ({
@@ -64,5 +64,17 @@ export async function loadRidgePlotData() {
     const parsed = await d3.csv(eventsOverTimeByCountryUrl, d3.autoType);
     return parsed
         .map(d => ({ week: d.WEEK, country: d.COUNTRY, events: d.EVENTS }))
+        .sort((a, b) => a.country.localeCompare(b.country));
+}
+
+export async function loadLineChartData() {
+    const parsed = await d3.csv(yearlyFatalitiesEventsByCountryUrl, d3.autoType);
+    return parsed
+        .map(d => ({
+            year: d.YEAR,
+            country: d.COUNTRY,
+            fatalities: d.FATALITIES,
+            events: d.EVENTS
+        }))
         .sort((a, b) => a.country.localeCompare(b.country));
 }
