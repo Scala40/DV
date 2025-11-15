@@ -10,21 +10,17 @@ import * as d3 from 'd3';
 function getUnigePalette() {
     const root = getComputedStyle(document.documentElement);
     const names = [
-        '--color-giurisprudenza',
+        '--color-unige-blue',
         '--color-architettura-design',
         '--color-scienze-mfn',
-        '--color-scienze-formazione',
-        '--color-economia',
+        '--color-unige-red',
+        '--color-unige-yellow',
         '--color-lettere-filosofia',
-        '--color-farmacia',
-        '--color-lingue-culture',
-        '--color-ingegneria',
+        '--color-scienze-formazione',
+        '--color-unige-light-blue',
+        '--color-ingegneria',        
         '--color-scienze-politiche',
-        '--color-medicina',
-        '--color-unige-blue',
-        '--color-unige-dark',
     ];
-
     return names.map(n => (root.getPropertyValue(n) || '').trim() || '#999999');
 }
 
