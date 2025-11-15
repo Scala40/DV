@@ -33,7 +33,7 @@ export async function loadHeatmapChartData() {
     const parsed = await d3.csv(eventsByYearCountryUrl, d3.autoType);
     return parsed
         .map(d => ({ year: d.YEAR, country: d.COUNTRY, events: d.EVENTS }))
-        .sort((a, b) => a.year - b.year || a.country.localeCompare(b.country));
+        .sort((a, b) => b.year - a.year || a.country.localeCompare(b.country));
 }
 
 export async function loadWaffleChartData() {
