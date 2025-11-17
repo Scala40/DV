@@ -65,7 +65,7 @@ export async function renderLineChart(container, data, margins) {
     const centerY = margins.top + (height - margins.top - margins.bottom) / 2;
 
     const dirGroup = svg.append("g")
-        .attr("transform", `translate(${labelX},0)`) 
+        .attr("transform", `translate(${labelX},0)`)
         .attr("class", "y-direction-label");
 
     // Main label rotated vertically
@@ -237,9 +237,9 @@ export async function renderLineChart(container, data, margins) {
         .attr("fill", "none")
         .style("pointer-events", "all")
         .on("mousemove", (event) => {
-                const [mx] = d3.pointer(event, svg.node());
-                // pointer relative to the container (for tooltip placement)
-                const [cMx, cMy] = d3.pointer(event, container);
+            const [mx] = d3.pointer(event, svg.node());
+            // pointer relative to the container (for tooltip placement)
+            const [cMx, cMy] = d3.pointer(event, container);
             const xValue = xScale.invert(mx);
 
             // Find closest year in sortedYears
@@ -307,7 +307,7 @@ export async function renderLineChart(container, data, margins) {
             let left = cMx + 12;
             let top = cMy + 12;
             if (left + ttRect.width > contRect.width) left = cMx - ttRect.width - 12;
-            if (top + ttRect.height > contRect.height) top = cMy - ttRect.height/2;
+            if (top + ttRect.height > contRect.height) top = cMy - ttRect.height / 2;
             setPosition(Math.max(4, left), Math.max(4, top));
         })
         .on("mouseout", () => {
@@ -336,7 +336,7 @@ export async function renderLineChart(container, data, margins) {
             pt.setAttribute('cy', d ? String(yScale(d.events)) : pt.getAttribute('cy'));
             pt.style.opacity = '0';
             pt.style.transition = 'none';
-        } catch (e) {}
+        } catch (e) { }
     });
 
     // Prepare lines with dash properties for draw animation
@@ -355,21 +355,21 @@ export async function renderLineChart(container, data, margins) {
 
     // Cleanup previous observer and timers if re-rendered
     if (container._lineAnimObserver) {
-        try { container._lineAnimObserver.disconnect(); } catch (e) {}
+        try { container._lineAnimObserver.disconnect(); } catch (e) { }
         container._lineAnimObserver = null;
     }
     if (container._lineAnimRevealTimeout) {
-        try { clearTimeout(container._lineAnimRevealTimeout); } catch (e) {}
+        try { clearTimeout(container._lineAnimRevealTimeout); } catch (e) { }
         container._lineAnimRevealTimeout = null;
     }
 
     const playAnimation = () => {
         // draw lines with a small stagger and animate a tracer that follows each path left->right
-    const lineNodes = svg.selectAll('.line').nodes();
-    const allPointNodes = svg.selectAll('.point').nodes();
-    // no stagger: start all lines at the same time
-    const stagger = 0; // ms between line starts (0 -> simultaneous)
-    const duration = 1200; // ms duration of each line draw
+        const lineNodes = svg.selectAll('.line').nodes();
+        const allPointNodes = svg.selectAll('.point').nodes();
+        // no stagger: start all lines at the same time
+        const stagger = 0; // ms between line starts (0 -> simultaneous)
+        const duration = 1200; // ms duration of each line draw
 
         // prepare array with point positions (cx) and country for reveal logic
         const pointsData = allPointNodes.map(pt => ({
@@ -380,7 +380,7 @@ export async function renderLineChart(container, data, margins) {
             country: pt.__data__ ? pt.__data__.country : null
         }));
 
-    lineNodes.forEach((path, i) => {
+        lineNodes.forEach((path, i) => {
             const len = path.getTotalLength();
             const delay = i * stagger; // ms stagger between lines
 
@@ -407,12 +407,12 @@ export async function renderLineChart(container, data, margins) {
                         tracer.setAttribute('cx', pt.x);
                         tracer.setAttribute('cy', pt.y);
                     }
-                    
+
 
                     if (t < 1) requestAnimationFrame(step);
                     else {
                         // remove tracer after finished
-                        try { tracer.parentNode && tracer.parentNode.removeChild(tracer); } catch (e) {}
+                        try { tracer.parentNode && tracer.parentNode.removeChild(tracer); } catch (e) { }
                     }
                 }
                 requestAnimationFrame(step);
@@ -433,15 +433,14 @@ export async function renderLineChart(container, data, margins) {
         }, revealAfter);
     };
 
-
     // IntersectionObserver: play when nearly fully visible, reset when out of view
     const obs = new IntersectionObserver((entries) => {
         for (const entry of entries) {
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.99) {
+            if (entry.isIntersecting) {
                 playAnimation();
-            } 
+            }
         }
-    }, { threshold: [0, 0.25, 0.5, 0.75, 0.99] });
+    }, { threshold: [0.95] });
 
     obs.observe(container);
     container._lineAnimObserver = obs;
