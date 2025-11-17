@@ -56,7 +56,13 @@ export async function loadPyramidChartData() {
             Age_Group_5yr: d.Age_Group_5yr,
             Population: d.Population
         })),
-        deaths,
+        deaths: deaths.map(d => ({
+            Sex: d.Sex,
+            Country: countryMap[d.Country] || d.Country,
+            Year: d.Year,
+            Age_Group_5yr: d.Age_Group_5yr,
+            Population: d.Population
+        }))
     };
 }
 
