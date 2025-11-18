@@ -589,7 +589,7 @@ function createGeoAggregateButton(container, controls, margins) {
         const yearSelect = controls.querySelector('.geo-year-select');
         const years = Array.from(new Set((container.__geoRawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
         if (yearSelect) {
-            yearSelect.value = years.includes(2023) ? 2023 : years[years.length - 1] || yearSelect.min;
+            yearSelect.value = years.includes(2025) ? 2025: years[years.length - 1] || yearSelect.min;
         }
 
         updateUIForAggregate(now);
