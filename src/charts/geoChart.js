@@ -34,9 +34,12 @@ export function renderGeoChart(container, data, margins) {
         .attr("stroke", "#999");
 
     // Color scale
-    const colorScale = d3.scaleSequential(d3.interpolateViridis)
-        .domain([0, d3.max(data, d => d.events) || 1]);
+    // make the start of the scale a bit higher to avoid very light colors
 
+    const startT = 0.40; // increase to make the low end more saturated
+    const colorScale = d3.scaleSequential(
+        t => d3.interpolateYlOrRd(startT + (1 - startT) * t)
+    ).domain([0, d3.max(data, d => d.events)]);
     // Draw points / heatmap
     svg.selectAll("circle")
         .data(data)
@@ -47,6 +50,58 @@ export function renderGeoChart(container, data, margins) {
         .attr("fill", d => colorScale(d.events))
         .attr("fill-opacity", 0.6)
         .attr("stroke", "none");
+
+    //add colorbar legend
+    const legendWidth = innerWidth * 0.02;
+    const legendHeight = innerHeight;
+    const legendMargin = 50;
+    const legendScale = d3.scaleLinear()
+        .domain(colorScale.domain())
+        .range([legendHeight, 0]);
+    // Format ticks using SI-style short format (1k, 1M) and ensure max tick is shown
+    const legendFormat = d3.format('.2s');
+    const maxEvents = d3.max(data, d => d.events) || 0;
+    let legendTicks = d3.ticks(0, maxEvents, 6);
+    // Ensure the maximum value is present as the last tick
+    if (legendTicks[legendTicks.length - 1] < maxEvents) {
+        legendTicks.push(maxEvents);
+    }
+    const legendAxis = d3.axisRight(legendScale)
+        .tickValues(legendTicks)
+        .tickFormat(legendFormat)
+        .tickSize(6);
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width - margins.right - legendMargin}, ${margins.top})`);
+    // create gradient
+    const defs = svg.append("defs");
+    const gradient = defs.append("linearGradient")
+        .attr("id", "legend-gradient")
+        .attr("x1", "0%")
+        .attr("y1", "100%")
+        .attr("x2", "0%")
+        .attr("y2", "0%");
+    const stops = d3.range(0, 1.01, 0.01);
+    stops.forEach(t => {
+        gradient.append("stop")
+            .attr("offset", `${t * 100}%`)
+            .attr("stop-color", colorScale(t * d3.max(data, d => d.events)));
+    }
+    );
+    // draw legend rect
+    legend.append("rect")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#legend-gradient)")
+        .attr("stroke", "#ccc");
+    // draw legend axis (positioned at right edge of the gradient rect)
+    legend.append("g")
+        .attr("transform", `translate(${legendWidth}, 0)`)
+        .call(legendAxis);
+
+    // remove legend domain line
+    legend.selectAll(".domain").remove();
+
+    
 
     container.appendChild(svg.node());
 }
