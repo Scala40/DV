@@ -89,18 +89,26 @@ export function renderGeoChart(container, data, margins) {
             tooltip.style("display", "none");
         });
 
-    // Stable global max across all data
-    const globalMax = d3.max(rawData || [], d => d.events) || 0;
+    // Compute aggregated max across all years per location (sum of events at same lon/lat)
+    const _aggMap = new Map();
+    (rawData || []).forEach(d => {
+        const lon = +d.lon;
+        const lat = +d.lat;
+        const key = `${lon}|${lat}`;
+        const prev = _aggMap.get(key) || 0;
+        _aggMap.set(key, prev + (+d.events || 0));
+    });
+    const aggregatedMax = d3.max(Array.from(_aggMap.values())) || 0;
 
     // Discrete color palette (3 fixed reds) and fixed size tiers (3 sizes)
     // darker red palette for better contrast
     const colorPalette = ['var(--color-unige-red-light)', 'var(--color-unige-red)', 'var(--color-unige-red-dark)'];
     const sizeRadii = [6, 10, 14];
-    const sizeBreaks = [globalMax / 3, (globalMax * 2) / 3];
+    const sizeBreaks = [aggregatedMax / 3, (aggregatedMax * 2) / 3];
 
     function getColor(v) {
         const val = +v || 0;
-        if (globalMax === 0) return colorPalette[0];
+        if (aggregatedMax === 0) return colorPalette[0];
         if (val <= sizeBreaks[0]) return colorPalette[0];
         if (val <= sizeBreaks[1]) return colorPalette[1];
         return colorPalette[2];
@@ -108,17 +116,17 @@ export function renderGeoChart(container, data, margins) {
 
     function getSize(v) {
         const val = +v || 0;
-        if (globalMax === 0) return sizeRadii[0];
+        if (aggregatedMax === 0) return sizeRadii[0];
         if (val <= sizeBreaks[0]) return sizeRadii[0];
         if (val <= sizeBreaks[1]) return sizeRadii[1];
         return sizeRadii[2];
     }
 
     // Resolve a sensible country name from various possible fields
-    function getCountryName(d) {
+    const getCountryName = (d) => {
         if (!d) return 'Unknown';
         return d.country || d.Country || d.CountryName || d.country_name || d.name || d.place || 'Unknown';
-    }
+    };
 
     // Determine selected year and whether aggregate mode is active
     const years = Array.from(new Set((rawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
@@ -302,8 +310,8 @@ export function renderGeoChart(container, data, margins) {
 
     legend.append('text').attr('x', 0).attr('y', 0).attr('font-weight', '600').text('Color');
 
-    // Color swatches
-    const breaks = d3.range(0, colorPalette.length + 1).map(i => Math.round((i / colorPalette.length) * globalMax));
+    // Color swatches (use aggregated max so legend matches normalization)
+    const breaks = d3.range(0, colorPalette.length + 1).map(i => Math.round((i / colorPalette.length) * aggregatedMax));
     const fmt = d3.format('.2s');
 
     colorPalette.forEach((col, i) => {
@@ -329,7 +337,7 @@ export function renderGeoChart(container, data, margins) {
     // Size legend
     const sizeStartY = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12;
     legend.append('text').attr('x', 0).attr('y', sizeStartY).attr('font-weight', '600').text('Size');
-    const sizeRanges = [0, Math.round(sizeBreaks[0]), Math.round(sizeBreaks[1]), Math.round(globalMax)];
+    const sizeRanges = [0, Math.round(sizeBreaks[0]), Math.round(sizeBreaks[1]), Math.round(aggregatedMax)];
     sizeRadii.forEach((r, i) => {
         const cy = sizeStartY + 8 + (i + 1) * sizeGapY;
         legend.append('circle')
@@ -423,7 +431,7 @@ function createGeoYearSlider(container, years, controls, margins) {
 
     const yearDisplay = document.createElement('span');
     yearDisplay.className = 'geo-year-display';
-
+    
     const defaultYear = years.includes(2025) ? 2025 : years[years.length - 1];
     yearSelect.value = defaultYear;
     yearDisplay.textContent = defaultYear;
