@@ -13,7 +13,8 @@ import {
     pyramidChartMargins,
     ridgePlotMargins,
     boxplotChartMargins,
-    lineChartMargins
+    lineChartMargins,
+    geoChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
@@ -26,6 +27,7 @@ import { renderPyramidChart } from './charts/pyramidChart.js';
 import { renderBoxplotChart } from './charts/boxplotChart.js';
 import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
 import { renderLineChart } from './charts/lineChart.js';
+import { renderGeoChart } from './charts/geoChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 import { initBackToTop } from './utils/backToTop.js';
@@ -37,7 +39,8 @@ import {
     loadWaffleChartData,
     loadPyramidChartData,
     loadRidgePlotData,
-    loadLineChartData
+    loadLineChartData,
+    loadGeoChartData
 } from './data/dataLoader.js';
 
 // Initialize navigation menu
@@ -134,4 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
             lineChartMargins
         ))
         .catch(err => console.error('Line chart data failed:', err));
+
+    loadGeoChartData()
+        .then(data => observeRender(
+            document.getElementById('geo-chart'),
+            renderGeoChart,
+            data,
+            geoChartMargins
+        ))
+        .catch(err => console.error('Geo chart data failed:', err));
 });

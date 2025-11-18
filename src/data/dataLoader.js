@@ -8,6 +8,7 @@ import demographicDataUrl from "../csv/population_long_format.csv?url";
 import deathsDataUrl from "../csv/deaths_long_format.csv?url";
 import eventsOverTimeByCountryUrl from "../csv/events_over_time_by_country.csv?url";
 import yearlyFatalitiesEventsByCountryUrl from "../csv/yearly_fatalities_events_by_country.csv?url";
+import eventByLatLonUrl from "../csv/events_by_lat_lon.csv?url";
 
 const countryMap = {
     "Iran (Islamic Republic of)": "Iran",
@@ -83,4 +84,14 @@ export async function loadLineChartData() {
             events: d.EVENTS
         }))
         .sort((a, b) => a.country.localeCompare(b.country));
+}
+
+export async function loadGeoChartData() {
+    const parsed = await d3.csv(eventByLatLonUrl, d3.autoType);
+    return parsed
+        .map(d => ({
+            lat: d.CENTROID_LATITUDE,
+            lon: d.CENTROID_LONGITUDE,
+            events: d.EVENTS
+        }));
 }
