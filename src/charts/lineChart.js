@@ -324,20 +324,16 @@ export async function renderLineChart(container, data, margins) {
     // Add svg to container
     container.appendChild(svg.node());
 
-    // --- Animation: draw lines + reveal points when chart becomes fully visible ---
+    // Animation: draw lines + reveal points when chart becomes fully visible
+
     // Prepare initial hidden states so animation can run when triggered.
-    // Store final point positions and set points to their final y but keep them invisible (opacity 0).
-    // This makes them appear in-place when revealed by the tracer rather than moving up from the baseline.
-    // set final cy on points but keep them hidden via style (safer than attribute so transitions behave)
     svg.selectAll('.point').nodes().forEach((pt) => {
-        try {
-            const d = pt.__data__;
-            if (d) pt.setAttribute('data-final-cy', String(yScale(d.events)));
-            pt.setAttribute('cy', d ? String(yScale(d.events)) : pt.getAttribute('cy'));
-            pt.style.opacity = '0';
-            pt.style.transition = 'none';
-        } catch (e) { }
+        pt.style.opacity = '0';
+        pt.style.transition = 'none';
     });
+
+    // Animation duration
+    const duration = 1000;
 
     // Prepare lines with dash properties for draw animation
     svg.selectAll('.line').nodes().forEach((path) => {
@@ -345,12 +341,14 @@ export async function renderLineChart(container, data, margins) {
             const len = path.getTotalLength();
             path.style.strokeDasharray = len;
             path.style.strokeDashoffset = len;
-            // ensure smooth transitions when animating
-            path.style.transition = 'stroke-dashoffset 1000ms ease';
+
+            // Ensure rounded stroke ends for nicer draw
+            path.style.strokeLinecap = 'round';
+
+            // Ensure smooth transitions when animating
+            path.style.transition = `stroke-dashoffset ${duration}ms ease`;
             path.style.willChange = 'stroke-dashoffset';
-        } catch (e) {
-            // ignore if path length can't be measured
-        }
+        } catch (e) { }
     });
 
     // Cleanup previous observer and timers if re-rendered
@@ -364,50 +362,21 @@ export async function renderLineChart(container, data, margins) {
     }
 
     const playAnimation = () => {
-        // draw lines with a small stagger and animate a tracer that follows each path left->right
         const lineNodes = svg.selectAll('.line').nodes();
         const allPointNodes = svg.selectAll('.point').nodes();
-        // no stagger: start all lines at the same time
-        const stagger = 0; // ms between line starts (0 -> simultaneous)
-        const duration = 1200; // ms duration of each line draw
 
-        // prepare array with point positions (cx) and country for reveal logic
-        const pointsData = allPointNodes.map(pt => ({
-            el: pt,
-            cx: Number(pt.getAttribute('cx')),
-            finalCy: pt.getAttribute('data-final-cy'),
-            revealed: false,
-            country: pt.__data__ ? pt.__data__.country : null
-        }));
-
-        lineNodes.forEach((path, i) => {
-            const len = path.getTotalLength();
-            const delay = i * stagger; // ms stagger between lines
-
-            // ensure rounded stroke ends for nicer draw
-            path.style.strokeLinecap = 'round';
-
-            // animate stroke dashoffset to draw the line
-            path.style.transition = `stroke-dashoffset 900ms ease ${delay}ms`;
-            setTimeout(() => {
-                path.style.strokeDashoffset = '0';
-            }, delay);
-
-
-            // animate the tracer along the path synchronized with the line draw
-            
-            
+        lineNodes.forEach((path) => {
+            // Animate stroke dashoffset to draw the line
+            path.style.strokeDashoffset = '0';
         });
+
         // After the last line finishes drawing, reveal all points all at once
-        const lastDelay = Math.max(0, (lineNodes.length - 1) * stagger);
-        const revealAfter = lastDelay + duration + 40; // small buffer
+        const revealAfter = duration + 40;
         container._lineAnimRevealTimeout = setTimeout(() => {
-            // reveal all points by transitioning their opacity to 1
-            pointsData.forEach((ptData) => {
-                if (ptData.el) {
-                    ptData.el.style.transition = 'opacity 500ms ease';
-                    ptData.el.style.opacity = '1';
-                }
+            // Reveal all points by transitioning their opacity to 1
+            allPointNodes.forEach((pt) => {
+                pt.style.transition = 'opacity 500ms ease';
+                pt.style.opacity = '1';
             });
             container._lineAnimRevealTimeout = null;
         }, revealAfter);
