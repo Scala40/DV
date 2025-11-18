@@ -440,7 +440,7 @@ export async function renderLineChart(container, data, margins) {
                 playAnimation();
             }
         }
-    }, { threshold: [0.95] });
+    }, { threshold: [0.90] });
 
     obs.observe(container);
     container._lineAnimObserver = obs;
