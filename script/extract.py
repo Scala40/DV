@@ -30,6 +30,8 @@ print(
     f"Data from {df_less_weeks['WEEK'].min().date()} to {df_less_weeks['WEEK'].max().date()}"
 )
 
+df_less_weeks["YEAR"] = df_less_weeks["WEEK"].dt.year
+
 # barchart
 # Total casualties by country
 output = output_dir / "fatalities_by_country.csv"
@@ -50,7 +52,7 @@ df_country_event.to_csv(output, index=False)
 # Extract data for geo chart
 output = output_dir / "events_by_lat_lon.csv"
 df_country_lat_lon = (
-    df_less_weeks.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE"])["EVENTS"]
+    df_less_weeks.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE", "YEAR"])["EVENTS"]
     .sum()
     .reset_index()
 )
@@ -60,7 +62,7 @@ df_country_lat_lon.to_csv(output, index=False)
 # Heatmap chart
 # Number of events by years and country
 output = output_dir / "events_by_year_country.csv"
-df_less_weeks["YEAR"] = df_less_weeks["WEEK"].dt.year
+
 df_year_country = (
     df_less_weeks.groupby(["YEAR", "COUNTRY"])["EVENTS"].sum().reset_index()
 )
