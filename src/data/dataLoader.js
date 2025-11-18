@@ -92,6 +92,7 @@ export async function loadGeoChartData() {
         .map(d => ({
             lat: d.CENTROID_LATITUDE,
             lon: d.CENTROID_LONGITUDE,
+            year: d.YEAR,
             events: d.EVENTS
         }))
         .sort((a, b) => a.events - b.events);

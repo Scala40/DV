@@ -30,6 +30,10 @@
     --default-font-family: var(--font-sans);
     --default-font-feature-settings: var(--font-sans--font-feature-settings);
     --default-font-variation-settings: var(--font-sans--font-variation-settings);
+
+    /* custom colors for lighter/darker reds */
+    --color-unige-red-light: #f56154;
+    --color-unige-red-dark: #6c081e;
 }
 
 @layer base {

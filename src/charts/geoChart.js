@@ -5,13 +5,41 @@ import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import geoJson from "../geojson/custom.geo.json" assert { type: "json" };
 
 export function renderGeoChart(container, data, margins) {
+    // persist raw data so controls survive re-renders
+    if (!container.__geoRawData) container.__geoRawData = data;
+    const rawData = container.__geoRawData;
+
     const { width, height } = getContainerDimensions(container);
 
-    // Clear previous content
-    container.innerHTML = "";
+    // Ensure container positioning
     container.style.position = container.style.position || "relative";
 
-    // Create responsive svg that fills its parent
+    // Ensure controls container exists and stays outside the chart content so re-renders don't remove it
+    let controls = container.querySelector('.geo-controls');
+    if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'geo-controls';
+        controls.style.display = 'flex';
+        controls.style.flexDirection = 'column';
+        controls.style.alignItems = 'center';
+        controls.style.justifyContent = 'center';
+        controls.style.gap = '8px';
+        controls.style.width = '100%';
+        container.appendChild(controls);
+    }
+
+    // create or reuse a wrapper for chart content so we can clear only the chart on re-render
+    let wrapper = container.querySelector('.geo-chart-content');
+    if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'geo-chart-content';
+        wrapper.style.position = 'relative';
+        container.appendChild(wrapper);
+    }
+    // clear only the chart content
+    wrapper.innerHTML = '';
+
+    // Create responsive svg that fills its parent (we'll append it into the wrapper)
     const svg = createResponsiveSvg(width, height);
 
     // Layout calculations (respect margins on all sides)
@@ -61,27 +89,94 @@ export function renderGeoChart(container, data, margins) {
             tooltip.style("display", "none");
         });
 
-    // Color scale
-    // make the start of the scale a bit higher to avoid very light colors
-    const startT = 0.40;
-    const maxEvents = d3.max(data, d => d.events) || 0;
-    const colorScale = d3.scaleSequential(
-        t => d3.interpolateYlOrRd(startT + (1 - startT) * t)
-    ).domain([0, maxEvents]);
+    // Stable global max across all data
+    const globalMax = d3.max(rawData || [], d => d.events) || 0;
+
+    // Discrete color palette (3 fixed reds) and fixed size tiers (3 sizes)
+    // darker red palette for better contrast
+    const colorPalette = ['var(--color-unige-red-light)', 'var(--color-unige-red)', 'var(--color-unige-red-dark)'];
+    const sizeRadii = [6, 10, 14];
+    const sizeBreaks = [globalMax / 3, (globalMax * 2) / 3];
+
+    function getColor(v) {
+        const val = +v || 0;
+        if (globalMax === 0) return colorPalette[0];
+        if (val <= sizeBreaks[0]) return colorPalette[0];
+        if (val <= sizeBreaks[1]) return colorPalette[1];
+        return colorPalette[2];
+    }
+
+    function getSize(v) {
+        const val = +v || 0;
+        if (globalMax === 0) return sizeRadii[0];
+        if (val <= sizeBreaks[0]) return sizeRadii[0];
+        if (val <= sizeBreaks[1]) return sizeRadii[1];
+        return sizeRadii[2];
+    }
+
+    // Resolve a sensible country name from various possible fields
+    function getCountryName(d) {
+        if (!d) return 'Unknown';
+        return d.country || d.Country || d.CountryName || d.country_name || d.name || d.place || 'Unknown';
+    }
+
+    // Determine selected year and whether aggregate mode is active
+    const years = Array.from(new Set((rawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
+    const yearSelectEl = container.querySelector('.geo-year-select');
+    const selectedYear = yearSelectEl ? +yearSelectEl.value : (years.includes(2023) ? 2023 : years[years.length - 1] || null);
+    const isAggregate = !!container.__geoAggregate;
+
+    // Prepare data to plot according to mode
+    let plotData;
+    if (isAggregate) {
+        const map = new Map();
+        (rawData || []).forEach(d => {
+            const lon = +d.lon;
+            const lat = +d.lat;
+            const key = `${lon}|${lat}`;
+            const prev = map.get(key);
+            const ev = +d.events || 0;
+            if (prev) prev.events += ev; else map.set(key, { lon, lat, events: ev, country: d.Country || d.country });
+        });
+        plotData = Array.from(map.values());
+    } else if (selectedYear) {
+        plotData = (rawData || []).filter(d => +d.Year === +selectedYear || +d.year === +selectedYear);
+    } else {
+        plotData = rawData || [];
+    }
+
+    // If country is not present on point data, infer it from the geoJSON by testing which
+    // feature contains the point coordinate. This populates `country` so tooltips can show it.
+    plotData.forEach(p => {
+        if (!p.country) {
+            try {
+                const f = geoJson.features.find(feat => d3.geoContains(feat, [p.lon, p.lat]));
+                p.country = (f && (f.properties && (f.properties.name || f.properties.NAME || f.properties.ADMIN))) || null;
+            } catch (e) {
+                // geoContains can throw for invalid coords; fall back to null
+                p.country = null;
+            }
+        }
+    });
 
     // Draw points / heatmap (inside mainGroup)
     const points = mainGroup.selectAll("circle")
-        .data(data)
+        .data(plotData)
         .join("circle")
         .attr("cx", d => projection([d.lon, d.lat])[0])
         .attr("cy", d => projection([d.lon, d.lat])[1])
-        .attr("r", d => Math.log10(d.events + 1) * 3) // radius based on number of events
-        .attr("fill", d => colorScale(d.events))
-        .attr("fill-opacity", 0.6)
-        .attr("stroke", "none")
+        .attr("r", d => getSize(d.events))
+        .attr("fill", d => getColor(d.events))
+        .attr("fill-opacity", 0.8)
+        .attr("stroke", "#333")
+        .attr("stroke-width", 0.4)
         .style("cursor", "pointer");
 
     // Tooltip (HTML overlay)
+    // remove any leftover tooltip from previous renders (prevents stuck tooltip)
+    const oldTooltips = container.querySelectorAll('.geo-tooltip');
+    oldTooltips.forEach(t => t.remove());
+
     const tooltip = d3.select(container)
         .append("div")
         .attr("class", "geo-tooltip")
@@ -97,15 +192,17 @@ export function renderGeoChart(container, data, margins) {
     // Mouse interactions on points
     points
         .on("mouseover", function (_, d) {
+            const baseR = getSize(d.events);
             d3.select(this)
                 .raise()
                 .transition().duration(120)
-                .attr("r", Math.log10(d.events + 1) * 4)
+                .attr("r", baseR + 3)
                 .attr("stroke", "#222")
-                .attr("stroke-width", 0.8);
+                .attr("stroke-width", 1.2);
+            
 
             tooltip.style("display", "block")
-                .html(`<strong>Events:</strong> ${d.events}<br/>`);
+                .html(`<strong>${getCountryName(d)}</strong><br/><strong>Events:</strong> ${d.events}`);
         })
         .on("mousemove", function (event) {
             const [mx, my] = d3.pointer(event, container);
@@ -115,10 +212,12 @@ export function renderGeoChart(container, data, margins) {
                 .style("top", `${my + 12}px`);
         })
         .on("mouseout", function (event, d) {
+            const baseR = getSize(d.events);
             d3.select(this)
                 .transition().duration(120)
-                .attr("r", Math.log10(d.events + 1) * 3)
-                .attr("stroke", "none");
+                .attr("r", baseR)
+                .attr("stroke", "#333")
+                .attr("stroke-width", 0.4);
 
             tooltip.style("display", "none");
         });
@@ -164,7 +263,9 @@ export function renderGeoChart(container, data, margins) {
     toolbar.appendChild(zoomInBtn);
     toolbar.appendChild(zoomOutBtn);
     toolbar.appendChild(resetBtn);
-    container.appendChild(toolbar);
+    // toolbar should be inside the chart wrapper so controls remain outside
+    const existingWrapper = container.querySelector('.geo-chart-content');
+    if (existingWrapper) existingWrapper.appendChild(toolbar); else container.appendChild(toolbar);
 
     zoomInBtn.addEventListener("click", () => {
         svg.transition().duration(350).call(zoom.scaleBy, 1.5);
@@ -176,59 +277,318 @@ export function renderGeoChart(container, data, margins) {
         svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
     });
 
-    // Legend (kept outside mainGroup so it does not transform)
-    const legendWidth = innerWidth * 0.02;
-    const legendHeight = innerHeight;
-    const legendMargin = 50;
-    const legendScale = d3.scaleLinear()
-        .domain(colorScale.domain())
-        .range([legendHeight, 0]);
+    // Legend: discrete colors + size samples (fixed, based on globalMax)
+    const legendX = width - margins.right - 130;
+    const legendY = margins.top;
+    const legend = svg.append('g').attr('transform', `translate(${legendX}, ${legendY})`).attr('class', 'geo-legend');
 
-    // Format ticks using SI-style short format (1k, 1M) and ensure max tick is shown
-    const legendFormat = d3.format('.2s');
-    let legendTicks = d3.ticks(0, maxEvents, 6);
+    // Legend background (white rounded rect)
+    const swatchSize = 14;
+    const swatchGap = 6;
+    const colorStartY = 18;
+    const sizeGapY = 28;
+    const legendWidth = 140;
+    const legendHeight = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12 + (sizeRadii.length + 1) * sizeGapY + 12;
+    legend.append('rect')
+        .attr('x', -8)
+        .attr('y', -14)
+        .attr('width', legendWidth)
+        .attr('height', legendHeight)
+        .attr('fill', '#ffffff')
+        .attr('stroke', '#ccc')
+        .attr('rx', 8)
+        .attr('ry', 8)
+        .attr('opacity', 0.95);
 
-    // Ensure the maximum value is present as the last tick
-    if (legendTicks[legendTicks.length - 1] < maxEvents) {
-        legendTicks.push(maxEvents);
-    }
-    const legendAxis = d3.axisRight(legendScale)
-        .tickValues(legendTicks)
-        .tickFormat(legendFormat)
-        .tickSize(6);
+    legend.append('text').attr('x', 0).attr('y', 0).attr('font-weight', '600').text('Color');
 
-    const legend = svg.append("g")
-        .attr("transform", `translate(${width - margins.right - legendMargin}, ${margins.top})`);
+    // Color swatches
+    const breaks = d3.range(0, colorPalette.length + 1).map(i => Math.round((i / colorPalette.length) * globalMax));
+    const fmt = d3.format('.2s');
 
-    // Gradient
-    const defs = svg.append("defs");
-    const gradient = defs.append("linearGradient")
-        .attr("id", "legend-gradient")
-        .attr("x1", "0%")
-        .attr("y1", "100%")
-        .attr("x2", "0%")
-        .attr("y2", "0%");
-    const stops = d3.range(0, 1.01, 0.01);
-    stops.forEach(t => {
-        gradient.append("stop")
-            .attr("offset", `${t * 100}%`)
-            .attr("stop-color", colorScale(t * maxEvents));
+    colorPalette.forEach((col, i) => {
+        const y = colorStartY + i * (swatchSize + swatchGap);
+        legend.append('rect')
+            .attr('x', 0)
+            .attr('y', y)
+            .attr('width', swatchSize)
+            .attr('height', swatchSize)
+            .attr('fill', col)
+            .attr('stroke', '#777');
+
+        const low = breaks[i];
+        const high = breaks[i + 1];
+        const label = `${fmt(low)} – ${fmt(high)}`;
+        legend.append('text')
+            .attr('x', swatchSize + 8)
+            .attr('y', y + swatchSize * 0.75)
+            .text(label)
+            .attr('font-size', 12);
     });
 
-    // Legend rect
-    legend.append("rect")
-        .attr("width", legendWidth)
-        .attr("height", legendHeight)
-        .style("fill", "url(#legend-gradient)")
-        .attr("stroke", "#ccc");
+    // Size legend
+    const sizeStartY = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12;
+    legend.append('text').attr('x', 0).attr('y', sizeStartY).attr('font-weight', '600').text('Size');
+    const sizeRanges = [0, Math.round(sizeBreaks[0]), Math.round(sizeBreaks[1]), Math.round(globalMax)];
+    sizeRadii.forEach((r, i) => {
+        const cy = sizeStartY + 8 + (i + 1) * sizeGapY;
+        legend.append('circle')
+            .attr('cx', swatchSize)
+            .attr('cy', cy)
+            .attr('r', r)
+            .attr('fill', '#999')
+            .attr('fill-opacity', 0.6)
+            .attr('stroke', '#555');
 
-    // Legend axis
-    legend.append("g")
-        .attr("transform", `translate(${legendWidth}, 0)`)
-        .call(legendAxis);
+        const label = `${fmt(sizeRanges[i])} – ${fmt(sizeRanges[i + 1])}`;
+        legend.append('text')
+            .attr('x', swatchSize * 2 + 8)
+            .attr('y', cy + 4)
+            .text(label)
+            .attr('font-size', 12);
+    });
 
-    // Remove legend domain line
-    legend.selectAll(".domain").remove();
+    // Ensure a controls container exists and is centered (reuse existing `controls` variable)
+    controls = container.querySelector('.geo-controls');
+    if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'geo-controls';
+        controls.style.display = 'flex';
+        controls.style.flexDirection = 'column';
+        controls.style.alignItems = 'center';
+        controls.style.justifyContent = 'center';
+        controls.style.gap = '8px';
+        controls.style.width = '100%';
+        container.appendChild(controls);
+    }
+    let controlsRow = controls.querySelector('.geo-controls-row');
+    if (!controlsRow) {
+        controlsRow = document.createElement('div');
+        controlsRow.className = 'geo-controls-row';
+        controlsRow.style.display = 'flex';
+        controlsRow.style.flexDirection = 'row';
+        controlsRow.style.alignItems = 'center';
+        controlsRow.style.justifyContent = 'center';
+        controlsRow.style.gap = '10px';
+        controls.appendChild(controlsRow);
+    }
 
-    container.appendChild(svg.node());
+    // compute years list from the persisted raw data (already computed earlier)
+
+    createGeoYearSlider(container, years, controls, margins);
+    createGeoPlayButton(container, controls.querySelector('.geo-year-select'), controls, margins);
+    createGeoAggregateButton(container, controls, margins);
+
+    // append svg into the chart wrapper (so controls remain intact)
+    const chartWrapper = container.querySelector('.geo-chart-content');
+    if (chartWrapper) chartWrapper.appendChild(svg.node()); else container.appendChild(svg.node());
+}
+
+// --- Controls helpers (copied/adapted from Boxplot chart) ---
+function createGeoYearSlider(container, years, controls, margins) {
+    if (!years || years.length === 0) return { yearSelect: null };
+
+    // defensive: ensure controls exists
+    if (!controls) {
+        controls = container.querySelector('.geo-controls');
+        if (!controls) {
+            controls = document.createElement('div');
+            controls.className = 'geo-controls';
+            controls.style.display = 'flex';
+            controls.style.flexDirection = 'column';
+            controls.style.alignItems = 'center';
+            controls.style.justifyContent = 'center';
+            controls.style.gap = '8px';
+            controls.style.width = '100%';
+            container.appendChild(controls);
+        }
+    }
+
+    let yearSelect = controls.querySelector('.geo-year-select');
+    if (yearSelect) return { yearSelect };
+
+    const controlsRow = controls.querySelector('.geo-controls-row') || controls;
+
+    const yLabel = document.createElement('label');
+    yLabel.textContent = 'Year: ';
+
+    yearSelect = document.createElement('input');
+    yearSelect.type = 'range';
+    yearSelect.className = 'geo-year-select';
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+    yearSelect.min = minYear;
+    yearSelect.max = maxYear;
+    yearSelect.step = 1;
+
+    const yearDisplay = document.createElement('span');
+    yearDisplay.className = 'geo-year-display';
+
+    const defaultYear = years.includes(2025) ? 2025 : years[years.length - 1];
+    yearSelect.value = defaultYear;
+    yearDisplay.textContent = defaultYear;
+
+    function updateYearSliderFill() {
+        const min = +yearSelect.min;
+        const max = +yearSelect.max;
+        const val = +yearSelect.value;
+        const pct = (val - min) / (max - min) * 100;
+        yearSelect.style.setProperty('--pct', `${pct}%`);
+    }
+
+    updateYearSliderFill();
+
+    yearSelect.addEventListener('input', () => {
+        yearDisplay.textContent = yearSelect.value;
+        updateYearSliderFill();
+        renderGeoChart(container, container.__geoRawData, margins);
+        if (container.__geoAnimationId) {
+            clearInterval(container.__geoAnimationId);
+            container.__geoAnimationId = null;
+            const playBtn = container.querySelector('.geo-play-btn');
+            if (playBtn) playBtn.textContent = 'Play';
+        }
+    });
+
+    controlsRow.appendChild(yLabel);
+    controlsRow.appendChild(yearSelect);
+    controlsRow.appendChild(yearDisplay);
+
+    return { yearSelect };
+}
+
+function createGeoPlayButton(container, yearSelect, controls, margins) {
+    if (!yearSelect) return;
+    // defensive: ensure controls exists
+    if (!controls) {
+        controls = container.querySelector('.geo-controls');
+        if (!controls) {
+            controls = document.createElement('div');
+            controls.className = 'geo-controls';
+            controls.style.display = 'flex';
+            controls.style.flexDirection = 'column';
+            controls.style.alignItems = 'center';
+            controls.style.justifyContent = 'center';
+            controls.style.gap = '8px';
+            controls.style.width = '100%';
+            container.appendChild(controls);
+        }
+    }
+
+    let playBtn = controls.querySelector('.geo-play-btn');
+    if (playBtn) return;
+
+    const controlsRow = controls.querySelector('.geo-controls-row') || controls;
+
+    playBtn = document.createElement('button');
+    playBtn.className = 'geo-play-btn';
+    playBtn.textContent = 'Play';
+    controlsRow.appendChild(playBtn);
+
+    // hide play when aggregate view is active
+    if (container.__geoAggregate) playBtn.style.display = 'none';
+
+    playBtn.addEventListener('click', () => {
+        if (container.__geoAnimationId) {
+            clearInterval(container.__geoAnimationId);
+            container.__geoAnimationId = null;
+            playBtn.textContent = 'Play';
+            return;
+        }
+
+        playBtn.textContent = 'Stop';
+        const minY = +yearSelect.min;
+        const maxY = +yearSelect.max;
+        let current = +yearSelect.value || minY;
+        if (current >= maxY) current = minY - 1;
+
+        const stepMs = 400;
+        container.__geoAnimationId = setInterval(() => {
+            current += 1;
+            if (current > maxY) {
+                clearInterval(container.__geoAnimationId);
+                container.__geoAnimationId = null;
+                playBtn.textContent = 'Play';
+                return;
+            }
+            yearSelect.value = current;
+            const disp = controls.querySelector('.geo-year-display');
+            if (disp) disp.textContent = current;
+
+            const min = +yearSelect.min;
+            const max = +yearSelect.max;
+            const pct = (current - min) / (max - min) * 100;
+            yearSelect.style.setProperty('--pct', `${pct}%`);
+
+            renderGeoChart(container, container.__geoRawData, margins);
+        }, stepMs);
+    });
+}
+
+function createGeoAggregateButton(container, controls, margins) {
+    // defensive: ensure controls exists
+    if (!controls) {
+        controls = container.querySelector('.geo-controls');
+        if (!controls) {
+            controls = document.createElement('div');
+            controls.className = 'geo-controls';
+            controls.style.display = 'flex';
+            controls.style.flexDirection = 'column';
+            controls.style.alignItems = 'center';
+            controls.style.justifyContent = 'center';
+            controls.style.gap = '8px';
+            controls.style.width = '100%';
+            container.appendChild(controls);
+        }
+    }
+
+    let aggBtn = controls.querySelector('.geo-aggregate-btn');
+    const controlsRow = controls.querySelector('.geo-controls-row') || controls;
+    if (!aggBtn) {
+        aggBtn = document.createElement('button');
+        aggBtn.className = 'geo-aggregate-btn';
+        aggBtn.textContent = container.__geoAggregate ? 'Per-year' : 'Aggregate (All years)';
+        controlsRow.appendChild(aggBtn);
+    }
+
+    function updateUIForAggregate(active) {
+        const yearSelect = controls.querySelector('.geo-year-select');
+        const yearDisplay = controls.querySelector('.geo-year-display');
+        const playBtn = controls.querySelector('.geo-play-btn');
+        if (yearSelect) yearSelect.style.display = active ? 'none' : '';
+        if (yearDisplay) yearDisplay.style.display = active ? 'none' : '';
+        if (playBtn) playBtn.style.display = active ? 'none' : '';
+        aggBtn.textContent = active ? 'Per-year' : 'Aggregate (All years)';
+    }
+
+    // initialize UI state
+    updateUIForAggregate(!!container.__geoAggregate);
+
+    // Use onclick to ensure a single handler is active and avoid stacked listeners when re-rendering
+    aggBtn.onclick = () => {
+        const now = !container.__geoAggregate;
+        container.__geoAggregate = now;
+
+        // stop any running animation and reset play button
+        if (container.__geoAnimationId) {
+            clearInterval(container.__geoAnimationId);
+            container.__geoAnimationId = null;
+        }
+        const playBtn = controls.querySelector('.geo-play-btn');
+        if (playBtn) playBtn.textContent = 'Play';
+
+        // if switching to aggregate, reset slider to default and hide it
+        const yearSelect = controls.querySelector('.geo-year-select');
+        const years = Array.from(new Set((container.__geoRawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
+        if (yearSelect) {
+            yearSelect.value = years.includes(2023) ? 2023 : years[years.length - 1] || yearSelect.min;
+        }
+
+        updateUIForAggregate(now);
+
+        // re-render chart with new mode
+        renderGeoChart(container, container.__geoRawData, margins);
+    };
+
+    return { aggBtn };
 }

@@ -395,28 +395,8 @@ export async function renderLineChart(container, data, margins) {
 
 
             // animate the tracer along the path synchronized with the line draw
-            setTimeout(() => {
-                tracer.style.opacity = '1';
-                const start = performance.now();
-                function step(now) {
-                    const t = Math.min(1, (now - start) / duration);
-                    const traveled = t * len;
-                    let pt = null;
-                    try { pt = path.getPointAtLength(traveled); } catch (e) { }
-                    if (pt) {
-                        tracer.setAttribute('cx', pt.x);
-                        tracer.setAttribute('cy', pt.y);
-                    }
-
-
-                    if (t < 1) requestAnimationFrame(step);
-                    else {
-                        // remove tracer after finished
-                        try { tracer.parentNode && tracer.parentNode.removeChild(tracer); } catch (e) { }
-                    }
-                }
-                requestAnimationFrame(step);
-            }, delay);
+            
+            
         });
         // After the last line finishes drawing, reveal all points all at once
         const lastDelay = Math.max(0, (lineNodes.length - 1) * stagger);
