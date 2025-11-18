@@ -28,6 +28,8 @@ import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
 import { renderLineChart } from './charts/lineChart.js';
 
 import { initNavigation } from './utils/navigation.js';
+import { initBackToTop } from './utils/backToTop.js';
+
 import {
     loadBarChartData,
     loadGroupedBarChartData,
@@ -41,6 +43,7 @@ import {
 // Initialize navigation menu
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
+    initBackToTop();
 
     // Bar chart and circle packing share the same source
     loadBarChartData()
