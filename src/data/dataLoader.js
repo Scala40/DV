@@ -93,5 +93,6 @@ export async function loadGeoChartData() {
             lat: d.CENTROID_LATITUDE,
             lon: d.CENTROID_LONGITUDE,
             events: d.EVENTS
-        }));
+        }))
+        .sort((a, b) => a.events - b.events);
 }
