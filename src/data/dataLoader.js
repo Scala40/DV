@@ -90,6 +90,7 @@ export async function loadGeoChartData() {
     const parsed = await d3.csv(eventByLatLonUrl, d3.autoType);
     return parsed
         .map(d => ({
+            country: d.COUNTRY,
             lat: d.CENTROID_LATITUDE,
             lon: d.CENTROID_LONGITUDE,
             year: d.YEAR,

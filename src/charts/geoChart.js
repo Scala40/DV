@@ -122,12 +122,6 @@ export function renderGeoChart(container, data, margins) {
         return sizeRadii[2];
     }
 
-    // Resolve a sensible country name from various possible fields
-    const getCountryName = (d) => {
-        if (!d) return 'Unknown';
-        return d.country || d.Country || d.CountryName || d.country_name || d.name || d.place || 'Unknown';
-    };
-
     // Determine selected year and whether aggregate mode is active
     const years = Array.from(new Set((rawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
     const yearSelectEl = container.querySelector('.geo-year-select');
@@ -144,7 +138,7 @@ export function renderGeoChart(container, data, margins) {
             const key = `${lon}|${lat}`;
             const prev = map.get(key);
             const ev = +d.events || 0;
-            if (prev) prev.events += ev; else map.set(key, { lon, lat, events: ev, country: d.Country || d.country });
+            if (prev) prev.events += ev; else map.set(key, { country: d.country, lon, lat, events: ev });
         });
         plotData = Array.from(map.values());
     } else if (selectedYear) {
@@ -153,19 +147,81 @@ export function renderGeoChart(container, data, margins) {
         plotData = rawData || [];
     }
 
-    // If country is not present on point data, infer it from the geoJSON by testing which
-    // feature contains the point coordinate. This populates `country` so tooltips can show it.
-    plotData.forEach(p => {
-        if (!p.country) {
-            try {
-                const f = geoJson.features.find(feat => d3.geoContains(feat, [p.lon, p.lat]));
-                p.country = (f && (f.properties && (f.properties.name || f.properties.NAME || f.properties.ADMIN))) || null;
-            } catch (e) {
-                // geoContains can throw for invalid coords; fall back to null
-                p.country = null;
+    // --- Merge overlapping points of the same country (optional) ---
+    // If two circles (same country) overlap by >= overlapThreshold (relative to the smaller circle),
+    // they will be merged (events summed, position = events-weighted centroid).
+    const overlapMergeEnabled = true; // toggle this to disable merging
+    const overlapThreshold = container.__geoOverlapThreshold ?? 0.3; // default 50%
+
+    if (overlapMergeEnabled && plotData && plotData.length > 1) {
+        // helper: circle intersection area
+        function circleIntersectionArea(r1, r2, d) {
+            if (d >= r1 + r2) return 0;
+            const r1sq = r1 * r1;
+            const r2sq = r2 * r2;
+            if (d <= Math.abs(r1 - r2)) {
+                // one circle fully inside the other -> intersection = area of smaller
+                return Math.PI * Math.min(r1sq, r2sq);
+            }
+            const phi = Math.acos(Math.max(-1, Math.min(1, (d * d + r1sq - r2sq) / (2 * d * r1))));
+            const theta = Math.acos(Math.max(-1, Math.min(1, (d * d + r2sq - r1sq) / (2 * d * r2))));
+            const area = r1sq * phi + r2sq * theta - 0.5 * Math.sqrt(Math.max(0, (-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2)));
+            return area;
+        }
+
+        // create a working copy with screen positions & radii
+        const pts = plotData.map(p => {
+            const lon = +p.lon;
+            const lat = +p.lat;
+            const projected = projection([lon, lat]);
+            const x = projected[0];
+            const y = projected[1];
+            const r = getSize(p.events);
+            return { ...p, lon, lat, x, y, r, events: +p.events || 0 };
+        });
+
+        // greedy merge loop: combine any pair (same country) whose overlap ratio >= threshold
+        let mergedSomething = true;
+        while (mergedSomething) {
+            mergedSomething = false;
+            outer: for (let i = 0; i < pts.length; i++) {
+                for (let j = i + 1; j < pts.length; j++) {
+                    const a = pts[i];
+                    const b = pts[j];
+                    if (a.country !== b.country) continue;
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const d = Math.hypot(dx, dy);
+                    const inter = circleIntersectionArea(a.r, b.r, d);
+                    const minArea = Math.PI * Math.min(a.r * a.r, b.r * b.r);
+                    const ratio = minArea === 0 ? 0 : inter / minArea;
+                    if (ratio >= overlapThreshold) {
+                        // merge b into a (events-weighted)
+                        const totalEvents = a.events + b.events;
+                        const wA = a.events / totalEvents;
+                        const wB = 1 - wA;
+                        const newLon = (a.lon * wA) + (b.lon * wB);
+                        const newLat = (a.lat * wA) + (b.lat * wB);
+                        a.lon = newLon;
+                        a.lat = newLat;
+                        a.events = totalEvents;
+                        // recompute screen pos & radius
+                        const projected = projection([a.lon, a.lat]);
+                        a.x = projected[0];
+                        a.y = projected[1];
+                        a.r = getSize(a.events);
+                        // remove b
+                        pts.splice(j, 1);
+                        mergedSomething = true;
+                        break outer;
+                    }
+                }
             }
         }
-    });
+
+        // replace plotData with merged output
+        plotData = pts.map(p => ({ country: p.country, lon: p.lon, lat: p.lat, events: p.events }));
+    }
 
     // Draw points / heatmap (inside mainGroup)
     const points = mainGroup.selectAll("circle")
@@ -207,10 +263,11 @@ export function renderGeoChart(container, data, margins) {
                 .attr("r", baseR + 3)
                 .attr("stroke", "#222")
                 .attr("stroke-width", 1.2);
-            
+
+            console.log(d);
 
             tooltip.style("display", "block")
-                .html(`<strong>${getCountryName(d)}</strong><br/><strong>Events:</strong> ${d.events}`);
+                .html(`<strong>${d.country}</strong><br/><strong>Events:</strong> ${d.events}`);
         })
         .on("mousemove", function (event) {
             const [mx, my] = d3.pointer(event, container);
@@ -285,18 +342,22 @@ export function renderGeoChart(container, data, margins) {
         svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
     });
 
-    // Legend: discrete colors + size samples (fixed, based on globalMax)
-    const legendX = width - margins.right - 130;
+    // Legend: discrete colors + size samples (computed from merged plotData grouped by country)
+    const mergedByCountry = d3.rollup(plotData || [], v => d3.sum(v, d => +d.events || 0), d => d.country);
+    const mergedMax = d3.max(Array.from(mergedByCountry.values())) || 0;
+
+    const legendX = width - margins.right - 140;
     const legendY = margins.top;
     const legend = svg.append('g').attr('transform', `translate(${legendX}, ${legendY})`).attr('class', 'geo-legend');
 
-    // Legend background (white rounded rect)
+    // Legend layout
     const swatchSize = 14;
     const swatchGap = 6;
     const colorStartY = 18;
     const sizeGapY = 28;
-    const legendWidth = 140;
+    const legendWidth = 160;
     const legendHeight = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12 + (sizeRadii.length + 1) * sizeGapY + 12;
+
     legend.append('rect')
         .attr('x', -8)
         .attr('y', -14)
@@ -308,11 +369,14 @@ export function renderGeoChart(container, data, margins) {
         .attr('ry', 8)
         .attr('opacity', 0.95);
 
-    legend.append('text').attr('x', 0).attr('y', 0).attr('font-weight', '600').text('Color');
+    legend.append('text')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('font-weight', '600')
+        .text('Color');
 
-    // Color swatches (use aggregated max so legend matches normalization)
-    const breaks = d3.range(0, colorPalette.length + 1).map(i => Math.round((i / colorPalette.length) * aggregatedMax));
     const fmt = d3.format('.2s');
+    const mergedBreaks = d3.range(0, colorPalette.length + 1).map(i => Math.round((i / colorPalette.length) * mergedMax));
 
     colorPalette.forEach((col, i) => {
         const y = colorStartY + i * (swatchSize + swatchGap);
@@ -324,9 +388,9 @@ export function renderGeoChart(container, data, margins) {
             .attr('fill', col)
             .attr('stroke', '#777');
 
-        const low = breaks[i];
-        const high = breaks[i + 1];
-        const label = `${fmt(low)} – ${fmt(high)}`;
+        const low = mergedBreaks[i];
+        const high = mergedBreaks[i + 1];
+        const label = `${fmt(low)} - ${fmt(high)}`;
         legend.append('text')
             .attr('x', swatchSize + 8)
             .attr('y', y + swatchSize * 0.75)
@@ -334,10 +398,11 @@ export function renderGeoChart(container, data, margins) {
             .attr('font-size', 12);
     });
 
-    // Size legend
+    // Size legend (use mergedMax to compute size ranges for labels)
     const sizeStartY = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12;
     legend.append('text').attr('x', 0).attr('y', sizeStartY).attr('font-weight', '600').text('Size');
-    const sizeRanges = [0, Math.round(sizeBreaks[0]), Math.round(sizeBreaks[1]), Math.round(aggregatedMax)];
+    const mergedSizeBreaks = [mergedMax / 3, (mergedMax * 2) / 3];
+    const sizeRanges = [0, Math.round(mergedSizeBreaks[0]), Math.round(mergedSizeBreaks[1]), Math.round(mergedMax)];
     sizeRadii.forEach((r, i) => {
         const cy = sizeStartY + 8 + (i + 1) * sizeGapY;
         legend.append('circle')
@@ -431,7 +496,7 @@ function createGeoYearSlider(container, years, controls, margins) {
 
     const yearDisplay = document.createElement('span');
     yearDisplay.className = 'geo-year-display';
-    
+
     const defaultYear = years.includes(2025) ? 2025 : years[years.length - 1];
     yearSelect.value = defaultYear;
     yearDisplay.textContent = defaultYear;
@@ -471,7 +536,6 @@ function createGeoPlayButton(container, yearSelect, controls, margins) {
     if (!controls) {
         controls = container.querySelector('.geo-controls');
         if (!controls) {
-            controls = document.createElement('div');
             controls.className = 'geo-controls';
             controls.style.display = 'flex';
             controls.style.flexDirection = 'column';
@@ -589,7 +653,7 @@ function createGeoAggregateButton(container, controls, margins) {
         const yearSelect = controls.querySelector('.geo-year-select');
         const years = Array.from(new Set((container.__geoRawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
         if (yearSelect) {
-            yearSelect.value = years.includes(2025) ? 2025: years[years.length - 1] || yearSelect.min;
+            yearSelect.value = years.includes(2025) ? 2025 : years[years.length - 1] || yearSelect.min;
         }
 
         updateUIForAggregate(now);

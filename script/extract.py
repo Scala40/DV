@@ -52,7 +52,7 @@ df_country_event.to_csv(output, index=False)
 # Extract data for geo chart
 output = output_dir / "events_by_lat_lon.csv"
 df_country_lat_lon = (
-    df_less_weeks.groupby(["CENTROID_LATITUDE", "CENTROID_LONGITUDE", "YEAR"])["EVENTS"]
+    df_less_weeks.groupby(["COUNTRY", "CENTROID_LATITUDE", "CENTROID_LONGITUDE", "YEAR"])["EVENTS"]
     .sum()
     .reset_index()
 )
