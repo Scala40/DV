@@ -1,0 +1,1131 @@
+COUNTRY,YEAR,SUB_EVENT_TYPE,EVENTS
+Bahrain,2020,Attack,6
+Bahrain,2020,Change to group/activity,4
+Bahrain,2020,Looting/property destruction,1
+Bahrain,2020,Mob violence,1
+Bahrain,2020,Other,16
+Bahrain,2020,Peaceful protest,160
+Bahrain,2020,Protest with intervention,3
+Bahrain,2020,Violent demonstration,108
+Bahrain,2021,Arrests,5
+Bahrain,2021,Attack,16
+Bahrain,2021,Change to group/activity,15
+Bahrain,2021,Disrupted weapons use,2
+Bahrain,2021,Excessive force against protesters,2
+Bahrain,2021,Mob violence,1
+Bahrain,2021,Other,10
+Bahrain,2021,Peaceful protest,1064
+Bahrain,2021,Protest with intervention,7
+Bahrain,2021,Sexual violence,1
+Bahrain,2021,Violent demonstration,64
+Bahrain,2022,Abduction/forced disappearance,2
+Bahrain,2022,Agreement,1
+Bahrain,2022,Arrests,2
+Bahrain,2022,Attack,6
+Bahrain,2022,Change to group/activity,1
+Bahrain,2022,Excessive force against protesters,1
+Bahrain,2022,Other,22
+Bahrain,2022,Peaceful protest,665
+Bahrain,2022,Protest with intervention,10
+Bahrain,2022,Violent demonstration,19
+Bahrain,2023,Arrests,2
+Bahrain,2023,Attack,3
+Bahrain,2023,Looting/property destruction,1
+Bahrain,2023,Mob violence,1
+Bahrain,2023,Other,6
+Bahrain,2023,Peaceful protest,699
+Bahrain,2023,Protest with intervention,16
+Bahrain,2023,Violent demonstration,95
+Bahrain,2024,Arrests,2
+Bahrain,2024,Attack,3
+Bahrain,2024,Excessive force against protesters,3
+Bahrain,2024,Mob violence,5
+Bahrain,2024,Other,6
+Bahrain,2024,Peaceful protest,631
+Bahrain,2024,Protest with intervention,17
+Bahrain,2024,Violent demonstration,158
+Bahrain,2025,Attack,5
+Bahrain,2025,Change to group/activity,8
+Bahrain,2025,Excessive force against protesters,2
+Bahrain,2025,Mob violence,2
+Bahrain,2025,Other,2
+Bahrain,2025,Peaceful protest,381
+Bahrain,2025,Protest with intervention,11
+Bahrain,2025,Violent demonstration,172
+Iran,2020,Abduction/forced disappearance,1
+Iran,2020,Agreement,5
+Iran,2020,Air/drone strike,2
+Iran,2020,Armed clash,45
+Iran,2020,Arrests,4
+Iran,2020,Attack,110
+Iran,2020,Change to group/activity,61
+Iran,2020,Disrupted weapons use,4
+Iran,2020,Excessive force against protesters,4
+Iran,2020,Grenade,1
+Iran,2020,Looting/property destruction,3
+Iran,2020,Mob violence,28
+Iran,2020,Other,124
+Iran,2020,Peaceful protest,1888
+Iran,2020,Protest with intervention,68
+Iran,2020,Remote explosive/landmine/IED,2
+Iran,2020,Shelling/artillery/missile attack,14
+Iran,2020,Violent demonstration,23
+Iran,2021,Agreement,11
+Iran,2021,Air/drone strike,2
+Iran,2021,Armed clash,49
+Iran,2021,Arrests,8
+Iran,2021,Attack,97
+Iran,2021,Change to group/activity,16
+Iran,2021,Disrupted weapons use,2
+Iran,2021,Excessive force against protesters,11
+Iran,2021,Looting/property destruction,7
+Iran,2021,Mob violence,32
+Iran,2021,Other,68
+Iran,2021,Peaceful protest,3777
+Iran,2021,Protest with intervention,86
+Iran,2021,Remote explosive/landmine/IED,8
+Iran,2021,Shelling/artillery/missile attack,6
+Iran,2021,Violent demonstration,108
+Iran,2022,Air/drone strike,2
+Iran,2022,Armed clash,46
+Iran,2022,Arrests,31
+Iran,2022,Attack,181
+Iran,2022,Disrupted weapons use,2
+Iran,2022,Excessive force against protesters,65
+Iran,2022,Looting/property destruction,8
+Iran,2022,Mob violence,6
+Iran,2022,Other,37
+Iran,2022,Peaceful protest,3480
+Iran,2022,Protest with intervention,257
+Iran,2022,Sexual violence,2
+Iran,2022,Shelling/artillery/missile attack,2
+Iran,2022,Violent demonstration,494
+Iran,2023,Air/drone strike,4
+Iran,2023,Armed clash,56
+Iran,2023,Arrests,13
+Iran,2023,Attack,92
+Iran,2023,Change to group/activity,113
+Iran,2023,Disrupted weapons use,3
+Iran,2023,Excessive force against protesters,7
+Iran,2023,Grenade,1
+Iran,2023,Headquarters or base established,2
+Iran,2023,Looting/property destruction,11
+Iran,2023,Mob violence,27
+Iran,2023,Other,211
+Iran,2023,Peaceful protest,3409
+Iran,2023,Protest with intervention,97
+Iran,2023,Remote explosive/landmine/IED,4
+Iran,2023,Sexual violence,1
+Iran,2023,Shelling/artillery/missile attack,11
+Iran,2023,Suicide bomb,1
+Iran,2023,Violent demonstration,118
+Iran,2024,Air/drone strike,19
+Iran,2024,Armed clash,62
+Iran,2024,Arrests,13
+Iran,2024,Attack,42
+Iran,2024,Disrupted weapons use,5
+Iran,2024,Excessive force against protesters,1
+Iran,2024,Looting/property destruction,22
+Iran,2024,Mob violence,13
+Iran,2024,Other,34
+Iran,2024,Peaceful protest,3524
+Iran,2024,Protest with intervention,24
+Iran,2024,Remote explosive/landmine/IED,18
+Iran,2024,Shelling/artillery/missile attack,4
+Iran,2024,Suicide bomb,1
+Iran,2024,Violent demonstration,4
+Iran,2025,Abduction/forced disappearance,1
+Iran,2025,Agreement,1
+Iran,2025,Air/drone strike,380
+Iran,2025,Armed clash,56
+Iran,2025,Arrests,46
+Iran,2025,Attack,56
+Iran,2025,Change to group/activity,4
+Iran,2025,Disrupted weapons use,86
+Iran,2025,Excessive force against protesters,2
+Iran,2025,Grenade,1
+Iran,2025,Looting/property destruction,15
+Iran,2025,Mob violence,13
+Iran,2025,Other,56
+Iran,2025,Peaceful protest,2846
+Iran,2025,Protest with intervention,28
+Iran,2025,Remote explosive/landmine/IED,15
+Iran,2025,Shelling/artillery/missile attack,1
+Iran,2025,Violent demonstration,7
+Iraq,2020,Abduction/forced disappearance,52
+Iraq,2020,Agreement,5
+Iraq,2020,Air/drone strike,988
+Iraq,2020,Armed clash,949
+Iraq,2020,Arrests,60
+Iraq,2020,Attack,381
+Iraq,2020,Change to group/activity,159
+Iraq,2020,Disrupted weapons use,132
+Iraq,2020,Excessive force against protesters,31
+Iraq,2020,Grenade,38
+Iraq,2020,Headquarters or base established,1
+Iraq,2020,Looting/property destruction,242
+Iraq,2020,Mob violence,14
+Iraq,2020,Non-violent transfer of territory,3
+Iraq,2020,Other,56
+Iraq,2020,Peaceful protest,1696
+Iraq,2020,Protest with intervention,53
+Iraq,2020,Remote explosive/landmine/IED,599
+Iraq,2020,Sexual violence,1
+Iraq,2020,Shelling/artillery/missile attack,382
+Iraq,2020,Suicide bomb,5
+Iraq,2020,Violent demonstration,428
+Iraq,2021,Abduction/forced disappearance,46
+Iraq,2021,Agreement,1
+Iraq,2021,Air/drone strike,1493
+Iraq,2021,Armed clash,1544
+Iraq,2021,Arrests,67
+Iraq,2021,Attack,381
+Iraq,2021,Change to group/activity,137
+Iraq,2021,Disrupted weapons use,340
+Iraq,2021,Excessive force against protesters,17
+Iraq,2021,Grenade,48
+Iraq,2021,Headquarters or base established,12
+Iraq,2021,Looting/property destruction,407
+Iraq,2021,Mob violence,12
+Iraq,2021,Non-state actor overtakes territory,2
+Iraq,2021,Other,51
+Iraq,2021,Peaceful protest,1448
+Iraq,2021,Protest with intervention,40
+Iraq,2021,Remote explosive/landmine/IED,888
+Iraq,2021,Shelling/artillery/missile attack,503
+Iraq,2021,Suicide bomb,3
+Iraq,2021,Violent demonstration,247
+Iraq,2022,Abduction/forced disappearance,32
+Iraq,2022,Agreement,2
+Iraq,2022,Air/drone strike,1991
+Iraq,2022,Armed clash,2004
+Iraq,2022,Arrests,14
+Iraq,2022,Attack,485
+Iraq,2022,Change to group/activity,184
+Iraq,2022,Disrupted weapons use,201
+Iraq,2022,Excessive force against protesters,8
+Iraq,2022,Grenade,72
+Iraq,2022,Headquarters or base established,8
+Iraq,2022,Looting/property destruction,290
+Iraq,2022,Mob violence,4
+Iraq,2022,Other,62
+Iraq,2022,Peaceful protest,971
+Iraq,2022,Protest with intervention,39
+Iraq,2022,Remote explosive/landmine/IED,446
+Iraq,2022,Shelling/artillery/missile attack,959
+Iraq,2022,Suicide bomb,1
+Iraq,2022,Violent demonstration,130
+Iraq,2023,Abduction/forced disappearance,27
+Iraq,2023,Agreement,2
+Iraq,2023,Air/drone strike,2001
+Iraq,2023,Armed clash,1247
+Iraq,2023,Arrests,134
+Iraq,2023,Attack,376
+Iraq,2023,Change to group/activity,223
+Iraq,2023,Disrupted weapons use,286
+Iraq,2023,Excessive force against protesters,3
+Iraq,2023,Grenade,83
+Iraq,2023,Headquarters or base established,4
+Iraq,2023,Looting/property destruction,103
+Iraq,2023,Mob violence,9
+Iraq,2023,Other,51
+Iraq,2023,Peaceful protest,806
+Iraq,2023,Protest with intervention,13
+Iraq,2023,Remote explosive/landmine/IED,158
+Iraq,2023,Shelling/artillery/missile attack,975
+Iraq,2023,Violent demonstration,51
+Iraq,2024,Abduction/forced disappearance,14
+Iraq,2024,Agreement,1
+Iraq,2024,Air/drone strike,4921
+Iraq,2024,Armed clash,1059
+Iraq,2024,Arrests,632
+Iraq,2024,Attack,297
+Iraq,2024,Change to group/activity,307
+Iraq,2024,Disrupted weapons use,288
+Iraq,2024,Excessive force against protesters,1
+Iraq,2024,Grenade,34
+Iraq,2024,Headquarters or base established,8
+Iraq,2024,Looting/property destruction,193
+Iraq,2024,Mob violence,15
+Iraq,2024,Other,236
+Iraq,2024,Peaceful protest,863
+Iraq,2024,Protest with intervention,27
+Iraq,2024,Remote explosive/landmine/IED,128
+Iraq,2024,Shelling/artillery/missile attack,424
+Iraq,2024,Violent demonstration,73
+Iraq,2025,Abduction/forced disappearance,12
+Iraq,2025,Agreement,2
+Iraq,2025,Air/drone strike,746
+Iraq,2025,Armed clash,416
+Iraq,2025,Arrests,279
+Iraq,2025,Attack,214
+Iraq,2025,Change to group/activity,264
+Iraq,2025,Disrupted weapons use,313
+Iraq,2025,Excessive force against protesters,4
+Iraq,2025,Grenade,15
+Iraq,2025,Headquarters or base established,1
+Iraq,2025,Looting/property destruction,175
+Iraq,2025,Mob violence,10
+Iraq,2025,Non-violent transfer of territory,1
+Iraq,2025,Other,167
+Iraq,2025,Peaceful protest,1115
+Iraq,2025,Protest with intervention,39
+Iraq,2025,Remote explosive/landmine/IED,63
+Iraq,2025,Shelling/artillery/missile attack,947
+Iraq,2025,Violent demonstration,62
+Israel,2020,Agreement,4
+Israel,2020,Armed clash,2
+Israel,2020,Arrests,1
+Israel,2020,Attack,12
+Israel,2020,Change to group/activity,7
+Israel,2020,Disrupted weapons use,31
+Israel,2020,Excessive force against protesters,8
+Israel,2020,Looting/property destruction,29
+Israel,2020,Mob violence,57
+Israel,2020,Other,12
+Israel,2020,Peaceful protest,1122
+Israel,2020,Protest with intervention,92
+Israel,2020,Shelling/artillery/missile attack,112
+Israel,2020,Violent demonstration,91
+Israel,2021,Air/drone strike,1
+Israel,2021,Armed clash,9
+Israel,2021,Arrests,8
+Israel,2021,Attack,30
+Israel,2021,Change to group/activity,8
+Israel,2021,Disrupted weapons use,37
+Israel,2021,Looting/property destruction,50
+Israel,2021,Mob violence,146
+Israel,2021,Other,3
+Israel,2021,Peaceful protest,887
+Israel,2021,Protest with intervention,107
+Israel,2021,Remote explosive/landmine/IED,1
+Israel,2021,Shelling/artillery/missile attack,127
+Israel,2021,Violent demonstration,131
+Israel,2022,Abduction/forced disappearance,1
+Israel,2022,Agreement,3
+Israel,2022,Armed clash,5
+Israel,2022,Arrests,3
+Israel,2022,Attack,29
+Israel,2022,Change to group/activity,5
+Israel,2022,Disrupted weapons use,18
+Israel,2022,Excessive force against protesters,1
+Israel,2022,Grenade,1
+Israel,2022,Looting/property destruction,59
+Israel,2022,Mob violence,68
+Israel,2022,Other,14
+Israel,2022,Peaceful protest,700
+Israel,2022,Protest with intervention,46
+Israel,2022,Remote explosive/landmine/IED,3
+Israel,2022,Shelling/artillery/missile attack,26
+Israel,2022,Violent demonstration,61
+Israel,2023,Abduction/forced disappearance,12
+Israel,2023,Agreement,2
+Israel,2023,Air/drone strike,17
+Israel,2023,Armed clash,154
+Israel,2023,Attack,76
+Israel,2023,Change to group/activity,11
+Israel,2023,Disrupted weapons use,446
+Israel,2023,Excessive force against protesters,4
+Israel,2023,Government regains territory,2
+Israel,2023,Looting/property destruction,50
+Israel,2023,Mob violence,35
+Israel,2023,Non-state actor overtakes territory,3
+Israel,2023,Other,49
+Israel,2023,Peaceful protest,2191
+Israel,2023,Protest with intervention,213
+Israel,2023,Remote explosive/landmine/IED,4
+Israel,2023,Shelling/artillery/missile attack,929
+Israel,2023,Violent demonstration,115
+Israel,2024,Agreement,1
+Israel,2024,Air/drone strike,332
+Israel,2024,Armed clash,157
+Israel,2024,Arrests,1
+Israel,2024,Attack,55
+Israel,2024,Change to group/activity,3
+Israel,2024,Disrupted weapons use,667
+Israel,2024,Looting/property destruction,5
+Israel,2024,Mob violence,12
+Israel,2024,Other,115
+Israel,2024,Peaceful protest,1339
+Israel,2024,Protest with intervention,137
+Israel,2024,Remote explosive/landmine/IED,3
+Israel,2024,Sexual violence,1
+Israel,2024,Shelling/artillery/missile attack,2907
+Israel,2024,Suicide bomb,3
+Israel,2024,Violent demonstration,149
+Israel,2025,Agreement,3
+Israel,2025,Air/drone strike,38
+Israel,2025,Armed clash,4
+Israel,2025,Arrests,8
+Israel,2025,Attack,9
+Israel,2025,Disrupted weapons use,231
+Israel,2025,Headquarters or base established,1
+Israel,2025,Looting/property destruction,40
+Israel,2025,Mob violence,10
+Israel,2025,Other,8
+Israel,2025,Peaceful protest,1212
+Israel,2025,Protest with intervention,128
+Israel,2025,Remote explosive/landmine/IED,1
+Israel,2025,Shelling/artillery/missile attack,122
+Israel,2025,Violent demonstration,128
+Jordan,2020,Armed clash,11
+Jordan,2020,Change to group/activity,15
+Jordan,2020,Mob violence,37
+Jordan,2020,Other,10
+Jordan,2020,Peaceful protest,274
+Jordan,2020,Protest with intervention,7
+Jordan,2020,Shelling/artillery/missile attack,1
+Jordan,2020,Violent demonstration,22
+Jordan,2021,Armed clash,11
+Jordan,2021,Arrests,1
+Jordan,2021,Attack,1
+Jordan,2021,Change to group/activity,8
+Jordan,2021,Disrupted weapons use,1
+Jordan,2021,Looting/property destruction,1
+Jordan,2021,Mob violence,16
+Jordan,2021,Other,3
+Jordan,2021,Peaceful protest,322
+Jordan,2021,Protest with intervention,21
+Jordan,2021,Violent demonstration,19
+Jordan,2022,Armed clash,13
+Jordan,2022,Attack,2
+Jordan,2022,Change to group/activity,1
+Jordan,2022,Looting/property destruction,1
+Jordan,2022,Mob violence,23
+Jordan,2022,Other,2
+Jordan,2022,Peaceful protest,369
+Jordan,2022,Protest with intervention,21
+Jordan,2022,Violent demonstration,34
+Jordan,2023,Armed clash,7
+Jordan,2023,Attack,1
+Jordan,2023,Disrupted weapons use,3
+Jordan,2023,Looting/property destruction,2
+Jordan,2023,Mob violence,13
+Jordan,2023,Other,10
+Jordan,2023,Peaceful protest,413
+Jordan,2023,Protest with intervention,5
+Jordan,2023,Shelling/artillery/missile attack,1
+Jordan,2023,Violent demonstration,8
+Jordan,2024,Air/drone strike,1
+Jordan,2024,Armed clash,1
+Jordan,2024,Arrests,1
+Jordan,2024,Change to group/activity,1
+Jordan,2024,Disrupted weapons use,13
+Jordan,2024,Mob violence,6
+Jordan,2024,Peaceful protest,292
+Jordan,2024,Protest with intervention,4
+Jordan,2024,Violent demonstration,4
+Jordan,2025,Air/drone strike,3
+Jordan,2025,Armed clash,2
+Jordan,2025,Arrests,2
+Jordan,2025,Attack,1
+Jordan,2025,Disrupted weapons use,5
+Jordan,2025,Mob violence,2
+Jordan,2025,Other,6
+Jordan,2025,Peaceful protest,65
+Jordan,2025,Protest with intervention,2
+Kuwait,2020,Change to group/activity,2
+Kuwait,2020,Mob violence,2
+Kuwait,2020,Other,3
+Kuwait,2020,Peaceful protest,12
+Kuwait,2020,Protest with intervention,2
+Kuwait,2021,Arrests,1
+Kuwait,2021,Change to group/activity,1
+Kuwait,2021,Other,1
+Kuwait,2021,Peaceful protest,12
+Kuwait,2022,Other,7
+Kuwait,2022,Peaceful protest,16
+Kuwait,2023,Other,9
+Kuwait,2023,Peaceful protest,9
+Kuwait,2024,Arrests,1
+Kuwait,2024,Change to group/activity,1
+Kuwait,2024,Other,6
+Kuwait,2024,Peaceful protest,1
+Lebanon,2020,Agreement,3
+Lebanon,2020,Air/drone strike,1
+Lebanon,2020,Armed clash,60
+Lebanon,2020,Arrests,3
+Lebanon,2020,Attack,49
+Lebanon,2020,Change to group/activity,16
+Lebanon,2020,Disrupted weapons use,7
+Lebanon,2020,Excessive force against protesters,2
+Lebanon,2020,Grenade,8
+Lebanon,2020,Headquarters or base established,4
+Lebanon,2020,Looting/property destruction,7
+Lebanon,2020,Mob violence,53
+Lebanon,2020,Other,21
+Lebanon,2020,Peaceful protest,2119
+Lebanon,2020,Protest with intervention,50
+Lebanon,2020,Remote explosive/landmine/IED,2
+Lebanon,2020,Shelling/artillery/missile attack,11
+Lebanon,2020,Violent demonstration,515
+Lebanon,2021,Air/drone strike,2
+Lebanon,2021,Armed clash,74
+Lebanon,2021,Attack,26
+Lebanon,2021,Change to group/activity,12
+Lebanon,2021,Disrupted weapons use,12
+Lebanon,2021,Excessive force against protesters,4
+Lebanon,2021,Grenade,6
+Lebanon,2021,Looting/property destruction,6
+Lebanon,2021,Mob violence,119
+Lebanon,2021,Other,55
+Lebanon,2021,Peaceful protest,2127
+Lebanon,2021,Protest with intervention,29
+Lebanon,2021,Remote explosive/landmine/IED,4
+Lebanon,2021,Shelling/artillery/missile attack,19
+Lebanon,2021,Violent demonstration,715
+Lebanon,2022,Agreement,1
+Lebanon,2022,Air/drone strike,1
+Lebanon,2022,Armed clash,106
+Lebanon,2022,Arrests,1
+Lebanon,2022,Attack,24
+Lebanon,2022,Change to group/activity,5
+Lebanon,2022,Disrupted weapons use,1
+Lebanon,2022,Excessive force against protesters,1
+Lebanon,2022,Grenade,6
+Lebanon,2022,Looting/property destruction,9
+Lebanon,2022,Mob violence,118
+Lebanon,2022,Other,75
+Lebanon,2022,Peaceful protest,816
+Lebanon,2022,Protest with intervention,2
+Lebanon,2022,Remote explosive/landmine/IED,1
+Lebanon,2022,Sexual violence,2
+Lebanon,2022,Shelling/artillery/missile attack,5
+Lebanon,2022,Violent demonstration,136
+Lebanon,2023,Agreement,5
+Lebanon,2023,Air/drone strike,577
+Lebanon,2023,Armed clash,142
+Lebanon,2023,Arrests,2
+Lebanon,2023,Attack,30
+Lebanon,2023,Change to group/activity,7
+Lebanon,2023,Disrupted weapons use,14
+Lebanon,2023,Excessive force against protesters,3
+Lebanon,2023,Grenade,10
+Lebanon,2023,Looting/property destruction,14
+Lebanon,2023,Mob violence,56
+Lebanon,2023,Other,56
+Lebanon,2023,Peaceful protest,861
+Lebanon,2023,Protest with intervention,6
+Lebanon,2023,Remote explosive/landmine/IED,2
+Lebanon,2023,Shelling/artillery/missile attack,1484
+Lebanon,2023,Violent demonstration,129
+Lebanon,2024,Abduction/forced disappearance,5
+Lebanon,2024,Agreement,1
+Lebanon,2024,Air/drone strike,8536
+Lebanon,2024,Armed clash,206
+Lebanon,2024,Arrests,10
+Lebanon,2024,Attack,18
+Lebanon,2024,Change to group/activity,207
+Lebanon,2024,Disrupted weapons use,144
+Lebanon,2024,Excessive force against protesters,1
+Lebanon,2024,Grenade,1
+Lebanon,2024,Looting/property destruction,207
+Lebanon,2024,Mob violence,41
+Lebanon,2024,Non-violent transfer of territory,10
+Lebanon,2024,Other,364
+Lebanon,2024,Peaceful protest,221
+Lebanon,2024,Protest with intervention,7
+Lebanon,2024,Remote explosive/landmine/IED,77
+Lebanon,2024,Shelling/artillery/missile attack,4451
+Lebanon,2024,Violent demonstration,24
+Lebanon,2025,Abduction/forced disappearance,17
+Lebanon,2025,Air/drone strike,915
+Lebanon,2025,Armed clash,115
+Lebanon,2025,Arrests,29
+Lebanon,2025,Attack,97
+Lebanon,2025,Change to group/activity,116
+Lebanon,2025,Disrupted weapons use,289
+Lebanon,2025,Grenade,1
+Lebanon,2025,Headquarters or base established,11
+Lebanon,2025,Looting/property destruction,304
+Lebanon,2025,Mob violence,35
+Lebanon,2025,Non-violent transfer of territory,99
+Lebanon,2025,Other,246
+Lebanon,2025,Peaceful protest,284
+Lebanon,2025,Protest with intervention,4
+Lebanon,2025,Remote explosive/landmine/IED,25
+Lebanon,2025,Shelling/artillery/missile attack,420
+Lebanon,2025,Violent demonstration,34
+Oman,2020,Change to group/activity,5
+Oman,2020,Other,1
+Oman,2021,Air/drone strike,1
+Oman,2021,Other,1
+Oman,2021,Peaceful protest,13
+Oman,2021,Violent demonstration,6
+Oman,2022,Disrupted weapons use,6
+Oman,2022,Other,3
+Oman,2023,Change to group/activity,1
+Oman,2023,Disrupted weapons use,2
+Oman,2023,Other,5
+Oman,2023,Peaceful protest,7
+Oman,2024,Armed clash,1
+Oman,2024,Attack,4
+Oman,2024,Disrupted weapons use,1
+Oman,2025,Disrupted weapons use,1
+Palestine,2020,Abduction/forced disappearance,2
+Palestine,2020,Agreement,2
+Palestine,2020,Air/drone strike,120
+Palestine,2020,Armed clash,92
+Palestine,2020,Arrests,13
+Palestine,2020,Attack,305
+Palestine,2020,Change to group/activity,26
+Palestine,2020,Disrupted weapons use,7
+Palestine,2020,Excessive force against protesters,16
+Palestine,2020,Grenade,3
+Palestine,2020,Headquarters or base established,1
+Palestine,2020,Looting/property destruction,571
+Palestine,2020,Mob violence,1813
+Palestine,2020,Other,1029
+Palestine,2020,Peaceful protest,247
+Palestine,2020,Protest with intervention,95
+Palestine,2020,Remote explosive/landmine/IED,2
+Palestine,2020,Shelling/artillery/missile attack,66
+Palestine,2020,Violent demonstration,331
+Palestine,2021,Agreement,1
+Palestine,2021,Air/drone strike,313
+Palestine,2021,Armed clash,115
+Palestine,2021,Arrests,9
+Palestine,2021,Attack,403
+Palestine,2021,Change to group/activity,23
+Palestine,2021,Disrupted weapons use,2
+Palestine,2021,Excessive force against protesters,109
+Palestine,2021,Grenade,1
+Palestine,2021,Looting/property destruction,541
+Palestine,2021,Mob violence,2489
+Palestine,2021,Other,688
+Palestine,2021,Peaceful protest,636
+Palestine,2021,Protest with intervention,243
+Palestine,2021,Remote explosive/landmine/IED,11
+Palestine,2021,Shelling/artillery/missile attack,77
+Palestine,2021,Violent demonstration,463
+Palestine,2022,Air/drone strike,81
+Palestine,2022,Armed clash,500
+Palestine,2022,Attack,357
+Palestine,2022,Change to group/activity,6
+Palestine,2022,Disrupted weapons use,4
+Palestine,2022,Excessive force against protesters,6
+Palestine,2022,Grenade,13
+Palestine,2022,Looting/property destruction,699
+Palestine,2022,Mob violence,3714
+Palestine,2022,Other,1211
+Palestine,2022,Peaceful protest,741
+Palestine,2022,Protest with intervention,77
+Palestine,2022,Remote explosive/landmine/IED,5
+Palestine,2022,Shelling/artillery/missile attack,17
+Palestine,2022,Violent demonstration,484
+Palestine,2023,Abduction/forced disappearance,1
+Palestine,2023,Air/drone strike,2082
+Palestine,2023,Armed clash,1892
+Palestine,2023,Arrests,52
+Palestine,2023,Attack,868
+Palestine,2023,Change to group/activity,82
+Palestine,2023,Disrupted weapons use,18
+Palestine,2023,Excessive force against protesters,16
+Palestine,2023,Grenade,84
+Palestine,2023,Headquarters or base established,1
+Palestine,2023,Looting/property destruction,848
+Palestine,2023,Mob violence,4003
+Palestine,2023,Other,451
+Palestine,2023,Peaceful protest,752
+Palestine,2023,Protest with intervention,56
+Palestine,2023,Remote explosive/landmine/IED,57
+Palestine,2023,Sexual violence,1
+Palestine,2023,Shelling/artillery/missile attack,1294
+Palestine,2023,Violent demonstration,637
+Palestine,2024,Abduction/forced disappearance,5
+Palestine,2024,Air/drone strike,5815
+Palestine,2024,Armed clash,2365
+Palestine,2024,Arrests,75
+Palestine,2024,Attack,1115
+Palestine,2024,Change to group/activity,46
+Palestine,2024,Disrupted weapons use,123
+Palestine,2024,Excessive force against protesters,4
+Palestine,2024,Grenade,40
+Palestine,2024,Headquarters or base established,1
+Palestine,2024,Looting/property destruction,1637
+Palestine,2024,Mob violence,3917
+Palestine,2024,Other,327
+Palestine,2024,Peaceful protest,397
+Palestine,2024,Protest with intervention,16
+Palestine,2024,Remote explosive/landmine/IED,249
+Palestine,2024,Shelling/artillery/missile attack,4817
+Palestine,2024,Violent demonstration,51
+Palestine,2025,Abduction/forced disappearance,7
+Palestine,2025,Agreement,2
+Palestine,2025,Air/drone strike,4563
+Palestine,2025,Armed clash,472
+Palestine,2025,Arrests,31
+Palestine,2025,Attack,1928
+Palestine,2025,Change to group/activity,277
+Palestine,2025,Disrupted weapons use,101
+Palestine,2025,Grenade,28
+Palestine,2025,Looting/property destruction,1824
+Palestine,2025,Mob violence,3522
+Palestine,2025,Non-state actor overtakes territory,1
+Palestine,2025,Other,465
+Palestine,2025,Peaceful protest,217
+Palestine,2025,Protest with intervention,11
+Palestine,2025,Remote explosive/landmine/IED,310
+Palestine,2025,Shelling/artillery/missile attack,1671
+Palestine,2025,Violent demonstration,21
+Qatar,2020,Change to group/activity,4
+Qatar,2020,Other,1
+Qatar,2020,Peaceful protest,2
+Qatar,2021,Arrests,2
+Qatar,2021,Change to group/activity,1
+Qatar,2021,Other,1
+Qatar,2021,Peaceful protest,15
+Qatar,2022,Arrests,1
+Qatar,2022,Other,1
+Qatar,2022,Peaceful protest,6
+Qatar,2022,Protest with intervention,1
+Qatar,2022,Violent demonstration,1
+Qatar,2023,Agreement,2
+Qatar,2023,Other,1
+Qatar,2023,Peaceful protest,17
+Qatar,2025,Air/drone strike,1
+Qatar,2025,Change to group/activity,1
+Qatar,2025,Disrupted weapons use,1
+Qatar,2025,Shelling/artillery/missile attack,1
+Saudi Arabia,2020,Agreement,1
+Saudi Arabia,2020,Air/drone strike,21
+Saudi Arabia,2020,Armed clash,6
+Saudi Arabia,2020,Arrests,5
+Saudi Arabia,2020,Attack,3
+Saudi Arabia,2020,Change to group/activity,6
+Saudi Arabia,2020,Disrupted weapons use,52
+Saudi Arabia,2020,Other,2
+Saudi Arabia,2020,Peaceful protest,3
+Saudi Arabia,2020,Remote explosive/landmine/IED,6
+Saudi Arabia,2020,Shelling/artillery/missile attack,14
+Saudi Arabia,2020,Violent demonstration,1
+Saudi Arabia,2021,Air/drone strike,60
+Saudi Arabia,2021,Attack,3
+Saudi Arabia,2021,Change to group/activity,3
+Saudi Arabia,2021,Disrupted weapons use,155
+Saudi Arabia,2021,Other,1
+Saudi Arabia,2021,Protest with intervention,1
+Saudi Arabia,2021,Remote explosive/landmine/IED,1
+Saudi Arabia,2021,Shelling/artillery/missile attack,17
+Saudi Arabia,2022,Abduction/forced disappearance,3
+Saudi Arabia,2022,Air/drone strike,17
+Saudi Arabia,2022,Attack,4
+Saudi Arabia,2022,Disrupted weapons use,15
+Saudi Arabia,2022,Looting/property destruction,2
+Saudi Arabia,2022,Other,5
+Saudi Arabia,2022,Protest with intervention,1
+Saudi Arabia,2022,Shelling/artillery/missile attack,15
+Saudi Arabia,2022,Suicide bomb,1
+Saudi Arabia,2023,Abduction/forced disappearance,2
+Saudi Arabia,2023,Agreement,1
+Saudi Arabia,2023,Air/drone strike,2
+Saudi Arabia,2023,Armed clash,1
+Saudi Arabia,2023,Arrests,6
+Saudi Arabia,2023,Attack,1
+Saudi Arabia,2023,Change to group/activity,6
+Saudi Arabia,2023,Disrupted weapons use,1
+Saudi Arabia,2023,Other,3
+Saudi Arabia,2023,Shelling/artillery/missile attack,1
+Saudi Arabia,2024,Abduction/forced disappearance,1
+Saudi Arabia,2024,Arrests,2
+Saudi Arabia,2024,Attack,1
+Saudi Arabia,2024,Other,1
+Saudi Arabia,2025,Arrests,11
+Saudi Arabia,2025,Attack,1
+Saudi Arabia,2025,Disrupted weapons use,2
+Saudi Arabia,2025,Shelling/artillery/missile attack,4
+Syria,2020,Abduction/forced disappearance,480
+Syria,2020,Agreement,8
+Syria,2020,Air/drone strike,1290
+Syria,2020,Armed clash,2246
+Syria,2020,Arrests,146
+Syria,2020,Attack,958
+Syria,2020,Change to group/activity,953
+Syria,2020,Disrupted weapons use,38
+Syria,2020,Excessive force against protesters,16
+Syria,2020,Government regains territory,265
+Syria,2020,Grenade,62
+Syria,2020,Headquarters or base established,79
+Syria,2020,Looting/property destruction,223
+Syria,2020,Mob violence,16
+Syria,2020,Non-state actor overtakes territory,53
+Syria,2020,Non-violent transfer of territory,11
+Syria,2020,Other,104
+Syria,2020,Peaceful protest,443
+Syria,2020,Protest with intervention,14
+Syria,2020,Remote explosive/landmine/IED,1128
+Syria,2020,Sexual violence,1
+Syria,2020,Shelling/artillery/missile attack,3786
+Syria,2020,Suicide bomb,4
+Syria,2020,Violent demonstration,42
+Syria,2021,Abduction/forced disappearance,872
+Syria,2021,Agreement,15
+Syria,2021,Air/drone strike,708
+Syria,2021,Armed clash,1991
+Syria,2021,Arrests,109
+Syria,2021,Attack,981
+Syria,2021,Change to group/activity,670
+Syria,2021,Disrupted weapons use,12
+Syria,2021,Excessive force against protesters,11
+Syria,2021,Grenade,56
+Syria,2021,Headquarters or base established,15
+Syria,2021,Looting/property destruction,72
+Syria,2021,Mob violence,6
+Syria,2021,Non-state actor overtakes territory,1
+Syria,2021,Other,60
+Syria,2021,Peaceful protest,319
+Syria,2021,Protest with intervention,9
+Syria,2021,Remote explosive/landmine/IED,1014
+Syria,2021,Shelling/artillery/missile attack,3835
+Syria,2021,Suicide bomb,5
+Syria,2021,Violent demonstration,40
+Syria,2022,Abduction/forced disappearance,913
+Syria,2022,Agreement,6
+Syria,2022,Air/drone strike,698
+Syria,2022,Armed clash,2028
+Syria,2022,Arrests,135
+Syria,2022,Attack,946
+Syria,2022,Change to group/activity,681
+Syria,2022,Disrupted weapons use,18
+Syria,2022,Excessive force against protesters,9
+Syria,2022,Grenade,53
+Syria,2022,Headquarters or base established,15
+Syria,2022,Looting/property destruction,30
+Syria,2022,Mob violence,9
+Syria,2022,Non-state actor overtakes territory,21
+Syria,2022,Non-violent transfer of territory,5
+Syria,2022,Other,101
+Syria,2022,Peaceful protest,433
+Syria,2022,Protest with intervention,11
+Syria,2022,Remote explosive/landmine/IED,753
+Syria,2022,Sexual violence,3
+Syria,2022,Shelling/artillery/missile attack,5620
+Syria,2022,Suicide bomb,2
+Syria,2022,Violent demonstration,131
+Syria,2023,Abduction/forced disappearance,961
+Syria,2023,Agreement,2
+Syria,2023,Air/drone strike,778
+Syria,2023,Armed clash,2531
+Syria,2023,Arrests,222
+Syria,2023,Attack,997
+Syria,2023,Change to group/activity,715
+Syria,2023,Disrupted weapons use,64
+Syria,2023,Excessive force against protesters,8
+Syria,2023,Grenade,59
+Syria,2023,Headquarters or base established,9
+Syria,2023,Looting/property destruction,121
+Syria,2023,Mob violence,20
+Syria,2023,Non-state actor overtakes territory,37
+Syria,2023,Non-violent transfer of territory,11
+Syria,2023,Other,80
+Syria,2023,Peaceful protest,1184
+Syria,2023,Protest with intervention,13
+Syria,2023,Remote explosive/landmine/IED,715
+Syria,2023,Sexual violence,6
+Syria,2023,Shelling/artillery/missile attack,4139
+Syria,2023,Suicide bomb,2
+Syria,2023,Violent demonstration,136
+Syria,2024,Abduction/forced disappearance,1017
+Syria,2024,Agreement,7
+Syria,2024,Air/drone strike,1599
+Syria,2024,Armed clash,2663
+Syria,2024,Arrests,223
+Syria,2024,Attack,1028
+Syria,2024,Change to group/activity,931
+Syria,2024,Disrupted weapons use,173
+Syria,2024,Excessive force against protesters,31
+Syria,2024,Grenade,87
+Syria,2024,Headquarters or base established,34
+Syria,2024,Looting/property destruction,197
+Syria,2024,Mob violence,36
+Syria,2024,Non-state actor overtakes territory,277
+Syria,2024,Non-violent transfer of territory,281
+Syria,2024,Other,129
+Syria,2024,Peaceful protest,1462
+Syria,2024,Protest with intervention,25
+Syria,2024,Remote explosive/landmine/IED,646
+Syria,2024,Sexual violence,5
+Syria,2024,Shelling/artillery/missile attack,4897
+Syria,2024,Suicide bomb,9
+Syria,2024,Violent demonstration,59
+Syria,2025,Abduction/forced disappearance,637
+Syria,2025,Agreement,14
+Syria,2025,Air/drone strike,498
+Syria,2025,Armed clash,1211
+Syria,2025,Arrests,611
+Syria,2025,Attack,1660
+Syria,2025,Change to group/activity,860
+Syria,2025,Disrupted weapons use,300
+Syria,2025,Excessive force against protesters,10
+Syria,2025,Government regains territory,31
+Syria,2025,Grenade,54
+Syria,2025,Headquarters or base established,10
+Syria,2025,Looting/property destruction,121
+Syria,2025,Mob violence,24
+Syria,2025,Non-state actor overtakes territory,21
+Syria,2025,Non-violent transfer of territory,3
+Syria,2025,Other,196
+Syria,2025,Peaceful protest,669
+Syria,2025,Protest with intervention,16
+Syria,2025,Remote explosive/landmine/IED,918
+Syria,2025,Sexual violence,3
+Syria,2025,Shelling/artillery/missile attack,528
+Syria,2025,Suicide bomb,1
+Syria,2025,Violent demonstration,11
+Turkey,2020,Abduction/forced disappearance,6
+Turkey,2020,Air/drone strike,35
+Turkey,2020,Armed clash,303
+Turkey,2020,Arrests,161
+Turkey,2020,Attack,134
+Turkey,2020,Change to group/activity,242
+Turkey,2020,Disrupted weapons use,90
+Turkey,2020,Grenade,116
+Turkey,2020,Looting/property destruction,806
+Turkey,2020,Mob violence,16
+Turkey,2020,Other,9
+Turkey,2020,Peaceful protest,1745
+Turkey,2020,Protest with intervention,424
+Turkey,2020,Remote explosive/landmine/IED,163
+Turkey,2020,Sexual violence,2
+Turkey,2020,Shelling/artillery/missile attack,6
+Turkey,2020,Violent demonstration,10
+Turkey,2021,Abduction/forced disappearance,1
+Turkey,2021,Air/drone strike,31
+Turkey,2021,Armed clash,161
+Turkey,2021,Arrests,265
+Turkey,2021,Attack,58
+Turkey,2021,Change to group/activity,191
+Turkey,2021,Disrupted weapons use,114
+Turkey,2021,Grenade,38
+Turkey,2021,Looting/property destruction,766
+Turkey,2021,Mob violence,21
+Turkey,2021,Other,2
+Turkey,2021,Peaceful protest,2758
+Turkey,2021,Protest with intervention,249
+Turkey,2021,Remote explosive/landmine/IED,57
+Turkey,2021,Sexual violence,1
+Turkey,2021,Shelling/artillery/missile attack,11
+Turkey,2021,Violent demonstration,17
+Turkey,2022,Air/drone strike,10
+Turkey,2022,Armed clash,150
+Turkey,2022,Arrests,493
+Turkey,2022,Attack,50
+Turkey,2022,Change to group/activity,224
+Turkey,2022,Disrupted weapons use,74
+Turkey,2022,Excessive force against protesters,1
+Turkey,2022,Grenade,42
+Turkey,2022,Headquarters or base established,1
+Turkey,2022,Looting/property destruction,350
+Turkey,2022,Mob violence,41
+Turkey,2022,Other,9
+Turkey,2022,Peaceful protest,3670
+Turkey,2022,Protest with intervention,435
+Turkey,2022,Remote explosive/landmine/IED,63
+Turkey,2022,Sexual violence,1
+Turkey,2022,Shelling/artillery/missile attack,12
+Turkey,2022,Violent demonstration,15
+Turkey,2023,Air/drone strike,6
+Turkey,2023,Armed clash,93
+Turkey,2023,Arrests,681
+Turkey,2023,Attack,74
+Turkey,2023,Change to group/activity,144
+Turkey,2023,Disrupted weapons use,26
+Turkey,2023,Grenade,24
+Turkey,2023,Looting/property destruction,143
+Turkey,2023,Mob violence,145
+Turkey,2023,Other,54
+Turkey,2023,Peaceful protest,4433
+Turkey,2023,Protest with intervention,199
+Turkey,2023,Remote explosive/landmine/IED,18
+Turkey,2023,Sexual violence,1
+Turkey,2023,Shelling/artillery/missile attack,5
+Turkey,2023,Violent demonstration,27
+Turkey,2024,Air/drone strike,12
+Turkey,2024,Armed clash,55
+Turkey,2024,Arrests,490
+Turkey,2024,Attack,53
+Turkey,2024,Change to group/activity,159
+Turkey,2024,Disrupted weapons use,42
+Turkey,2024,Excessive force against protesters,1
+Turkey,2024,Grenade,31
+Turkey,2024,Looting/property destruction,393
+Turkey,2024,Mob violence,86
+Turkey,2024,Other,22
+Turkey,2024,Peaceful protest,5689
+Turkey,2024,Protest with intervention,149
+Turkey,2024,Remote explosive/landmine/IED,14
+Turkey,2024,Shelling/artillery/missile attack,4
+Turkey,2024,Violent demonstration,35
+Turkey,2025,Air/drone strike,1
+Turkey,2025,Armed clash,3
+Turkey,2025,Arrests,128
+Turkey,2025,Attack,19
+Turkey,2025,Change to group/activity,40
+Turkey,2025,Disrupted weapons use,27
+Turkey,2025,Grenade,4
+Turkey,2025,Looting/property destruction,21
+Turkey,2025,Mob violence,15
+Turkey,2025,Other,12
+Turkey,2025,Peaceful protest,4336
+Turkey,2025,Protest with intervention,148
+Turkey,2025,Sexual violence,1
+Turkey,2025,Violent demonstration,20
+United Arab Emirates,2020,Attack,1
+United Arab Emirates,2020,Change to group/activity,3
+United Arab Emirates,2021,Attack,2
+United Arab Emirates,2021,Other,1
+United Arab Emirates,2021,Shelling/artillery/missile attack,1
+United Arab Emirates,2022,Agreement,2
+United Arab Emirates,2022,Air/drone strike,2
+United Arab Emirates,2022,Change to group/activity,2
+United Arab Emirates,2022,Disrupted weapons use,3
+United Arab Emirates,2022,Mob violence,1
+United Arab Emirates,2022,Other,4
+United Arab Emirates,2022,Peaceful protest,6
+United Arab Emirates,2022,Shelling/artillery/missile attack,5
+United Arab Emirates,2023,Arrests,1
+United Arab Emirates,2023,Other,2
+United Arab Emirates,2023,Peaceful protest,1
+United Arab Emirates,2024,Attack,1
+United Arab Emirates,2024,Protest with intervention,1
+United Arab Emirates,2025,Abduction/forced disappearance,1
+United Arab Emirates,2025,Mob violence,1
+United Arab Emirates,2025,Other,1
+Yemen,2020,Abduction/forced disappearance,175
+Yemen,2020,Agreement,36
+Yemen,2020,Air/drone strike,2200
+Yemen,2020,Armed clash,3404
+Yemen,2020,Arrests,85
+Yemen,2020,Attack,523
+Yemen,2020,Change to group/activity,619
+Yemen,2020,Disrupted weapons use,139
+Yemen,2020,Excessive force against protesters,13
+Yemen,2020,Government regains territory,502
+Yemen,2020,Grenade,39
+Yemen,2020,Headquarters or base established,11
+Yemen,2020,Looting/property destruction,203
+Yemen,2020,Mob violence,4
+Yemen,2020,Non-state actor overtakes territory,39
+Yemen,2020,Non-violent transfer of territory,32
+Yemen,2020,Other,70
+Yemen,2020,Peaceful protest,617
+Yemen,2020,Protest with intervention,15
+Yemen,2020,Remote explosive/landmine/IED,290
+Yemen,2020,Sexual violence,6
+Yemen,2020,Shelling/artillery/missile attack,2745
+Yemen,2020,Suicide bomb,1
+Yemen,2020,Violent demonstration,58
+Yemen,2021,Abduction/forced disappearance,92
+Yemen,2021,Agreement,6
+Yemen,2021,Air/drone strike,2468
+Yemen,2021,Armed clash,2293
+Yemen,2021,Arrests,61
+Yemen,2021,Attack,396
+Yemen,2021,Change to group/activity,187
+Yemen,2021,Disrupted weapons use,171
+Yemen,2021,Excessive force against protesters,26
+Yemen,2021,Government regains territory,436
+Yemen,2021,Grenade,23
+Yemen,2021,Headquarters or base established,9
+Yemen,2021,Looting/property destruction,145
+Yemen,2021,Mob violence,8
+Yemen,2021,Non-state actor overtakes territory,64
+Yemen,2021,Non-violent transfer of territory,29
+Yemen,2021,Other,48
+Yemen,2021,Peaceful protest,699
+Yemen,2021,Protest with intervention,22
+Yemen,2021,Remote explosive/landmine/IED,287
+Yemen,2021,Sexual violence,2
+Yemen,2021,Shelling/artillery/missile attack,1273
+Yemen,2021,Suicide bomb,1
+Yemen,2021,Violent demonstration,85
+Yemen,2022,Abduction/forced disappearance,133
+Yemen,2022,Agreement,10
+Yemen,2022,Air/drone strike,1412
+Yemen,2022,Armed clash,1249
+Yemen,2022,Arrests,85
+Yemen,2022,Attack,382
+Yemen,2022,Change to group/activity,396
+Yemen,2022,Disrupted weapons use,128
+Yemen,2022,Excessive force against protesters,10
+Yemen,2022,Government regains territory,86
+Yemen,2022,Grenade,28
+Yemen,2022,Headquarters or base established,5
+Yemen,2022,Looting/property destruction,165
+Yemen,2022,Mob violence,4
+Yemen,2022,Non-state actor overtakes territory,86
+Yemen,2022,Non-violent transfer of territory,33
+Yemen,2022,Other,80
+Yemen,2022,Peaceful protest,443
+Yemen,2022,Protest with intervention,19
+Yemen,2022,Remote explosive/landmine/IED,462
+Yemen,2022,Sexual violence,3
+Yemen,2022,Shelling/artillery/missile attack,2654
+Yemen,2022,Suicide bomb,2
+Yemen,2022,Violent demonstration,43
+Yemen,2023,Abduction/forced disappearance,162
+Yemen,2023,Agreement,6
+Yemen,2023,Air/drone strike,446
+Yemen,2023,Armed clash,954
+Yemen,2023,Arrests,72
+Yemen,2023,Attack,502
+Yemen,2023,Change to group/activity,252
+Yemen,2023,Disrupted weapons use,124
+Yemen,2023,Excessive force against protesters,10
+Yemen,2023,Government regains territory,15
+Yemen,2023,Grenade,23
+Yemen,2023,Headquarters or base established,6
+Yemen,2023,Looting/property destruction,143
+Yemen,2023,Mob violence,14
+Yemen,2023,Non-state actor overtakes territory,7
+Yemen,2023,Non-violent transfer of territory,8
+Yemen,2023,Other,71
+Yemen,2023,Peaceful protest,2299
+Yemen,2023,Protest with intervention,17
+Yemen,2023,Remote explosive/landmine/IED,309
+Yemen,2023,Shelling/artillery/missile attack,602
+Yemen,2023,Violent demonstration,50
+Yemen,2024,Abduction/forced disappearance,317
+Yemen,2024,Agreement,1
+Yemen,2024,Air/drone strike,324
+Yemen,2024,Armed clash,2132
+Yemen,2024,Arrests,61
+Yemen,2024,Attack,430
+Yemen,2024,Change to group/activity,140
+Yemen,2024,Disrupted weapons use,319
+Yemen,2024,Excessive force against protesters,7
+Yemen,2024,Government regains territory,10
+Yemen,2024,Grenade,17
+Yemen,2024,Headquarters or base established,12
+Yemen,2024,Looting/property destruction,117
+Yemen,2024,Mob violence,8
+Yemen,2024,Non-violent transfer of territory,4
+Yemen,2024,Other,102
+Yemen,2024,Peaceful protest,8275
+Yemen,2024,Protest with intervention,10
+Yemen,2024,Remote explosive/landmine/IED,213
+Yemen,2024,Sexual violence,3
+Yemen,2024,Shelling/artillery/missile attack,406
+Yemen,2024,Suicide bomb,1
+Yemen,2024,Violent demonstration,41
+Yemen,2025,Abduction/forced disappearance,377
+Yemen,2025,Agreement,2
+Yemen,2025,Air/drone strike,630
+Yemen,2025,Armed clash,1570
+Yemen,2025,Arrests,78
+Yemen,2025,Attack,311
+Yemen,2025,Change to group/activity,263
+Yemen,2025,Disrupted weapons use,67
+Yemen,2025,Excessive force against protesters,5
+Yemen,2025,Government regains territory,15
+Yemen,2025,Grenade,12
+Yemen,2025,Headquarters or base established,18
+Yemen,2025,Looting/property destruction,133
+Yemen,2025,Mob violence,4
+Yemen,2025,Other,115
+Yemen,2025,Peaceful protest,7016
+Yemen,2025,Protest with intervention,32
+Yemen,2025,Remote explosive/landmine/IED,121
+Yemen,2025,Sexual violence,1
+Yemen,2025,Shelling/artillery/missile attack,162
+Yemen,2025,Violent demonstration,159

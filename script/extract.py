@@ -102,3 +102,14 @@ df_sum = df_merged.groupby("COUNTRY")[["FATALITIES", "EVENTS"]].sum().reset_inde
 countries_less_events = df_sum[df_sum["EVENTS"] < 10000]["COUNTRY"].unique()
 df_merged = df_merged[~df_merged["COUNTRY"].isin(countries_less_events)]
 df_merged.to_csv(output, index=False)
+
+# sub_events_by_country.csv
+# Small multiple geo chart
+output = output_dir / "sub_events_by_country.csv"
+df_sub_events = (
+    df_less_weeks.groupby(["COUNTRY", "YEAR", "SUB_EVENT_TYPE"])["EVENTS"]
+    .sum()
+    .reset_index()
+)
+df_sub_events = df_sub_events[df_sub_events["EVENTS"] > 0]
+df_sub_events.to_csv(output, index=False)

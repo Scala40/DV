@@ -14,7 +14,8 @@ import {
     ridgePlotMargins,
     boxplotChartMargins,
     lineChartMargins,
-    geoChartMargins
+    geoChartMargins,
+    smallMultipleGeoChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
@@ -28,6 +29,7 @@ import { renderBoxplotChart } from './charts/boxplotChart.js';
 import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
 import { renderLineChart } from './charts/lineChart.js';
 import { renderGeoChart } from './charts/geoChart.js';
+import { renderSmallMultipleGeoChart } from './charts/smallMultipleChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 import { initBackToTop } from './utils/backToTop.js';
@@ -40,7 +42,8 @@ import {
     loadPyramidChartData,
     loadRidgePlotData,
     loadLineChartData,
-    loadGeoChartData
+    loadGeoChartData,
+    loadSmallMultipleGeoChartData
 } from './data/dataLoader.js';
 
 // Initialize navigation menu
@@ -146,4 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
             geoChartMargins
         ))
         .catch(err => console.error('Geo chart data failed:', err));
+
+    loadSmallMultipleGeoChartData()
+        .then(data => observeRender(
+            document.getElementById('small-multiple-geo-chart'),
+            renderSmallMultipleGeoChart,
+            data,
+            geoChartMargins
+        ))
+        .catch(err => console.error('Small multiple geo chart data failed:', err));
 });

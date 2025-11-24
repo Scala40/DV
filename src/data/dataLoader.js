@@ -9,6 +9,7 @@ import deathsDataUrl from "../csv/deaths_long_format.csv?url";
 import eventsOverTimeByCountryUrl from "../csv/events_over_time_by_country.csv?url";
 import yearlyFatalitiesEventsByCountryUrl from "../csv/yearly_fatalities_events_by_country.csv?url";
 import eventByLatLonUrl from "../csv/events_by_lat_lon.csv?url";
+import smallMultipleGeoDataUrl from "../csv/sub_events_by_country.csv?url";
 
 const countryMap = {
     "Iran (Islamic Republic of)": "Iran",
@@ -97,4 +98,8 @@ export async function loadGeoChartData() {
             events: d.EVENTS
         }))
         .sort((a, b) => a.events - b.events);
+}
+
+export async function loadSmallMultipleGeoChartData() {
+    return await d3.csv(smallMultipleGeoDataUrl, d3.autoType);
 }
