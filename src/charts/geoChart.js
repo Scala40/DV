@@ -39,8 +39,8 @@ export function renderGeoChart(container, data, margins) {
     // clear only the chart content
     wrapper.innerHTML = '';
 
-    // Create responsive svg that fills its parent (we'll append it into the wrapper)
-    const svg = createResponsiveSvg(width, height);
+    // Create responsive svg that fills its parent
+    const svg = createResponsiveSvg(width, height - margins.bottom);
 
     // Layout calculations (respect margins on all sides)
     const innerWidth = Math.max(100, width - margins.left - margins.right);

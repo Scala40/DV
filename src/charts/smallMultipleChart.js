@@ -14,8 +14,20 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     // Clear previous content
     container.innerHTML = "";
 
+    // Create or reuse a geo-chart-content wrapper to ensure proper layout (matches geoChart)
+    let content = container.querySelector('.geo-chart-content');
+    if (!content) {
+        content = document.createElement('div');
+        content.className = 'geo-chart-content';
+        // basic layout so controls and svg stack like in geoChart
+        content.style.display = 'flex';
+        content.style.flexDirection = 'column';
+        content.style.width = '100%';
+        container.appendChild(content);
+    }
+
     // Create controls container (styled to match geoChart)
-    let controls = container.querySelector('.geo-controls');
+    let controls = content.querySelector('.geo-controls');
     if (!controls) {
         controls = document.createElement('div');
         controls.className = 'geo-controls';
@@ -25,7 +37,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
         controls.style.justifyContent = 'center';
         controls.style.gap = '8px';
         controls.style.width = '100%';
-        container.appendChild(controls);
+        content.appendChild(controls);
     }
 
     // Create or reuse a controls row to hold the selects (matches geoChart layout)
@@ -97,7 +109,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     controlsRow.appendChild(subSelect);
 
     // Create SVG
-    const svg = createResponsiveSvg(width, height);
+    const svg = createResponsiveSvg(width, height - margins.bottom);
 
     // Layout calculations (respect margins on all sides)
     const innerWidth = Math.max(100, width - margins.left - margins.right);
@@ -166,7 +178,8 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
         });
 
     // Append svg to container (after controls)
-    container.appendChild(svg.node());
+    // append svg into the geo-chart-content wrapper so layout stays consistent
+    content.appendChild(svg.node());
 
     // Update function to recolor countries based on selections
     function updateMap(selectedYear, selectedEvent) {
@@ -208,8 +221,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
 
                 const name = featureName(d) || "Unknown";
                 const val = dataByCountry.has(name) ? dataByCountry.get(name) : null;
-            
-                
+
                 if (val !== null && val !== undefined) {
                     tooltip.style("display", "block")
                         .html(`<strong>${name}</strong><br/><strong>Events:</strong> ${val}`);
