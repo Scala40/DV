@@ -104,23 +104,9 @@ export function renderGeoChart(container, data, margins) {
     // darker red palette for better contrast
     const colorPalette = ['var(--color-unige-red-light)', 'var(--color-unige-red)', 'var(--color-unige-red-dark)'];
     const sizeRadii = [6, 10, 14];
-    const sizeBreaks = [aggregatedMax / 3, (aggregatedMax * 2) / 3];
 
-    function getColor(v) {
-        const val = +v || 0;
-        if (aggregatedMax === 0) return colorPalette[0];
-        if (val <= sizeBreaks[0]) return colorPalette[0];
-        if (val <= sizeBreaks[1]) return colorPalette[1];
-        return colorPalette[2];
-    }
-
-    function getSize(v) {
-        const val = +v || 0;
-        if (aggregatedMax === 0) return sizeRadii[0];
-        if (val <= sizeBreaks[0]) return sizeRadii[0];
-        if (val <= sizeBreaks[1]) return sizeRadii[1];
-        return sizeRadii[2];
-    }
+    // NOTE: `getColor` and `getSize` are defined later once we know the
+    // appropriate domain maximum to use (aggregate vs per-year max).
 
     // Determine selected year and whether aggregate mode is active
     const years = Array.from(new Set((rawData || []).map(d => +d.Year || +d.year))).filter(y => !isNaN(y)).sort((a, b) => a - b);
@@ -145,6 +131,42 @@ export function renderGeoChart(container, data, margins) {
         plotData = (rawData || []).filter(d => +d.Year === +selectedYear || +d.year === +selectedYear);
     } else {
         plotData = rawData || [];
+    }
+
+    // Compute merged-by-country maxima and determine domain max for sizing/coloring.
+    // For aggregate mode we keep the aggregatedMax computed earlier; for
+    // per-year mode we use the maximum among each year's per-country maxima
+    // (i.e. the highest single-year country total across all years).
+    const mergedByCountry = d3.rollup(plotData || [], v => d3.sum(v, d => +d.events || 0), d => d.country);
+    let mergedMaxForLegend;
+    if (isAggregate) {
+        mergedMaxForLegend = d3.max(Array.from(mergedByCountry.values())) || 0;
+    } else {
+        const perYearMaxes = (years || []).map(y => {
+            const perYearData = (rawData || []).filter(d => +d.Year === +y || +d.year === +y);
+            const perYearByCountry = d3.rollup(perYearData, v => d3.sum(v, d => +d.events || 0), d => d.country);
+            return d3.max(Array.from(perYearByCountry.values())) || 0;
+        });
+        mergedMaxForLegend = d3.max(perYearMaxes) || 0;
+    }
+
+    const domainMax = isAggregate ? aggregatedMax : mergedMaxForLegend;
+    const sizeBreaks = [domainMax / 3, (domainMax * 2) / 3];
+
+    function getColor(v) {
+        const val = +v || 0;
+        if (domainMax === 0) return colorPalette[0];
+        if (val <= sizeBreaks[0]) return colorPalette[0];
+        if (val <= sizeBreaks[1]) return colorPalette[1];
+        return colorPalette[2];
+    }
+
+    function getSize(v) {
+        const val = +v || 0;
+        if (domainMax === 0) return sizeRadii[0];
+        if (val <= sizeBreaks[0]) return sizeRadii[0];
+        if (val <= sizeBreaks[1]) return sizeRadii[1];
+        return sizeRadii[2];
     }
 
     // --- Merge overlapping points of the same country (optional) ---
@@ -343,8 +365,9 @@ export function renderGeoChart(container, data, margins) {
     });
 
     // Legend: discrete colors + size samples (computed from merged plotData grouped by country)
-    const mergedByCountry = d3.rollup(plotData || [], v => d3.sum(v, d => +d.events || 0), d => d.country);
-    const mergedMax = d3.max(Array.from(mergedByCountry.values())) || 0;
+    // `mergedMaxForLegend` was computed earlier and contains the correct domain
+    // maximum depending on `isAggregate`.
+    const mergedMax = mergedMaxForLegend || 0;
 
     const legendX = width - margins.right - 140;
     const legendY = margins.top;
@@ -355,8 +378,8 @@ export function renderGeoChart(container, data, margins) {
     const swatchGap = 6;
     const colorStartY = 18;
     const sizeGapY = 28;
-    const legendWidth = 160;
-    const legendHeight = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12 + (sizeRadii.length + 1) * sizeGapY + 12;
+    const legendWidth = 120;
+    const legendHeight = colorStartY + (sizeRadii.length + 1) * sizeGapY;
 
     legend.append('rect')
         .attr('x', -8)
@@ -369,49 +392,26 @@ export function renderGeoChart(container, data, margins) {
         .attr('ry', 8)
         .attr('opacity', 0.95);
 
-    legend.append('text')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('font-weight', '600')
-        .text('Color');
+    // (Removed explicit "Color" title — swatches are self-explanatory)
 
     const fmt = d3.format('.2s');
     const mergedBreaks = d3.range(0, colorPalette.length + 1).map(i => Math.round((i / colorPalette.length) * mergedMax));
 
-    colorPalette.forEach((col, i) => {
-        const y = colorStartY + i * (swatchSize + swatchGap);
-        legend.append('rect')
-            .attr('x', 0)
-            .attr('y', y)
-            .attr('width', swatchSize)
-            .attr('height', swatchSize)
-            .attr('fill', col)
-            .attr('stroke', '#777');
-
-        const low = mergedBreaks[i];
-        const high = mergedBreaks[i + 1];
-        const label = `${fmt(low)} - ${fmt(high)}`;
-        legend.append('text')
-            .attr('x', swatchSize + 8)
-            .attr('y', y + swatchSize * 0.75)
-            .text(label)
-            .attr('font-size', 12);
-    });
-
     // Size legend (use mergedMax to compute size ranges for labels)
-    const sizeStartY = colorStartY + colorPalette.length * (swatchSize + swatchGap) + 12;
-    legend.append('text').attr('x', 0).attr('y', sizeStartY).attr('font-weight', '600').text('Size');
+
+    legend.append('text').attr('x', 0).attr('y', colorStartY-10).attr('font-weight', '600').text('Events');
     const mergedSizeBreaks = [mergedMax / 3, (mergedMax * 2) / 3];
     const sizeRanges = [0, Math.round(mergedSizeBreaks[0]), Math.round(mergedSizeBreaks[1]), Math.round(mergedMax)];
     sizeRadii.forEach((r, i) => {
-        const cy = sizeStartY + 8 + (i + 1) * sizeGapY;
+        const cy = (i + 1) * sizeGapY;
+        // color the size-sample circles using the same discrete color palette
         legend.append('circle')
             .attr('cx', swatchSize)
             .attr('cy', cy)
             .attr('r', r)
-            .attr('fill', '#999')
-            .attr('fill-opacity', 0.6)
-            .attr('stroke', '#555');
+            .attr('fill', colorPalette[i])
+            .attr('fill-opacity', 0.8)
+            .attr('stroke', '#333');
 
         const label = `${fmt(sizeRanges[i])} – ${fmt(sizeRanges[i + 1])}`;
         legend.append('text')
