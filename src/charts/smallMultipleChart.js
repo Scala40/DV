@@ -11,12 +11,32 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     // Clear previous content
     container.innerHTML = "";
 
-    // Create controls container
-    const controls = document.createElement("div");
-    controls.style.display = "flex";
-    controls.style.gap = "8px";
-    controls.style.alignItems = "center";
-    controls.style.marginBottom = "8px";
+    // Create controls container (styled to match geoChart)
+    let controls = container.querySelector('.geo-controls');
+    if (!controls) {
+        controls = document.createElement('div');
+        controls.className = 'geo-controls';
+        controls.style.display = 'flex';
+        controls.style.flexDirection = 'column';
+        controls.style.alignItems = 'center';
+        controls.style.justifyContent = 'center';
+        controls.style.gap = '8px';
+        controls.style.width = '100%';
+        container.appendChild(controls);
+    }
+
+    // Create or reuse a controls row to hold the selects (matches geoChart layout)
+    let controlsRow = controls.querySelector('.geo-controls-row');
+    if (!controlsRow) {
+        controlsRow = document.createElement('div');
+        controlsRow.className = 'geo-controls-row';
+        controlsRow.style.display = 'flex';
+        controlsRow.style.flexDirection = 'row';
+        controlsRow.style.alignItems = 'center';
+        controlsRow.style.justifyContent = 'center';
+        controlsRow.style.gap = '10px';
+        controls.appendChild(controlsRow);
+    }
 
     // Helper to get unique sorted values
     const uniqueSorted = (arr, accessor = d => d) => {
@@ -37,17 +57,17 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     const yearLabel = document.createElement("label");
     yearLabel.textContent = "Year:";
     const yearSelect = document.createElement("select");
+    yearSelect.className = 'geo-year-select';
     yearSelect.style.minWidth = "100px";
     yearLabel.appendChild(yearSelect);
-    controls.appendChild(yearLabel);
 
     // Sub-event select
     const subLabel = document.createElement("label");
     subLabel.textContent = "Sub-event:";
     const subSelect = document.createElement("select");
+    subSelect.className = 'geo-sub-select';
     subSelect.style.minWidth = "220px";
     subLabel.appendChild(subSelect);
-    controls.appendChild(subLabel);
 
     // Populate selects
     years.forEach(y => {
@@ -67,8 +87,11 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     if (years.includes("2022")) yearSelect.value = "2022";
     if (subevents.includes("Violent demonstration")) subSelect.value = "Violent demonstration";
 
-    // Attach controls to container
-    container.appendChild(controls);
+    // append controls into the controls row (keeps layout consistent with geoChart)
+    controlsRow.appendChild(yearLabel);
+    controlsRow.appendChild(yearSelect);
+    controlsRow.appendChild(subLabel);
+    controlsRow.appendChild(subSelect);
 
     // Create SVG
     const svg = createResponsiveSvg(width, height);
