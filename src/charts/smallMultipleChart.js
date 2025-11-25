@@ -68,13 +68,26 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
 
     const events = uniqueSorted(data, d => d.EVENT_TYPE);
 
-    // Year select
+    // Precompute maximum events across all years & countries per event type
+    const eventMaxByType = new Map();
+    (events || []).forEach(ev => {
+        const rows = (data || []).filter(d => String(d.EVENT_TYPE).trim() === String(ev));
+        // aggregate by country+year in case dataset contains multiple rows
+        const byCountryYear = d3.rollup(rows, v => d3.sum(v, d => +d.EVENTS || 0), d => `${d.COUNTRY}||${d.YEAR}`);
+        const max = byCountryYear.size ? d3.max(Array.from(byCountryYear.values())) : 0;
+        eventMaxByType.set(ev, max || 0);
+    });
+
+    // Year slider (replaces select) - matches `geoChart` behavior
     const yearLabel = document.createElement("label");
-    yearLabel.textContent = "Year:";
-    const yearSelect = document.createElement("select");
+    yearLabel.textContent = "Year: ";
+    const yearSelect = document.createElement("input");
+    yearSelect.type = 'range';
     yearSelect.className = 'geo-year-select';
     yearSelect.style.minWidth = "100px";
     yearLabel.appendChild(yearSelect);
+    const yearDisplay = document.createElement('span');
+    yearDisplay.className = 'geo-year-display';
 
     // Sub-event select
     const subLabel = document.createElement("label");
@@ -84,13 +97,42 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     subSelect.style.minWidth = "220px";
     subLabel.appendChild(subSelect);
 
-    // Populate selects
-    years.forEach(y => {
-        const opt = document.createElement("option");
-        opt.value = y;
-        opt.textContent = y;
-        yearSelect.appendChild(opt);
-    });
+    // Configure slider range
+    const yearsNumeric = years.map(Number).filter(n => !isNaN(n)).sort((a,b)=>a-b);
+    if (yearsNumeric.length) {
+        const minYear = Math.min(...yearsNumeric);
+        const maxYear = Math.max(...yearsNumeric);
+        yearSelect.min = minYear;
+        yearSelect.max = maxYear;
+        yearSelect.step = 1;
+        const defaultYear = yearsNumeric.includes(2025) ? 2025 : (yearsNumeric[yearsNumeric.length - 1] || maxYear);
+        yearSelect.value = defaultYear;
+        yearDisplay.textContent = defaultYear;
+
+        function updateYearSliderFill() {
+            const min = +yearSelect.min;
+            const max = +yearSelect.max;
+            const val = +yearSelect.value;
+            const pct = (val - min) / (max - min) * 100;
+            yearSelect.style.setProperty('--pct', `${pct}%`);
+        }
+        updateYearSliderFill();
+        yearSelect.addEventListener('input', () => {
+            yearDisplay.textContent = yearSelect.value;
+            updateYearSliderFill();
+            updateMap(yearSelect.value, subSelect.value);
+            // stop any running animation when user manually changes year
+            if (container.__smAnimationId) {
+                clearInterval(container.__smAnimationId);
+                container.__smAnimationId = null;
+                const playBtn = container.querySelector('.sm-play-btn');
+                if (playBtn) playBtn.textContent = 'Play';
+            }
+        });
+    } else {
+        yearSelect.disabled = true;
+        yearDisplay.textContent = '';
+    }
     events.forEach(s => {
         const opt = document.createElement("option");
         opt.value = s;
@@ -99,12 +141,18 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     });
 
     // Set default selections (prefer 2022 and "Violent demonstration" if present)
-    if (years.includes("2022")) yearSelect.value = "2022";
+    if (yearsNumeric.includes(2022)) {
+        yearSelect.value = 2022;
+        yearDisplay.textContent = 2022;
+        const min = +yearSelect.min;
+        const max = +yearSelect.max;
+        const pct = (2022 - min) / (max - min) * 100;
+        yearSelect.style.setProperty('--pct', `${pct}%`);
+    }
     if (events.includes("Violent demonstration")) subSelect.value = "Violent demonstration";
 
     // append controls into the controls row (keeps layout consistent with geoChart)
-    controlsRow.appendChild(yearLabel);
-    controlsRow.appendChild(yearSelect);
+    // keep the event select in the top controls; move year slider and play under the plot
     controlsRow.appendChild(subLabel);
     controlsRow.appendChild(subSelect);
 
@@ -181,6 +229,69 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     // append svg into the geo-chart-content wrapper so layout stays consistent
     content.appendChild(svg.node());
 
+    // Create a legend group (will be updated inside updateMap)
+    const legendGroup = svg.append('g').attr('class', 'sm-legend');
+
+    // Create a bottom controls row (slider + play) and append under the svg
+    let bottomControls = content.querySelector('.geo-controls-bottom');
+    if (!bottomControls) {
+        bottomControls = document.createElement('div');
+        // include 'geo-controls' so slider inherits the shared controls styles (same as geoChart)
+        bottomControls.className = 'geo-controls-bottom geo-controls';
+        bottomControls.style.display = 'flex';
+        bottomControls.style.flexDirection = 'row';
+        bottomControls.style.alignItems = 'center';
+        bottomControls.style.justifyContent = 'center';
+        bottomControls.style.gap = '10px';
+        bottomControls.style.marginTop = '8px';
+        content.appendChild(bottomControls);
+    }
+
+    // move year controls into bottomControls
+    bottomControls.appendChild(yearLabel);
+    bottomControls.appendChild(yearSelect);
+    bottomControls.appendChild(yearDisplay);
+
+    // Play button to animate year slider (matches geoChart behavior)
+    let playBtn = bottomControls.querySelector('.sm-play-btn');
+    if (!playBtn) {
+        playBtn = document.createElement('button');
+        playBtn.className = 'sm-play-btn';
+        playBtn.textContent = 'Play';
+        bottomControls.appendChild(playBtn);
+    }
+    playBtn.addEventListener('click', () => {
+        if (container.__smAnimationId) {
+            clearInterval(container.__smAnimationId);
+            container.__smAnimationId = null;
+            playBtn.textContent = 'Play';
+            return;
+        }
+        playBtn.textContent = 'Stop';
+        const minY = +yearSelect.min;
+        const maxY = +yearSelect.max;
+        let current = +yearSelect.value || minY;
+        if (current >= maxY) current = minY - 1;
+        const stepMs = 400;
+        container.__smAnimationId = setInterval(() => {
+            current += 1;
+            if (current > maxY) {
+                clearInterval(container.__smAnimationId);
+                container.__smAnimationId = null;
+                playBtn.textContent = 'Play';
+                return;
+            }
+            yearSelect.value = current;
+            const disp = content.querySelector('.geo-year-display');
+            if (disp) disp.textContent = current;
+            const min = +yearSelect.min;
+            const max = +yearSelect.max;
+            const pct = (current - min) / (max - min) * 100;
+            yearSelect.style.setProperty('--pct', `${pct}%`);
+            updateMap(yearSelect.value, subSelect.value);
+        }, stepMs);
+    });
+
     // Update function to recolor countries based on selections
     function updateMap(selectedYear, selectedEvent) {
         // Filter data to the selected year and event
@@ -192,17 +303,76 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
         // Build a lookup map from normalized country -> events count
         const dataByCountry = new Map(filtered.map(d => [d.COUNTRY, +d.EVENTS || 0]));
 
-        // Prepare a color scale based on min/max of filtered data
+        // Prepare a color scale using a fixed domain determined per event type
         const values = Array.from(dataByCountry.values());
-        const minVal = values.length ? d3.min(values) : 0;
         const maxVal = values.length ? d3.max(values) : 0;
-        const domainMin = minVal;
-        const domainMax = (minVal === maxVal) ? (maxVal + 1) : maxVal;
+        // domainMin = 0 for clarity; domainMax is the precomputed maximum across all years for this event type
+        const domainMin = 0;
+        let domainMax = eventMaxByType.get(selectedEvent) ?? maxVal;
+        if (!domainMax || domainMax === 0) domainMax = Math.max(1, maxVal, 1);
 
         const colorScale = d3.scaleSequential()
             .domain([domainMin, domainMax])
             .interpolator(d3.interpolateReds);
 
+        // --- Vertical color-range legend (stepped bands + axis) ---
+        // legend layout
+        const legendWidth = 14;
+        const legendHeight = Math.min(220, innerHeight * 0.5);
+        const legendX = width - margins.right - legendWidth - 20;
+        const legendY = margins.top + 10;
+
+        legendGroup.attr('transform', `translate(${legendX}, ${legendY})`);
+        legendGroup.selectAll('*').remove();
+
+        // background box
+        legendGroup.append('rect')
+            .attr('x', -8)
+            .attr('y', -18)
+            .attr('width', legendWidth + 56)
+            .attr('height', legendHeight + 34)
+            .attr('fill', '#ffffff')
+            .attr('stroke', '#ccc')
+            .attr('rx', 8)
+            .attr('ry', 8)
+            .attr('opacity', 0.95);
+
+        // title
+        legendGroup.append('text')
+            .attr('x', 0)
+            .attr('y', -4)
+            .attr('font-weight', '600')
+            .text('Events');
+
+        // stepped bands
+        const steps = 6; // number of discrete bands
+        const stepH = legendHeight / steps;
+        for (let i = 0; i < steps; i++) {
+            // i=0 at top should be the highest values
+            const y = 8 + i * stepH;
+            const midNorm = 1 - (i + 0.5) / steps; // 1..0
+            const midVal = domainMin + midNorm * (domainMax - domainMin);
+            legendGroup.append('rect')
+                .attr('x', 0)
+                .attr('y', y)
+                .attr('width', legendWidth)
+                .attr('height', Math.ceil(stepH))
+                .attr('fill', colorScale(midVal))
+                .attr('stroke', '#999');
+        }
+
+        // axis with step boundaries
+        const scale = d3.scaleLinear().domain([domainMin, domainMax]).range([legendHeight, 0]);
+        const tickValues = d3.range(0, steps + 1).map(i => domainMin + (i / steps) * (domainMax - domainMin));
+        const axis = d3.axisRight(scale).tickValues(tickValues).tickFormat(d3.format('.2s'));
+        const axisG = legendGroup.append('g')
+            .attr('class', 'legend-axis')
+            .attr('transform', `translate(${legendWidth + 6}, ${8})`)
+            .call(axis);
+        // remove the domain line and any tick lines so only labels remain
+        axisG.select('.domain').remove();
+        axisG.selectAll('line').remove();
+        axisG.selectAll('text').attr('font-size', 11);
         // Update fills with a transition and update tooltip with event count
         countryPaths
             .transition()
@@ -247,6 +417,6 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     updateMap(yearSelect.value, subSelect.value);
 
     // Event listeners
-    yearSelect.addEventListener("change", () => updateMap(yearSelect.value, subSelect.value));
+    // `input` event already wired for the slider; use change for subSelect
     subSelect.addEventListener("change", () => updateMap(yearSelect.value, subSelect.value));
 }
