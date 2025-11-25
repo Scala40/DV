@@ -150,7 +150,6 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
             d3.select(this).attr("stroke-width", 1.5);
 
             const name = featureName(d) || "Unknown";
-            console.log("Hovering over:", name); // Debug
             tooltip.style("display", "block")
                 .html(`<strong>${name}</strong>`);
         })

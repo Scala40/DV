@@ -286,8 +286,6 @@ export function renderGeoChart(container, data, margins) {
                 .attr("stroke", "#222")
                 .attr("stroke-width", 1.2);
 
-            console.log(d);
-
             tooltip.style("display", "block")
                 .html(`<strong>${d.country}</strong><br/><strong>Events:</strong> ${d.events}`);
         })
@@ -399,7 +397,7 @@ export function renderGeoChart(container, data, margins) {
 
     // Size legend (use mergedMax to compute size ranges for labels)
 
-    legend.append('text').attr('x', 0).attr('y', colorStartY-10).attr('font-weight', '600').text('Events');
+    legend.append('text').attr('x', 0).attr('y', colorStartY - 10).attr('font-weight', '600').text('Events');
     const mergedSizeBreaks = [mergedMax / 3, (mergedMax * 2) / 3];
     const sizeRanges = [0, Math.round(mergedSizeBreaks[0]), Math.round(mergedSizeBreaks[1]), Math.round(mergedMax)];
     sizeRadii.forEach((r, i) => {
