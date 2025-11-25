@@ -8,6 +8,9 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     // Get container dimensions
     const { width, height } = getContainerDimensions(container);
 
+    // Ensure container positioning for absolute tooltip
+    container.style.position = container.style.position || "relative";
+
     // Clear previous content
     container.innerHTML = "";
 
@@ -51,7 +54,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
         return y != null ? +y : null;
     }).map(String);
 
-    const subevents = uniqueSorted(data, d => d.SUB_EVENT_TYPE);
+    const events = uniqueSorted(data, d => d.EVENT_TYPE);
 
     // Year select
     const yearLabel = document.createElement("label");
@@ -63,9 +66,9 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
 
     // Sub-event select
     const subLabel = document.createElement("label");
-    subLabel.textContent = "Sub-event:";
+    subLabel.textContent = "Event:";
     const subSelect = document.createElement("select");
-    subSelect.className = 'geo-sub-select';
+    subSelect.className = 'geo-event-select';
     subSelect.style.minWidth = "220px";
     subLabel.appendChild(subSelect);
 
@@ -76,7 +79,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
         opt.textContent = y;
         yearSelect.appendChild(opt);
     });
-    subevents.forEach(s => {
+    events.forEach(s => {
         const opt = document.createElement("option");
         opt.value = s;
         opt.textContent = s;
@@ -85,7 +88,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
 
     // Set default selections (prefer 2022 and "Violent demonstration" if present)
     if (years.includes("2022")) yearSelect.value = "2022";
-    if (subevents.includes("Violent demonstration")) subSelect.value = "Violent demonstration";
+    if (events.includes("Violent demonstration")) subSelect.value = "Violent demonstration";
 
     // append controls into the controls row (keeps layout consistent with geoChart)
     controlsRow.appendChild(yearLabel);
@@ -116,24 +119,62 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
 
     // Draw boundaries and initial countries (fill will be updated)
     const countryGroup = svg.append("g");
-    countryGroup.selectAll("path")
+    const countryPaths = countryGroup.selectAll("path")
         .data(geoJson.features)
         .enter()
         .append("path")
         .attr("d", path)
         .attr("fill", "#f0f0f0")
         .attr("stroke", "#999")
-        .attr("stroke-width", 0.5);
+        .attr("stroke-width", 0.5)
+        .attr("pointer-events", "all")
+        .style("cursor", "default");
+
+    // Tooltip (HTML overlay)
+    const tooltip = d3.select(container)
+        .append("div")
+        .attr("class", "geo-tooltip")
+        .style("position", "absolute")
+        .style("pointer-events", "none")
+        .style("background", "rgba(0,0,0,0.75)")
+        .style("color", "#fff")
+        .style("padding", "6px 8px")
+        .style("border-radius", "4px")
+        .style("font-size", "12px")
+        .style("display", "none")
+        .style("z-index", "1000");
+
+    // Add hover interactions
+    countryPaths
+        .on("mouseover", function (event, d) {
+            d3.select(this).attr("stroke-width", 1.5);
+
+            const name = featureName(d) || "Unknown";
+            console.log("Hovering over:", name); // Debug
+            tooltip.style("display", "block")
+                .html(`<strong>${name}</strong>`);
+        })
+        .on("mousemove", function (event) {
+            const [mx, my] = d3.pointer(event, container);
+            const tooltipWidth = 180;
+            const left = Math.min(mx + 12, width - tooltipWidth - 10);
+            tooltip.style("left", `${left}px`)
+                .style("top", `${my + 12}px`);
+        })
+        .on("mouseout", function () {
+            d3.select(this).attr("stroke-width", 0.5);
+            tooltip.style("display", "none");
+        });
 
     // Append svg to container (after controls)
     container.appendChild(svg.node());
 
     // Update function to recolor countries based on selections
-    function updateMap(selectedYear, selectedSubEvent) {
-        // Filter data to the selected year and subevent
+    function updateMap(selectedYear, selectedEvent) {
+        // Filter data to the selected year and event
         const filtered = (data || []).filter(d =>
             String(d.YEAR).trim() === String(selectedYear) &&
-            String(d.SUB_EVENT_TYPE).trim() === String(selectedSubEvent)
+            String(d.EVENT_TYPE).trim() === String(selectedEvent)
         );
 
         // Build a lookup map from normalized country -> events count
@@ -150,8 +191,8 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
             .domain([domainMin, domainMax])
             .interpolator(d3.interpolateReds);
 
-        // Update fills with a transition
-        countryGroup.selectAll("path")
+        // Update fills with a transition and update tooltip with event count
+        countryPaths
             .transition()
             .duration(300)
             .attr("fill", feature => {
@@ -159,6 +200,35 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
                 if (!name) return "#e0e0e0";
                 const val = dataByCountry.has(name) ? dataByCountry.get(name) : null;
                 return (val === null || val === undefined) ? "#f0f0f0" : colorScale(val);
+            });
+
+        // Update hover interactions to include event count
+        countryPaths
+            .on("mouseover", function (event, d) {
+                d3.select(this).attr("stroke-width", 1.5);
+
+                const name = featureName(d) || "Unknown";
+                const val = dataByCountry.has(name) ? dataByCountry.get(name) : null;
+            
+                
+                if (val !== null && val !== undefined) {
+                    tooltip.style("display", "block")
+                        .html(`<strong>${name}</strong><br/><strong>Events:</strong> ${val}`);
+                } else {
+                    tooltip.style("display", "block")
+                        .html(`<strong>${name}</strong>`);
+                }
+            })
+            .on("mousemove", function (event) {
+                const [mx, my] = d3.pointer(event, container);
+                const tooltipWidth = 180;
+                const left = Math.min(mx + 12, width - tooltipWidth - 10);
+                tooltip.style("left", `${left}px`)
+                    .style("top", `${my + 12}px`);
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr("stroke-width", 0.5);
+                tooltip.style("display", "none");
             });
     }
 

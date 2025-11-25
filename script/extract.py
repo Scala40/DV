@@ -107,7 +107,7 @@ df_merged.to_csv(output, index=False)
 # Small multiple geo chart
 output = output_dir / "sub_events_by_country.csv"
 df_sub_events = (
-    df_less_weeks.groupby(["COUNTRY", "YEAR", "SUB_EVENT_TYPE"])["EVENTS"]
+    df_less_weeks.groupby(["COUNTRY", "YEAR", "EVENT_TYPE"])["EVENTS"]
     .sum()
     .reset_index()
 )
