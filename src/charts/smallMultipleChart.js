@@ -108,9 +108,6 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
 
     const path = d3.geoPath().projection(projection);
 
-    // Normalization helper for country names
-    const normalize = s => (s || "").toString().trim().toLowerCase();
-
     // Helper to get country name from feature (robust)
     const featureName = f => {
         const p = f.properties || {};
@@ -140,7 +137,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
         );
 
         // Build a lookup map from normalized country -> events count
-        const dataByCountry = new Map(filtered.map(d => [normalize(d.COUNTRY), +d.EVENTS || 0]));
+        const dataByCountry = new Map(filtered.map(d => [d.COUNTRY, +d.EVENTS || 0]));
 
         // Prepare a color scale based on min/max of filtered data
         const values = Array.from(dataByCountry.values());
@@ -158,7 +155,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
             .transition()
             .duration(300)
             .attr("fill", feature => {
-                const name = normalize(featureName(feature));
+                const name = featureName(feature);
                 if (!name) return "#e0e0e0";
                 const val = dataByCountry.has(name) ? dataByCountry.get(name) : null;
                 return (val === null || val === undefined) ? "#f0f0f0" : colorScale(val);
