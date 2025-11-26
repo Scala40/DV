@@ -2,9 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-
-
-export function renderBoxplotChart(container, data, margins) {
+export async function renderBoxplotChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
     const existingSvg = container.querySelector('svg');

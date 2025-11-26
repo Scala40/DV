@@ -4,7 +4,7 @@ import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import { createGroupedChartTooltip } from '../utils/tooltip.js';
 import { createUnigeOrdinalScale } from '../utils/palette.js';
 
-export function renderGroupedBarChart(container, data, margins) {
+export async function renderGroupedBarChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
     // clear previous content

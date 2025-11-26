@@ -2,7 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-export function renderPyramidChart(container, data, margins) {
+export async function renderPyramidChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
     // Clear previous SVG but keep controls intact

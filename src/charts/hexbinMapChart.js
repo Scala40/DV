@@ -2,9 +2,22 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-import hexbonGeoJson from '../geojson/middle.json' assert { type: "json" };
+import hexbinGeoJsonUrl from '../geojson/middle.json?url';
+let _hexbinGeoJson = null;
 
-export function renderHexbinMapChart(container, data, margins) {
+export async function renderHexbinMapChart(container, data, margins) {
+    if (!_hexbinGeoJson) {
+        try {
+            const res = await fetch(hexbinGeoJsonUrl);
+            if (!res.ok) throw new Error(`Failed to fetch geojson: ${res.status} ${res.statusText}`);
+            _hexbinGeoJson = await res.json();
+        } catch (err) {
+            console.error("Error loading geojson:", err);
+            _hexbinGeoJson = { type: "FeatureCollection", features: [] };
+        }
+    }
+    const hexbinGeoJson = _hexbinGeoJson;
+
     const { width, height } = getContainerDimensions(container);
 
     // Clear previous content
@@ -57,7 +70,7 @@ export function renderHexbinMapChart(container, data, margins) {
     const hexHeight = 2 * hexRadius;
 
     // Calculate bounds for all features
-    const bounds = d3.geoBounds({ type: "FeatureCollection", features: hexbonGeoJson.features });
+    const bounds = d3.geoBounds({ type: "FeatureCollection", features: hexbinGeoJson.features });
     const topLeft = projection([bounds[0][0], bounds[1][1]]);
     const bottomRight = projection([bounds[1][0], bounds[0][1]]);
 
@@ -77,7 +90,7 @@ export function renderHexbinMapChart(container, data, margins) {
             const coords = projection.invert([x, y]);
 
             // Check if this hexagon center is within any feature
-            const isInside = hexbonGeoJson.features.some(feature => {
+            const isInside = hexbinGeoJson.features.some(feature => {
                 return d3.geoContains(feature, coords);
             });
 
@@ -112,7 +125,7 @@ export function renderHexbinMapChart(container, data, margins) {
     // Draw country boundaries first (as background)
     const countryGroup = svg.append("g");
     countryGroup.selectAll("path")
-        .data(hexbonGeoJson.features)
+        .data(hexbinGeoJson.features)
         .enter()
         .append("path")
         .attr("d", path)

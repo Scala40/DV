@@ -2,9 +2,22 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-import geoJson from "../geojson/custom.geo.json" assert { type: "json" };
+import geoJsonUrl from "../geojson/custom.geo.json?url";
+let _geoJsonCache = null;
 
-export function renderSmallMultipleGeoChart(container, data, margins) {
+export async function renderSmallMultipleGeoChart(container, data, margins) {
+    if (!_geoJsonCache) {
+        try {
+            const res = await fetch(geoJsonUrl);
+            if (!res.ok) throw new Error(`Failed to fetch geojson: ${res.status} ${res.statusText}`);
+            _geoJsonCache = await res.json();
+        } catch (err) {
+            console.error("Error loading geojson:", err);
+            _geoJsonCache = { type: "FeatureCollection", features: [] };
+        }
+    }
+    const geoJson = _geoJsonCache;
+
     // Get container dimensions
     const { width, height } = getContainerDimensions(container);
 
@@ -98,7 +111,7 @@ export function renderSmallMultipleGeoChart(container, data, margins) {
     subLabel.appendChild(subSelect);
 
     // Configure slider range
-    const yearsNumeric = years.map(Number).filter(n => !isNaN(n)).sort((a,b)=>a-b);
+    const yearsNumeric = years.map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b);
     if (yearsNumeric.length) {
         const minYear = Math.min(...yearsNumeric);
         const maxYear = Math.max(...yearsNumeric);

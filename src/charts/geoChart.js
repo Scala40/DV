@@ -2,12 +2,25 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-import geoJson from "../geojson/custom.geo.json" assert { type: "json" };
+import geoJsonUrl from "../geojson/custom.geo.json?url";
+let _geoJsonCache = null;
 
-export function renderGeoChart(container, data, margins) {
+export async function renderGeoChart(container, data, margins) {
     // persist raw data so controls survive re-renders
     if (!container.__geoRawData) container.__geoRawData = data;
     const rawData = container.__geoRawData;
+
+    if (!_geoJsonCache) {
+        try {
+            const res = await fetch(geoJsonUrl);
+            if (!res.ok) throw new Error(`Failed to fetch geojson: ${res.status} ${res.statusText}`);
+            _geoJsonCache = await res.json();
+        } catch (err) {
+            console.error("Error loading geojson:", err);
+            _geoJsonCache = { type: "FeatureCollection", features: [] };
+        }
+    }
+    const geoJson = _geoJsonCache;
 
     const { width, height } = getContainerDimensions(container);
 

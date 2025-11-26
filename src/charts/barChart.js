@@ -2,7 +2,7 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
-export function renderBarChart(container, data, margins) {
+export async function renderBarChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
     // clear previous content

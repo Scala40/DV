@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import { createUnigeOrdinalScale } from '../utils/palette.js';
 
-export function renderCirclePackingChart(container, data, margins) {
+export async function renderCirclePackingChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
     // clear previous content

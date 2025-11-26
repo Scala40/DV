@@ -2,9 +2,8 @@ import * as d3 from "d3";
 
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 import { createHeatmapTooltip } from '../utils/tooltip.js';
-import { createUnigeSequentialScale_YlRd } from '../utils/palette.js';
 
-export function renderHeatmapChart(container, data, margins) {
+export async function renderHeatmapChart(container, data, margins) {
     const { width, height } = getContainerDimensions(container);
 
     // clear previous content
