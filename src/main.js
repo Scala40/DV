@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('small-multiple-geo-chart'),
             renderSmallMultipleGeoChart,
             data,
-            geoChartMargins
+            smallMultipleGeoChartMargins
         ))
         .catch(err => console.error('Small multiple geo chart data failed:', err));
 });
