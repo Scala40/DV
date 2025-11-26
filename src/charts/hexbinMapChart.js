@@ -217,7 +217,7 @@ function assignEventsToHexagons(hexagons, pointsCube, hexWidth, maxSteps = 2) {
 function createLegend(svg, width, height, margins, maxEvents, colorScale) {
     const legendWidth = 14;
     const legendHeight = Math.min(220, (height - margins.top - margins.bottom) * 0.5);
-    const legendX = width - margins.right - legendWidth - 20;
+    const legendX = width - margins.right - legendWidth - 30;
     const legendY = margins.top + 10;
 
     const legendGroup = svg.append('g')
