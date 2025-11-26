@@ -15,7 +15,8 @@ import {
     boxplotChartMargins,
     lineChartMargins,
     geoChartMargins,
-    smallMultipleGeoChartMargins
+    smallMultipleGeoChartMargins,
+    hexbinMapChartMargins
 } from './utils/margins.js';
 
 import { renderBarChart } from './charts/barChart.js';
@@ -30,6 +31,7 @@ import { renderRidgePlotChart } from './charts/ridgePlotChart.js';
 import { renderLineChart } from './charts/lineChart.js';
 import { renderGeoChart } from './charts/geoChart.js';
 import { renderSmallMultipleGeoChart } from './charts/smallMultipleChart.js';
+import { renderHexbinMapChart } from './charts/hexbinMapChart.js';
 
 import { initNavigation } from './utils/navigation.js';
 import { initBackToTop } from './utils/backToTop.js';
@@ -43,7 +45,8 @@ import {
     loadRidgePlotData,
     loadLineChartData,
     loadGeoChartData,
-    loadSmallMultipleGeoChartData
+    loadSmallMultipleGeoChartData,
+    loadHexbinMapChartData
 } from './data/dataLoader.js';
 
 // Initialize navigation menu
@@ -158,4 +161,13 @@ document.addEventListener('DOMContentLoaded', () => {
             smallMultipleGeoChartMargins
         ))
         .catch(err => console.error('Small multiple geo chart data failed:', err));
+
+    loadHexbinMapChartData()
+        .then(data => observeRender(
+            document.getElementById('hexbin-map-chart'),
+            renderHexbinMapChart,
+            data,
+            hexbinMapChartMargins
+        ))
+        .catch(err => console.error('Hexbin map chart data failed:', err));
 });

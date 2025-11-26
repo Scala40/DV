@@ -90,3 +90,10 @@ export const smallMultipleGeoChartMargins = new Margin({
     bottom: 20,
     left: 20
 });
+
+export const hexbinMapChartMargins = new Margin({
+    top: 20,
+    right: 20,
+    bottom: 20,
+    left: 20
+});
