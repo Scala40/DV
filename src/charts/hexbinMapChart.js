@@ -3,85 +3,107 @@ import * as d3 from "d3";
 import { createResponsiveSvg, getContainerDimensions } from '../utils/chart.js';
 
 import hexbinGeoJsonUrl from '../geojson/middle.json?url';
+
+// Cache geojson data
 let _hexbinGeoJson = null;
+let _featureBounds = null;
 
-export async function renderHexbinMapChart(container, data, margins) {
-    if (!_hexbinGeoJson) {
-        try {
-            const res = await fetch(hexbinGeoJsonUrl);
-            if (!res.ok) throw new Error(`Failed to fetch geojson: ${res.status} ${res.statusText}`);
-            _hexbinGeoJson = await res.json();
-        } catch (err) {
-            console.error("Error loading geojson:", err);
-            _hexbinGeoJson = { type: "FeatureCollection", features: [] };
-        }
+// Constants
+const SQRT3 = Math.sqrt(3);
+const HEX_OFFSETS = [
+    [0, -1],
+    [SQRT3 / 2, -0.5],
+    [SQRT3 / 2, 0.5],
+    [0, 1],
+    [-SQRT3 / 2, 0.5],
+    [-SQRT3 / 2, -0.5]
+];
+
+// Hex coordinate utilities
+const oddrToCube = (col, row) => {
+    const x = col - Math.floor((row - (row & 1)) / 2);
+    const z = row;
+    return { x, y: -x - z, z };
+};
+
+const cubeDistance = (a, b) =>
+    Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z));
+
+const manhattanDistance = (a, b) =>
+    Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z);
+
+const generateHexagon = (hexRadius) =>
+    "M" + HEX_OFFSETS.map(p => `${p[0] * hexRadius},${p[1] * hexRadius}`).join('L') + "Z";
+
+// Load and cache geojson
+async function loadGeoJson() {
+    if (_hexbinGeoJson) return _hexbinGeoJson;
+
+    try {
+        const res = await fetch(hexbinGeoJsonUrl);
+        if (!res.ok) throw new Error(`Failed to fetch geojson: ${res.status}`);
+        _hexbinGeoJson = await res.json();
+        _featureBounds = _hexbinGeoJson.features.map(f => d3.geoBounds(f));
+    } catch (err) {
+        console.error("Error loading geojson:", err);
+        _hexbinGeoJson = { type: "FeatureCollection", features: [] };
+        _featureBounds = [];
     }
-    const hexbinGeoJson = _hexbinGeoJson;
 
-    const { width, height } = getContainerDimensions(container);
+    return _hexbinGeoJson;
+}
 
-    // Clear previous content
-    container.innerHTML = "";
-
-    // Create SVG
-    const svg = createResponsiveSvg(width, height);
-
-    // Layout calculations
-    const innerWidth = Math.max(100, width - margins.left - margins.right);
-    const innerHeight = Math.max(100, height - margins.top - margins.bottom);
-
-    // Projection centered on the West Bank
-    const projection = d3.geoMercator()
-        .center([45, 30]) // long, lat
-        .scale(700)
-        .translate([margins.left + innerWidth / 2, margins.top + innerHeight / 2]);
-
-    const path = d3.geoPath().projection(projection);
-
-    // Helper to get country/name from feature
-    const featureName = f => {
-        const p = f.properties || {};
-        return p.NAME || p.name || p.ADMIN || p.admin || p.country || p.Country || f.id || "Unknown";
-    };
-
-    // Aggregate events by location across ALL years (use aggregated dataset rather than a single year)
+// Aggregate events by location
+function aggregateEvents(data) {
     const eventsByLocation = new Map();
-    data.forEach(d => {
-        if (d.CENTROID_LONGITUDE == null || d.CENTROID_LATITUDE == null) return;
+
+    for (const d of data) {
         const lon = +d.CENTROID_LONGITUDE;
         const lat = +d.CENTROID_LATITUDE;
         const key = `${lon.toFixed(4)},${lat.toFixed(4)}`;
+        const events = +d.EVENTS;
+
         const existing = eventsByLocation.get(key);
         if (existing) {
-            existing.events += +d.EVENTS || 0;
+            existing.events += events;
         } else {
-            eventsByLocation.set(key, { lon, lat, events: +d.EVENTS || 0 });
+            eventsByLocation.set(key, { lon, lat, events });
         }
-    });
-
-    // Hexagon generation offsets and function
-    const SQRT3 = Math.sqrt(3);
-    const HEX_OFFSETS = [
-        [0, -1],
-        [SQRT3 / 2, -0.5],
-        [SQRT3 / 2, 0.5],
-        [0, 1],
-        [-SQRT3 / 2, 0.5],
-        [-SQRT3 / 2, -0.5]
-    ];
-    function generateHexagon(hexRadius) {
-        return "M" + HEX_OFFSETS.map(p =>
-            [p[0] * hexRadius, p[1] * hexRadius].join(',')
-        ).join('L') + "Z";
     }
 
-    // Generate hexagon grid
-    const hexRadius = 8;
+    return eventsByLocation;
+}
+
+// Check if point is inside any feature (optimized with bbox check)
+function isPointInFeatures(coords, features, featureBounds) {
+    for (let i = 0; i < features.length; i++) {
+        const bbox = featureBounds[i];
+
+        // Fast bbox rejection
+        if (coords[0] < bbox[0][0] || coords[0] > bbox[1][0] ||
+            coords[1] < bbox[0][1] || coords[1] > bbox[1][1]) {
+            continue;
+        }
+
+        // Precise check
+        if (d3.geoContains(features[i], coords)) {
+            return features[i].properties.name;
+        }
+    }
+
+    return null;
+}
+
+// Generate hexagon grid
+function generateHexGrid(projection, hexbinGeoJson, featureBounds, hexRadius) {
     const hexWidth = SQRT3 * hexRadius;
     const hexHeight = 2 * hexRadius;
 
-    // Calculate bounds for all features
-    const bounds = d3.geoBounds({ type: "FeatureCollection", features: hexbinGeoJson.features });
+    // Calculate grid bounds
+    const bounds = d3.geoBounds({
+        type: "FeatureCollection",
+        features: hexbinGeoJson.features
+    });
     const topLeft = projection([bounds[0][0], bounds[1][1]]);
     const bottomRight = projection([bounds[1][0], bounds[0][1]]);
 
@@ -90,137 +112,146 @@ export async function renderHexbinMapChart(container, data, margins) {
     const gridEndX = bottomRight[0] + hexWidth;
     const gridEndY = bottomRight[1] + hexHeight;
 
-    // Generate hexagon centers
     const hexagons = [];
-    for (let row = 0; row * hexHeight * 0.75 + gridStartY < gridEndY; row++) {
-        for (let col = 0; col * hexWidth + gridStartX < gridEndX; col++) {
-            const x = col * hexWidth + (row % 2) * hexWidth / 2 + gridStartX;
-            const y = row * hexHeight * 0.75 + gridStartY;
+    const hexGridMap = new Map();
 
-            // Convert back to lat/lng to check if inside a feature
+    // Generate grid
+    for (let row = 0; row * hexHeight * 0.75 + gridStartY < gridEndY; row++) {
+        const rowOffset = (row & 1) ? hexWidth / 2 : 0;
+        const y = row * hexHeight * 0.75 + gridStartY;
+
+        for (let col = 0; col * hexWidth + gridStartX < gridEndX; col++) {
+            const x = col * hexWidth + rowOffset + gridStartX;
             const coords = projection.invert([x, y]);
 
-            // Check if this hexagon center is within any feature
-            const isInside = hexbinGeoJson.features.some(feature => {
-                return d3.geoContains(feature, coords);
-            });
-
-            if (isInside) {
-                // Store grid coordinates for distance calculations later
-                hexagons.push({ x, y, row, col, events: 0 });
+            if (isPointInFeatures(coords, hexbinGeoJson.features, featureBounds)) {
+                const cube = oddrToCube(col, row);
+                const hex = { x, y, row, col, events: 0, cube };
+                hexagons.push(hex);
+                hexGridMap.set(`${col},${row}`, hex);
             }
         }
     }
 
-    // Helper to convert odd-r offset (row,col) to cube coordinates for hex distance
-    // Our grid uses odd-r horizontal layout (odd rows offset by half a column)
-    function oddr_to_cube(col, row) {
-        const x = col - Math.floor((row - (row & 1)) / 2);
-        const z = row;
-        const y = -x - z;
-        return { x, y, z };
-    }
+    return { hexagons, hexGridMap, gridStartX, gridStartY, hexWidth, hexHeight };
+}
 
-    function cube_distance(a, b) {
-        return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z));
-    }
+// Map data points to hex grid
+function mapDataToHexGrid(eventsByLocation, projection, hexbinGeoJson, gridStartX, gridStartY, hexWidth, hexHeight) {
+    const pointsCube = [];
 
-    // Precompute cube coords for each hexagon
-    hexagons.forEach(h => { h.cube = oddr_to_cube(h.col, h.row); });
-
-    // Map each aggregated location to approximate hex (by projecting then rounding to nearest row/col)
-    // Map each aggregated location to approximate hex (by projecting then rounding to nearest row/col)
-    // Also detect which country the point belongs to (if any)
-    const pointsCube = Array.from(eventsByLocation.values()).map(d => {
+    for (const d of eventsByLocation.values()) {
         const proj = projection([d.lon, d.lat]);
         const px = proj[0];
         const py = proj[1];
+
+        // Approximate hex coordinates
         const approxRow = Math.round((py - gridStartY) / (hexHeight * 0.75));
         const rowOffset = (approxRow & 1) ? hexWidth / 2 : 0;
         const approxCol = Math.round((px - gridStartX - rowOffset) / hexWidth);
-        // find country that contains the geographic point
-        let country = null;
-        for (const feature of hexbinGeoJson.features) {
-            try {
-                if (d3.geoContains(feature, [d.lon, d.lat])) {
-                    country = featureName(feature);
-                    break;
-                }
-            } catch (e) {
-                // ignore
-            }
-        }
-        return { cube: oddr_to_cube(approxCol, approxRow), events: d.events, projX: px, projY: py, lon: d.lon, lat: d.lat, country };
-    });
 
-    // Assign to each hexagon the SUM of EVENTS of all data points within MAX_STEPS hex-distance.
-    // This aggregates nearby events into the hex cell instead of taking a single nearest point.
-    const MAX_STEPS = 2;
+        // Find country
+        const country = isPointInFeatures(
+            [d.lon, d.lat],
+            hexbinGeoJson.features,
+            _featureBounds
+        );
+
+        pointsCube.push({
+            cube: oddrToCube(approxCol, approxRow),
+            events: d.events,
+            projX: px,
+            projY: py,
+            country
+        });
+    }
+
+    return pointsCube;
+}
+
+// Assign events to hexagons
+function assignEventsToHexagons(hexagons, pointsCube, hexWidth, maxSteps = 2) {
+    const quadtree = d3.quadtree()
+        .x(d => d.projX)
+        .y(d => d.projY)
+        .addAll(pointsCube);
+
+    const searchRadius = maxSteps * hexWidth * 1.2;
+
     hexagons.forEach(h => {
         let sum = 0;
         const countryMap = new Map();
-        for (const p of pointsCube) {
-            const dSteps = cube_distance(h.cube, p.cube);
-            if (dSteps <= MAX_STEPS) {
-                const ev = +p.events || 0;
-                sum += ev;
-                const c = p.country || 'Unknown';
-                countryMap.set(c, (countryMap.get(c) || 0) + ev);
+
+        quadtree.visit((node, x1, y1, x2, y2) => {
+            // Prune distant quads
+            if (x1 > h.x + searchRadius || x2 < h.x - searchRadius ||
+                y1 > h.y + searchRadius || y2 < h.y - searchRadius) {
+                return true;
             }
-        }
+
+            // Check leaf nodes
+            if (!node.length && node.data) {
+                const p = node.data;
+                const manhattan = manhattanDistance(h.cube, p.cube);
+
+                if (manhattan <= maxSteps * 2) {
+                    const distance = cubeDistance(h.cube, p.cube);
+                    if (distance <= maxSteps) {
+                        sum += p.events;
+                        if (p.country) {
+                            countryMap.set(p.country, (countryMap.get(p.country) || 0) + p.events);
+                        }
+                    }
+                }
+            }
+
+            return false;
+        });
+
         h.events = sum;
-        h.countryCounts = countryMap; // Map<string,number>
+        h.countryCounts = countryMap;
     });
+}
 
-    // Color scale based on aggregated events (linear spacing)
-    const maxEvents = d3.max(hexagons, d => d.events) || 1;
-    const colorScale = d3.scaleSequential()
-        .domain([0, maxEvents])
-        .interpolator(d3.interpolateYlOrRd);
-
-
-    // --- Stepped vertical legend (color steps + range) ---
-    // --- Vertical color-range legend (stepped bands + axis) ---
-    // Use the same visual style/placement as `smallMultipleChart.js` (background, box, ticks positioning)
+// Create legend
+function createLegend(svg, width, height, margins, maxEvents, colorScale) {
     const legendWidth = 14;
-    const legendHeight = Math.min(220, innerHeight * 0.5);
+    const legendHeight = Math.min(220, (height - margins.top - margins.bottom) * 0.5);
     const legendX = width - margins.right - legendWidth - 20;
     const legendY = margins.top + 10;
 
-    const legendGroup = svg.append('g').attr('class', 'hex-legend');
-    legendGroup.attr('transform', `translate(${legendX}, ${legendY})`);
-    legendGroup.selectAll('*').remove();
+    const legendGroup = svg.append('g')
+        .attr('class', 'hex-legend')
+        .attr('transform', `translate(${legendX}, ${legendY})`);
 
-    // background box
+    // Background
     legendGroup.append('rect')
         .attr('x', -8)
         .attr('y', -18)
         .attr('width', legendWidth + 56)
         .attr('height', legendHeight + 34)
-        .attr('fill', '#ffffff')
+        .attr('fill', '#fff')
         .attr('stroke', '#ccc')
         .attr('rx', 8)
-        .attr('ry', 8)
         .attr('opacity', 0.95);
 
-    // title
+    // Title
     legendGroup.append('text')
         .attr('x', 0)
         .attr('y', -4)
         .attr('font-weight', '600')
         .text('Events');
 
-    // stepped bands (linear scale) — top band = highest values
-    const steps = 10; // number of discrete bands
+    // Color bands
+    const steps = 10;
     const stepH = legendHeight / steps;
-    const domainMin = 0;
-    const domainMax = maxEvents;
+
     for (let i = 0; i < steps; i++) {
         const y = 8 + i * stepH;
-        // compute linear upper/lower for this band (top-to-bottom)
-        const upper = domainMax - (i / steps) * (domainMax - domainMin);
-        const lower = domainMax - ((i + 1) / steps) * (domainMax - domainMin);
+        const upper = maxEvents * (1 - i / steps);
+        const lower = maxEvents * (1 - (i + 1) / steps);
         const midVal = (upper + lower) / 2;
+
         legendGroup.append('rect')
             .attr('x', 0)
             .attr('y', y)
@@ -230,23 +261,121 @@ export async function renderHexbinMapChart(container, data, margins) {
             .attr('stroke', '#999');
     }
 
-    // Add boundary labels (steps+1 values) placed at band boundaries
-    const labelX = legendWidth + 8;
-    // use k formatting (ex 1500 -> 1.5k)
+    // Labels
     const fmt = d3.format('.2s');
+    const labelX = legendWidth + 8;
+
     for (let j = 0; j <= steps; j++) {
-        const val = domainMax - (j / steps) * (domainMax - domainMin);
+        const val = maxEvents * (1 - j / steps);
         const y = 8 + j * stepH;
+
         legendGroup.append('text')
             .attr('x', labelX)
-            .attr('y', y + 4) // +4 to vertically center on boundary
+            .attr('y', y + 4)
             .attr('font-size', '10px')
             .text(fmt(Math.round(val)));
     }
+}
 
-    // (map boundaries removed — only hexagons are drawn)
+// Create tooltip
+function createTooltip() {
+    return d3.select(document.body)
+        .append('div')
+        .attr('class', 'hex-tooltip')
+        .style('position', 'absolute')
+        .style('pointer-events', 'none')
+        .style('background', 'rgba(0,0,0,0.75)')
+        .style('color', '#fff')
+        .style('padding', '6px 8px')
+        .style('border-radius', '4px')
+        .style('font-size', '12px')
+        .style('display', 'none')
+        .style('z-index', '10000');
+}
 
-    // Draw hexagons (store selection for interactions)
+// Add tooltip interactions
+function addTooltipInteractions(hexPaths, tooltip) {
+    hexPaths
+        .on('mouseover', function (event, d) {
+            d3.select(this)
+                .attr('stroke-width', 1.2)
+                .attr('stroke-opacity', 0.95);
+
+            // Build country list
+            const entries = Array.from(d.countryCounts.entries())
+                .filter(([_, v]) => v > 0)
+                .sort((a, b) => b[1] - a[1]);
+
+            const countriesHtml = entries.length
+                ? entries.map(([k, v]) => `${k} (<strong>${Math.round(v)}</strong>)`).join('<br/>')
+                : 'None';
+
+            tooltip
+                .style('display', 'block')
+                .html(`<strong>Total Events:</strong> ${d.events}<br/><strong>Countries:</strong><br/>${countriesHtml}`);
+        })
+        .on('mousemove', function (event) {
+            const left = Math.min(event.pageX + 12, window.innerWidth - 270);
+            tooltip
+                .style('left', `${left}px`)
+                .style('top', `${event.pageY + 12}px`);
+        })
+        .on('mouseout', function () {
+            d3.select(this)
+                .attr('stroke-width', 0.5)
+                .attr('stroke-opacity', 0.6);
+            tooltip.style('display', 'none');
+        });
+}
+
+// Main render function
+export async function renderHexbinMapChart(container, data, margins) {
+    // Load geojson
+    const hexbinGeoJson = await loadGeoJson();
+
+    // Setup
+    const { width, height } = getContainerDimensions(container);
+    container.innerHTML = "";
+
+    const svg = createResponsiveSvg(width, height);
+    const innerWidth = Math.max(100, width - margins.left - margins.right);
+    const innerHeight = Math.max(100, height - margins.top - margins.bottom);
+
+    // Projection
+    const projection = d3.geoMercator()
+        .center([45, 30])
+        .scale(700)
+        .translate([margins.left + innerWidth / 2, margins.top + innerHeight / 2]);
+
+    // Process data
+    const eventsByLocation = aggregateEvents(data);
+    const hexRadius = 8;
+
+    // Generate grid
+    const { hexagons, gridStartX, gridStartY, hexWidth, hexHeight } =
+        generateHexGrid(projection, hexbinGeoJson, _featureBounds, hexRadius);
+
+    // Map data to grid
+    const pointsCube = mapDataToHexGrid(
+        eventsByLocation,
+        projection,
+        hexbinGeoJson,
+        gridStartX,
+        gridStartY,
+        hexWidth,
+        hexHeight
+    );
+
+    // Assign events
+    assignEventsToHexagons(hexagons, pointsCube, hexWidth);
+
+    // Color scale
+    const maxEvents = d3.max(hexagons, d => d.events) || 1;
+    const colorScale = d3.scaleSequential()
+        .domain([0, maxEvents])
+        .interpolator(d3.interpolateYlOrRd);
+
+    // Draw hexagons
     const hexGroup = svg.append("g").attr("class", "hexagons");
     const hexPaths = hexGroup.selectAll("path")
         .data(hexagons)
@@ -260,70 +389,11 @@ export async function renderHexbinMapChart(container, data, margins) {
         .attr("stroke-opacity", 0.6)
         .attr("opacity", 0.92);
 
-    // Tooltip for hex hover (attach to body so it appears above the SVG)
-    const tooltip = d3.select(document.body)
-        .append('div')
-        .attr('class', 'hex-tooltip')
-        .style('position', 'absolute')
-        .style('pointer-events', 'none')
-        .style('background', 'rgba(0,0,0,0.75)')
-        .style('color', '#fff')
-        .style('padding', '6px 8px')
-        .style('border-radius', '4px')
-        .style('font-size', '12px')
-        .style('display', 'none')
-        .style('z-index', '10000');
+    // Create legend and tooltip
+    createLegend(svg, width, height, margins, maxEvents, colorScale);
+    const tooltip = createTooltip();
+    addTooltipInteractions(hexPaths, tooltip);
 
-    // Helper to compute countries under a hex (approximate)
-    function getCountriesUnderHex(h) {
-        const vertsScreen = HEX_OFFSETS.map(p => [h.x + p[0] * hexRadius, h.y + p[1] * hexRadius]);
-        // compute vertices in geographic coords (may be null if outside projection)
-        const vertsGeo = vertsScreen.map(v => {
-            try { return projection.invert(v); } catch (e) { return null; }
-        });
-        const countries = new Set();
-        for (const feature of hexbinGeoJson.features) {
-            // 1) if any hex vertex is inside the feature
-            if (vertsGeo.some(g => g && d3.geoContains(feature, g))) {
-                const name = (feature.properties && (feature.properties.NAME || feature.properties.name)) || feature.id || 'Unknown';
-                countries.add(name);
-                continue;
-            }
-            // 2) if feature centroid falls inside the hex polygon (project centroid to screen and test)
-            const fc = d3.geoCentroid(feature);
-            const fcScreen = projection(fc);
-            if (fcScreen && d3.polygonContains(vertsScreen, fcScreen)) {
-                const name = (feature.properties && (feature.properties.NAME || feature.properties.name)) || feature.id || 'Unknown';
-                countries.add(name);
-            }
-        }
-        return Array.from(countries);
-    }
-
-    // Add hover interactions
-    hexPaths
-        .on('mouseover', function (event, d) {
-            d3.select(this).attr('stroke-width', 1.2).attr('stroke-opacity', 0.95);
-            // Build country contribution list from the precomputed countryCounts map
-            const map = d.countryCounts instanceof Map ? d.countryCounts : new Map();
-            const entries = Array.from(map.entries()).filter(([k, v]) => v > 0);
-            entries.sort((a, b) => b[1] - a[1]);
-            const countriesHtml = entries.length ? entries.map(e => `${e[0]} (<strong>${Math.round(e[1])}</strong>)`).join('<br/>') : 'None';
-            const html = `<strong>Total Events:</strong> ${d.events}<br/><strong>Countries contributing:</strong><br/>${countriesHtml}`;
-            tooltip.style('display', 'block').html(html);
-        })
-        .on('mousemove', function (event) {
-            const tooltipWidth = 260;
-            const pageX = event.pageX;
-            const pageY = event.pageY;
-            const left = Math.min(pageX + 12, window.innerWidth - tooltipWidth - 10);
-            tooltip.style('left', `${left}px`).style('top', `${pageY + 12}px`);
-        })
-        .on('mouseout', function () {
-            d3.select(this).attr('stroke-width', 0.5).attr('stroke-opacity', 0.6);
-            tooltip.style('display', 'none');
-        });
-
-    // Add svg to container
+    // Add to container
     container.appendChild(svg.node());
 }
