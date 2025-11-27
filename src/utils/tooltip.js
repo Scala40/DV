@@ -116,8 +116,8 @@ export function createGroupedChartTooltip(container, { data, eventTypes, color }
                 .attr('width', miniX.bandwidth())
                 .attr('height', d2 => Math.max(0, miniInnerH - miniY(d2.events)))
                 .attr('fill', d2 => color(d2.eventType))
-                .style('opacity', d2 => d2.eventType === d.eventType ? 1 : 0.9)
-                .attr('stroke-width', d2 => d2.eventType === d.eventType ? 1 : 0);
+                .style('opacity', 1)
+                .attr('stroke-width', 1);
 
             // add value labels above each mini bar
             miniG.selectAll('text.bar-value')
