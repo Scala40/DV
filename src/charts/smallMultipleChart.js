@@ -332,7 +332,7 @@ export async function renderSmallMultipleGeoChart(container, data, margins) {
         // legend layout
         const legendWidth = 14;
         const legendHeight = Math.min(220, innerHeight * 0.5);
-        const legendX = width - margins.right - legendWidth - 20;
+        const legendX = width - margins.right - legendWidth - 30;
         const legendY = margins.top + 10;
 
         legendGroup.attr('transform', `translate(${legendX}, ${legendY})`);
