@@ -12,6 +12,6 @@
     "@tailwindcss/vite": "^4.1.15",
     "@types/d3": "^7.4.3",
     "tailwindcss": "^4.1.15",
-    "vite": "^7.1.11"
+    "vite": "^7.3.2"
   }
 }
